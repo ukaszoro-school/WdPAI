@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
-
-    <link href="../styles/main.css" rel="stylesheet">
-
-    <title>LOGIN</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fleet Manager - Login</title>
+    <link rel="stylesheet" href="/public/styles/login.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 </head>
-<body id="login-page">
-    
-    <div>
-        <h1>LOGIN</h1>
-        <form>
-            <input type="email" placeholder="email">
-            <input type="password" placeholder="password">
-            <button type="submit"><i class="fa-solid fa-right-to-bracket"></i> SIGN IN</button>
-        </form>
-
+<body>
+<div class="container">
+    <div class="left-section">
+        <img src="https://img.icons8.com/ios-filled/100/1A73E8/bus.png" alt="Fleet Manager Icon" />
+        <h1>Fleet Manager</h1>
     </div>
-
+    <div class="right-section">
+        <form class="login-form">
+            <input type="email" placeholder="Email" required />
+            <input type="password" placeholder="Password" required />
+            <a href="#" class="forgot-password">Forgot Password</a>
+            <button type="submit">Sign in</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
