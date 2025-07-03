@@ -18,8 +18,3 @@ export function multiply(a, b) {
   return a * b;
 }
 
-// window.MyLibrary = { add, multiply };
-//
-setInterval(() => {
-    console.log("test")
-}, 1000)
