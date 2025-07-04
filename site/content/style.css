@@ -11,6 +11,7 @@ body {
   position: fixed;
   height: 100%;
   overflow: auto;
+  border-right: 4mm ridge rgb(211 221 221 / 0.6);
 }
 
 .sidebar a {
