@@ -22,8 +22,8 @@ final class StaticFileServer
 
         $staticPath = realpath($this->siteRoot . $path);
 
-        if ($staticPath !== false && $staticPath == '/') {
-            $this->sendFile(realpath($this->siteRoot . 'index.html'));
+        if ($staticPath !== false && $path == '/') {
+            $this->sendFile(realpath($this->siteRoot . '/index.html'));
         }
 
         if (

@@ -14,7 +14,6 @@ final class RouteRegistrar
 {
     public function register(RouteCollector $r): void
     {
-        $r->get('/', [HomeController::class, 'index']);
         $r->get('/users', [UserController::class, 'getUsers']);
         $r->get('/test', [TestController::class, 'testFunction']);
 
@@ -23,21 +22,23 @@ final class RouteRegistrar
 
         $r->get('/user/{id:\d+}', fn(string $id) => "User #{$id}");
 
-        $r->get('/articles/{id:\d+}[/{title}]', 
+        $r->get('/articles/{id:\d+}[/{title}]',
             fn(string $id, ?string $title = null) =>
                 "Article #{$id}<br>Title: " . ($title ?? '')
         );
 
-         $pdo = Connection->get();
+         $pdo = Connection::get();
          $stopController = new StopController($pdo);
 
          $r->post('/stops', function () use ($stopController) {
              $input = json_decode(file_get_contents('php://input'), true);
              return $stopController->createStop($input);
          });
-
          $r->get('/stops', function () use ($stopController) {
              return $stopController->getStops();
+         });
+         $r->delete('/stops/{id}', function (string $id) use ($stopController) {
+             return $stopController->deleteStop((int) $id);
          });
     }
 }

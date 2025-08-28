@@ -31,6 +31,25 @@ final class StopController
         return json_encode(['id' => $id, 'location' => $data['location']]);
     }
 
+    /**
+     * Delete a stop by ID.
+     *
+     * @param int $id Stop ID
+     * @return string JSON response
+     */
+    public function deleteStop(int $id): string
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM stops WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+
+        if ($stmt->rowCount() === 0) {
+            http_response_code(404);
+            return json_encode(['error' => "Stop with id {$id} not found"]);
+        }
+
+        return json_encode(['message' => "Stop {$id} deleted"]);
+    }
+
     public function getStops(): string
     {
         $stmt = $this->pdo->query('SELECT id, location FROM stops ORDER BY id ASC');
