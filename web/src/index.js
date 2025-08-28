@@ -1,5 +1,6 @@
 import { initStops } from "./stops.js";
 import { initRoutes } from "./routes.js";
+import { initLines } from "./lines.js";
 import "@moaqzdev/toast";
 import { toast } from "@moaqzdev/toast/utils";
 
@@ -18,6 +19,9 @@ function loadPage(hash) {
       break;
     case "#routes":
       initRoutes(contentEl);
+      break;
+    case "#lines":
+      initLines(contentEl);
       break;
     case "#home":
     default:

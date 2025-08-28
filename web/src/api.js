@@ -47,3 +47,9 @@ export async function removeRoute(id) {
   if (!res.ok) throw new Error("Failed to delete route");
   return res.json();
 }
+
+export async function getLines() {
+  const res = await fetch("/lines");
+  if (!res.ok) throw new Error("Failed to fetch lines");
+  return res.json();
+}
