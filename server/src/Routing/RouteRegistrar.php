@@ -4,32 +4,18 @@ declare(strict_types=1);
 namespace App\Routing;
 
 use FastRoute\RouteCollector;
-use App\Controllers\HomeController;
-use App\Controllers\UserController;
-use App\Controllers\TestController;
 use App\Controllers\StopController;
+use App\Controllers\RouteController;
+use App\Controllers\LineController;
 use App\Database\Connection;
 
 final class RouteRegistrar
 {
     public function register(RouteCollector $r): void
     {
-        $r->get('/users', [UserController::class, 'getUsers']);
-        $r->get('/test', [TestController::class, 'testFunction']);
-
-        // test
-        $r->get('/books/{id}', fn(string $id) => "Book #{$id}");
-
-        $r->get('/user/{id:\d+}', fn(string $id) => "User #{$id}");
-
-        $r->get('/articles/{id:\d+}[/{title}]',
-            fn(string $id, ?string $title = null) =>
-                "Article #{$id}<br>Title: " . ($title ?? '')
-        );
-
          $pdo = Connection::get();
-         $stopController = new StopController($pdo);
 
+         $stopController = new StopController($pdo);
          $r->post('/stops', function () use ($stopController) {
              $input = json_decode(file_get_contents('php://input'), true);
              return $stopController->createStop($input);
@@ -39,6 +25,23 @@ final class RouteRegistrar
          });
          $r->delete('/stops/{id}', function (string $id) use ($stopController) {
              return $stopController->deleteStop((int) $id);
+         });
+
+         $routeController = new RouteController($pdo);
+         $r->post('/routes', function () use ($routeController) {
+             $input = json_decode(file_get_contents('php://input'), true);
+             return $routeController->createRoute($input);
+         });
+         $r->get('/routes', function () use ($routeController) {
+             return $routeController->getRoutes();
+         });
+         $r->delete('/routes/{id}', function (string $id) use ($routeController) {
+             return $routeController->deleteRoute((int) $id);
+         });
+
+         $lineController = new LineController($pdo);
+         $r->get('/lines', function () use ($lineController) {
+             return $lineController->getLines();
          });
     }
 }

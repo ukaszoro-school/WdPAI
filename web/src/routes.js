@@ -1,22 +1,28 @@
-import { getStops, createStop, removeStop } from "./api.js";
+import { getRoutes, createRoute, removeRoute } from "./api.js";
 import { toast } from "@moaqzdev/toast/utils";
 import "active-table";
 import '@jsfe/material';
 
-export async function initStops(container) {
+export async function initRoutes(container) {
   container.innerHTML = `
-    <h2>Stops</h2>
-    <div id="stops-table">
+    <h2>Routes</h2>
+    <div id="routes-table">
     </div>
-    <div id="stops-form">
+    <div id="routes-form">
     </div>
   `;
 
   const formSchema = {
     title: "",
-    description: "Add new bus stop",
+    description: "Add new bus route",
     properties: {
-        Location: {
+        "Route ID": {
+            type: "number"
+        },
+        Time: {
+            type: "string"
+        },
+        "Stop ID": {
             type: "string"
         }
     }
@@ -26,20 +32,17 @@ export async function initStops(container) {
   formEl.submitCallback = async (newData, valid) => {
     console.info({ newData, valid });
     try {
-      await createStop(newData.Location);
-      toast.success({ title: "Success", description: "Stop created successfully", duration: 10000 });
+      await createRoute(newData["Route ID"], newData["Time"], newData["Stop ID"]);
+      toast.success({ title: "Success", description: "Route created successfully", duration: 10000 });
       await renderTable();
     } catch (err) {
       toast.error({ title: "Error", description: err.message, duration: 10000 });
     }
   };
-  formEl.data = {
-    Location: "Stop location"
-  };
-  document.getElementById("stops-form").appendChild(formEl);
+  document.getElementById("routes-form").appendChild(formEl);
 
   async function renderTable() {
-    const stops = await getStops();
+    const routes = await getRoutes();
 
     const table = document.createElement("active-table");
     table.isCellTextEditable = false;
@@ -65,8 +68,8 @@ export async function initStops(container) {
     table.headerStyles = {"hoverColors": {"backgroundColor": "white"}};
     table.tableStyle =  {"borderRadius":"2px",  "width":"100%"};
     table.data = [
-      ["ID", "Location"],
-      ...stops.map((s) => [String(s.id), s.location]),
+      ["ID", "Route ID", "Time", "Stop ID"],
+      ...routes.map((s) => [String(s.id), String(s.route_id), s.time, String(s.stop_id)]),
     ];
     let lastIDs = [];
     table.onDataUpdate = async (dataUpdate) => {
@@ -77,8 +80,8 @@ export async function initStops(container) {
       lastIDs.forEach(async (x) => {
         if (!IDs.includes(x)) {
           try {
-            await removeStop(x);
-            toast.success({ title: "Success", description: "Stop removed successfully", duration: 10000 });
+            await removeRoute(x);
+            toast.success({ title: "Success", description: "Route removed successfully", duration: 10000 });
           } catch (err) {
             toast.error({ title: "Error", description: err.message, duration: 10000 });
           }
@@ -89,11 +92,10 @@ export async function initStops(container) {
       dataUpdate.forEach((x) => lastIDs.push(x[0]));
     };
 
-    const tableContainer = document.getElementById("stops-table");
+    const tableContainer = document.getElementById("routes-table");
     tableContainer.innerHTML = "";
     tableContainer.appendChild(table);
   }
 
   await renderTable();
 }
-

@@ -31,6 +31,31 @@
       throw new Error("Failed to delete stop");
     return res.json();
   }
+  async function getRoutes() {
+    const res = await fetch("/routes");
+    if (!res.ok)
+      throw new Error("Failed to fetch routes");
+    return res.json();
+  }
+  async function createRoute(route_id, time, stop_id) {
+    const res = await fetch("/routes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ route_id, time, stop_id })
+    });
+    if (!res.ok)
+      throw new Error("Failed to create route");
+    return res.json();
+  }
+  async function removeRoute(id) {
+    const res = await fetch(`/routes/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" }
+    });
+    if (!res.ok)
+      throw new Error("Failed to delete route");
+    return res.json();
+  }
 
   // node_modules/@moaqzdev/toast/dist/utils.mjs
   var o = "@moaqzdev/toast";
@@ -18328,7 +18353,7 @@ md-slider {
   `;
     const formSchema = {
       title: "",
-      description: "Add bus new stop",
+      description: "Add new bus stop",
       properties: {
         Location: {
           type: "string"
@@ -18357,7 +18382,14 @@ md-slider {
       table.isCellTextEditable = false;
       table.displayAddNewColumn = false;
       table.displayAddNewRow = false;
-      table.columnDropdown = { "displaySettings": { "isAvailable": false } };
+      table.columnDropdown = {
+        displaySettings: { "isAvailable": true },
+        isSortAvailable: true,
+        isDeleteAvailable: false,
+        isInsertLeftAvailable: false,
+        isInsertRightAvailable: false,
+        isMoveAvailable: false
+      };
       table.rowDropdown = {
         displaySettings: { "isAvailable": true },
         isInsertUpAvailable: false,
@@ -18392,6 +18424,97 @@ md-slider {
         dataUpdate.forEach((x2) => lastIDs.push(x2[0]));
       };
       const tableContainer = document.getElementById("stops-table");
+      tableContainer.innerHTML = "";
+      tableContainer.appendChild(table);
+    }
+    await renderTable();
+  }
+
+  // src/routes.js
+  async function initRoutes(container) {
+    container.innerHTML = `
+    <h2>Routes</h2>
+    <div id="routes-table">
+    </div>
+    <div id="routes-form">
+    </div>
+  `;
+    const formSchema = {
+      title: "",
+      description: "Add new bus route",
+      properties: {
+        "Route ID": {
+          type: "number"
+        },
+        Time: {
+          type: "string"
+        },
+        "Stop ID": {
+          type: "string"
+        }
+      }
+    };
+    const formEl = document.createElement("jsf-material");
+    formEl.schema = formSchema;
+    formEl.submitCallback = async (newData, valid) => {
+      console.info({ newData, valid });
+      try {
+        await createRoute(newData["Route ID"], newData["Time"], newData["Stop ID"]);
+        i.success({ title: "Success", description: "Route created successfully", duration: 1e4 });
+        await renderTable();
+      } catch (err) {
+        i.error({ title: "Error", description: err.message, duration: 1e4 });
+      }
+    };
+    document.getElementById("routes-form").appendChild(formEl);
+    async function renderTable() {
+      const routes = await getRoutes();
+      const table = document.createElement("active-table");
+      table.isCellTextEditable = false;
+      table.displayAddNewColumn = false;
+      table.displayAddNewRow = false;
+      table.columnDropdown = {
+        displaySettings: { "isAvailable": true },
+        isSortAvailable: true,
+        isDeleteAvailable: false,
+        isInsertLeftAvailable: false,
+        isInsertRightAvailable: false,
+        isMoveAvailable: false
+      };
+      table.rowDropdown = {
+        displaySettings: { "isAvailable": true },
+        isInsertUpAvailable: false,
+        isInsertDownAvailable: false,
+        isMoveAvailable: false,
+        isDeleteAvailable: true,
+        canEditHeaderRow: false
+      };
+      table.frameComponentsStyles = { "style": { "hoverColors": { "backgroundColor": "white" } } };
+      table.headerStyles = { "hoverColors": { "backgroundColor": "white" } };
+      table.tableStyle = { "borderRadius": "2px", "width": "100%" };
+      table.data = [
+        ["ID", "Route ID", "Time", "Stop ID"],
+        ...routes.map((s6) => [String(s6.id), String(s6.route_id), s6.time, String(s6.stop_id)])
+      ];
+      let lastIDs = [];
+      table.onDataUpdate = async (dataUpdate) => {
+        console.log(dataUpdate);
+        let IDs = [];
+        dataUpdate.forEach((x2) => IDs.push(x2[0]));
+        lastIDs.forEach(async (x2) => {
+          if (!IDs.includes(x2)) {
+            try {
+              await removeRoute(x2);
+              i.success({ title: "Success", description: "Route removed successfully", duration: 1e4 });
+            } catch (err) {
+              i.error({ title: "Error", description: err.message, duration: 1e4 });
+            }
+          }
+        });
+        lastIDs = [];
+        dataUpdate.forEach((x2) => lastIDs.push(x2[0]));
+      };
+      const tableContainer = document.getElementById("routes-table");
       tableContainer.innerHTML = "";
       tableContainer.appendChild(table);
     }
@@ -18723,6 +18846,9 @@ md-slider {
     switch (hash) {
       case "#stops":
         initStops(contentEl);
+        break;
+      case "#routes":
+        initRoutes(contentEl);
         break;
       case "#home":
       default:
