@@ -14,6 +14,12 @@ body {
   border-right: 4mm ridge rgb(211 221 221 / 0.6);
 }
 
+.sidebar-bottom {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
 .sidebar a {
   display: block;
   color: black;
@@ -33,7 +39,7 @@ body {
 
 div.content {
   margin-left: 200px;
-  padding: 1px 16px;
+  padding: 2px 25px;
   height: 1000px;
 }
 
@@ -45,6 +51,10 @@ div.content {
   }
   .sidebar a {float: left;}
   div.content {margin-left: 0;}
+  .sidebar-bottom {
+    position: relative;
+    bottom: auto;
+  }
 }
 
 @media screen and (max-width: 400px) {
@@ -52,5 +62,8 @@ div.content {
     text-align: center;
     float: none;
   }
+  .sidebar-bottom {
+    position: relative;
+    bottom: auto;
+  }
 }
-

@@ -4,9 +4,14 @@ import { build } from "esbuild";
 await build({
   entryPoints: ["src/index.js"],
   bundle: true,
-  outfile: "dist/bundle.js",
+  outfile: "../site/content/bundle.js",
   format: "iife",           // Immediately-Invoked Function Expression
-  globalName: "MyLibrary",  // Global var name
-  minify: true,
+  // minify: true,
   sourcemap: true,
-});
+  platform: 'browser',
+  inject: [],
+  define: { global: 'window' },
+  alias: {
+    crypto: 'crypto-browserify'
+  },
+}).catch(() => process.exit(1));
