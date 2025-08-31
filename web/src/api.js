@@ -53,3 +53,37 @@ export async function getLines() {
   if (!res.ok) throw new Error("Failed to fetch lines");
   return res.json();
 }
+
+export async function checkUser() {
+  const token = localStorage.getItem('sessionToken');
+  if (!token) {
+    return { logged_in: false };
+  }
+
+  try {
+    const res = await fetch('/me', {
+      method: 'GET',
+      headers: { 'Authorization': token }
+    });
+
+    if (!res.ok) {
+      return { logged_in: false };
+    }
+
+    const data = await res.json();
+    return { logged_in: data.logged_in, user: data.logged_in ? data : undefined };
+  } catch (err) {
+    console.error('Error checking login:', err);
+    return { logged_in: false };
+  }
+}
+
+export async function login(username, password) {
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: username, password: password }),
+  });
+  if (!res.ok) throw new Error("Failed to login");
+  return res.json();
+}

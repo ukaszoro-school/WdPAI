@@ -12,11 +12,11 @@
       throw new Error("Failed to fetch stops");
     return res.json();
   }
-  async function createStop(location) {
+  async function createStop(location2) {
     const res = await fetch("/stops", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ location })
+      body: JSON.stringify({ location: location2 })
     });
     if (!res.ok)
       throw new Error("Failed to create stop");
@@ -60,6 +60,36 @@
     const res = await fetch("/lines");
     if (!res.ok)
       throw new Error("Failed to fetch lines");
+    return res.json();
+  }
+  async function checkUser() {
+    const token = localStorage.getItem("sessionToken");
+    if (!token) {
+      return { logged_in: false };
+    }
+    try {
+      const res = await fetch("/me", {
+        method: "GET",
+        headers: { "Authorization": token }
+      });
+      if (!res.ok) {
+        return { logged_in: false };
+      }
+      const data = await res.json();
+      return { logged_in: data.logged_in, user: data.logged_in ? data : void 0 };
+    } catch (err) {
+      console.error("Error checking login:", err);
+      return { logged_in: false };
+    }
+  }
+  async function login(username, password) {
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    if (!res.ok)
+      throw new Error("Failed to login");
     return res.json();
   }
 
@@ -18577,6 +18607,56 @@ md-slider {
     await renderTables();
   }
 
+  // src/login.js
+  async function initLogin(container) {
+    container.style.marginLeft = "auto";
+    container.style.marginRight = "auto";
+    container.style.marginTop = "100px";
+    container.style.maxWidth = "500px";
+    container.innerHTML = `
+    <div id="login-form">
+    </div>
+  `;
+    const formSchema = {
+      title: "",
+      description: "Login",
+      properties: {
+        Name: {
+          type: "string"
+        },
+        Password: {
+          type: "string"
+        }
+      }
+    };
+    const uiSchema = {
+      "Password": {
+        "ui:widget": "password"
+      }
+    };
+    const formEl = document.createElement("jsf-material");
+    formEl.schema = formSchema;
+    formEl.uiSchema = uiSchema;
+    formEl.submitButtonLabel = "Login";
+    formEl.submitCallback = async (newData, valid) => {
+      console.info({ newData, valid });
+      try {
+        await login(newData.Name, newData.Password);
+        i.success({ title: "Success", description: "Logged in successfully", duration: 1e4 });
+        location.reload();
+      } catch (err) {
+        i.error({ title: "Error", description: err.message, duration: 1e4 });
+      }
+    };
+    const hint = document.createElement("div");
+    hint.innerHTML = `
+  Don't have an account? Register <a href='#register'>here</a>.
+  `;
+    hint.onclick = () => document.getElementById("login-form").remove();
+    document.getElementById("login-form").appendChild(hint);
+    document.getElementById("login-form").appendChild(formEl);
+  }
+
   // node_modules/@moaqzdev/toast/dist/index.mjs
   var TOAST_EVENT = "@moaqzdev/toast";
   var Toaster = class _Toaster extends HTMLElement {
@@ -18894,6 +18974,7 @@ md-slider {
   // src/index.js
   var contentEl = document.querySelector(".content");
   var links = document.querySelectorAll(".sidebar a");
+  var sidebar = document.querySelector(".sidebar");
   function setActive(link) {
     links.forEach((l6) => l6.classList.remove("active"));
     link.classList.add("active");
@@ -18921,19 +19002,24 @@ md-slider {
     setActive(activeLink);
     loadPage(initialHash);
   }
-  links.forEach((link) => {
-    link.addEventListener("click", (e11) => {
-      e11.preventDefault();
-      const hash = link.getAttribute("href");
-      setActive(link);
-      loadPage(hash);
-      window.location.hash = hash;
-    });
-  });
   var toastEl = document.createElement("moaqz-toaster");
   toastEl.setAttribute("dismissable", "");
   document.querySelector("body").appendChild(toastEl);
-  initialLoad("#home");
+  if (!checkUser()?.logged_in) {
+    sidebar?.remove();
+    initLogin(contentEl);
+  } else {
+    links.forEach((link) => {
+      link.addEventListener("click", (e11) => {
+        e11.preventDefault();
+        const hash = link.getAttribute("href");
+        setActive(link);
+        loadPage(hash);
+        window.location.hash = hash;
+      });
+    });
+    initialLoad("#home");
+  }
 })();
 /*! Bundled license information:
 

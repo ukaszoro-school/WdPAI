@@ -1,11 +1,14 @@
 import { initStops } from "./stops.js";
 import { initRoutes } from "./routes.js";
 import { initLines } from "./lines.js";
+import { initLogin } from "./login.js";
+import { checkUser } from "./api.js";
 import "@moaqzdev/toast";
 import { toast } from "@moaqzdev/toast/utils";
 
 const contentEl = document.querySelector(".content");
 const links = document.querySelectorAll(".sidebar a");
+const sidebar = document.querySelector(".sidebar");
 
 function setActive(link) {
   links.forEach((l) => l.classList.remove("active"));
@@ -37,19 +40,24 @@ function initialLoad(defaultHash) {
     loadPage(initialHash);
 }
 
-// sidebar navigation
-links.forEach((link) => {
-  link.addEventListener("click", (e) => {
-    e.preventDefault();
-    const hash = link.getAttribute("href");
-    setActive(link);
-    loadPage(hash);
-    window.location.hash = hash;
-  });
-});
-
 const toastEl = document.createElement("moaqz-toaster");
 toastEl.setAttribute("dismissable", "");
 document.querySelector("body").appendChild(toastEl);
 
-initialLoad("#home");
+if (!checkUser()?.logged_in) {
+    sidebar?.remove();
+    initLogin(contentEl);
+} else {
+  // sidebar navigation
+  links.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const hash = link.getAttribute("href");
+      setActive(link);
+      loadPage(hash);
+      window.location.hash = hash;
+    });
+  });
+
+  initialLoad("#home");
+}
