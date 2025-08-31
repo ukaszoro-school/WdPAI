@@ -17,6 +17,12 @@ CREATE TABLE IF NOT EXISTS routes (
     time TIME NOT NULL,
     stop_id INTEGER NOT NULL REFERENCES stops(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL
+);
 SQL;
 
 $pdo->exec($sql);

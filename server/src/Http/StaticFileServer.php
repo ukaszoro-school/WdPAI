@@ -23,7 +23,8 @@ final class StaticFileServer
         $staticPath = realpath($this->siteRoot . $path);
 
         if ($staticPath !== false && $path == '/') {
-            $this->sendFile(realpath($this->siteRoot . '/index.html'));
+            include($this->siteRoot . '/index.html.template');
+            exit;
         }
 
         if (
@@ -40,23 +41,27 @@ final class StaticFileServer
 
     private function sendFile(string $filePath): void
     {
-      $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-      $mimeMap = [
-          'css'  => 'text/css',
-          'js'   => 'application/javascript',
-          'json' => 'application/json',
-          'html' => 'text/html',
-          'jpg'  => 'image/jpeg',
-          'jpeg' => 'image/jpeg',
-          'png'  => 'image/png',
-          'svg'  => 'image/svg+xml',
-          'ico'  => 'image/x-icon',
-      ];
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $mimeMap = [
+            'css'  => 'text/css',
+            'js'   => 'application/javascript',
+            'json' => 'application/json',
+            'html' => 'text/html',
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',
+            'svg'  => 'image/svg+xml',
+            'ico'  => 'image/x-icon',
+        ];
 
-      $mimeType = $mimeMap[$extension] ?? mime_content_type($filePath) ?: 'application/octet-stream';
+        $mimeType = $mimeMap[$extension] ?? mime_content_type($filePath) ?: 'application/octet-stream';
 
-      header('Content-Type: ' . $mimeType);
-      header('Content-Length: ' . filesize($filePath));
-      readfile($filePath);
-      }
+        if ($extension === 'template') {
+            http_response_code(404);
+        } else {
+            header('Content-Type: ' . $mimeType);
+            header('Content-Length: ' . filesize($filePath));
+            readfile($filePath);
+        }
+    }
 }

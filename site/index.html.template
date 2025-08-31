@@ -7,7 +7,7 @@
   <meta name="referrer" content="always" />
   <meta name="theme-color" content="#ADADAD" />
   <title>Fleet Manager</title>
-  <link rel="stylesheet" href="/content/style.css" media="all" />
+  <link rel="stylesheet" media="all" href="/content/style.css">
 </head>
 <body>
   <div class="sidebar">
@@ -25,6 +25,11 @@
   <div class="content">
   </div>
 
-  <script src="/content/bundle.js"/></script>
+  <!-- <script src="/content/bundle.js"/></script> -->
+
+  <script src="/content/bundle.js"
+          integrity="<?= \App\Http\Csp::getInstance()->integrity('content/bundle.js') ?>"
+          crossorigin="anonymous"></script>
+
 </body>
 </html>
