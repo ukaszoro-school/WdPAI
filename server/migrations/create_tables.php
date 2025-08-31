@@ -24,6 +24,12 @@ CREATE TABLE IF NOT EXISTS creds (
     password_hash TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES creds(id) ON DELETE CASCADE
+    session_token TEXT NOT NULL
+);
+
 CREATE TYPE ROLE AS ENUM ('admin', 'driver');
 CREATE TABLE IF NOT EXISTS perms (
     id SERIAL PRIMARY KEY,
