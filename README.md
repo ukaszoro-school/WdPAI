@@ -99,3 +99,7 @@ To make such attakers' life a bit harder, the application uses the `localStorage
 ### No untrusted inputs
 
 The backend never injects untrusted data into raw PHP templates. All user-supplied input is either ignored, validated, or passed through structured APIs. By design, no server-side rendering of untrusted values occurs, which prevents injection vulnerabilities such as template injection, or broken HTML output.
+
+## ERD
+
+![ERF](./.db.png)
