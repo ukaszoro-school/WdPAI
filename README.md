@@ -2,7 +2,7 @@
 
 Table of contents:
 
-- [Buiding](#buiding)
+- [Building](#building)
 - [Running](#running)
 - [Documentation](#documentation)
     - [`\App\Controllers`](#appcontrollers)
@@ -13,9 +13,10 @@ Table of contents:
     - [Content Security Policy](#content-security-policy)
     - [No Cookies](#no-cookies)
     - [No untrusted inputs](#no-untrusted-inputs)
+- [ERD](#erd)
 
 
-## Buiding
+## Building
 
 Using Docker:
 
@@ -88,13 +89,13 @@ podman run -p 8080:8080 localhost/fleetmanager
 
 To prevent XSS and related attacks, the application employs a semi-strict CSP policy. To ease the maintenance burden, hashes are used instead of the typical CSP nounces.
 
-Upon startup, the backend calculates the check sums of allowed scripts and instructs the user's browser to permit execution. Scripts that are not explicitly allowed are block by the browser. SHA256 was chosen for a balanced mix of performance and security. Related documentation can be found [`here`](./server/docs/classes/App/Http/Csp.md).
+Upon startup, the backend calculates the check sums of allowed scripts and instructs the user's browser to permit execution. Scripts that are not explicitly allowed are blocked by the browser. SHA256 was chosen for a balanced mix of performance and security. Related documentation can be found [`here`](./server/docs/classes/App/Http/Csp.md).
 
 ### No Cookies
 
-Cookies are often used to gain unauthoried access to various critical systems and can allow adversaries to perform malicous actions on behalf of a legitimate user (so called "Session Hijack").
+Cookies are often used to gain unauthorized access to various critical systems and can allow adversaries to perform malicious actions on behalf of a legitimate user (so called "Session Hijack").
 
-To make such attakers' life a bit harder, the application uses the `localStorage` API instead of traditional cookies. This reduces the attack surface and eliminates a whole category of automated penetration testing techniques that rely on cookie theft.
+To make such attackers' life a bit harder, the application uses the `localStorage` API instead of traditional cookies. This reduces the attack surface and eliminates a whole category of automated penetration testing techniques that rely on cookie theft.
 
 ### No untrusted inputs
 
