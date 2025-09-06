@@ -57,7 +57,6 @@ final class Csp
         $scriptHashes = isset($this->hashes['script']) ? implode(' ', array_keys($this->hashes['script'])) : '';
 
         $directives = [
-            "default-src 'self'",
             "script-src 'self' $scriptHashes",
             "style-src 'self' 'unsafe-inline'",
         ];

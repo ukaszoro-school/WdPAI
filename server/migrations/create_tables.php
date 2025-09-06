@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS creds (
 
 CREATE TABLE IF NOT EXISTS sessions (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES creds(id) ON DELETE CASCADE
+    user_id INTEGER NOT NULL REFERENCES creds(id) ON DELETE CASCADE,
     session_token TEXT NOT NULL
 );
 
@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS perms (
 );
 
 CREATE TABLE IF NOT EXISTS duties (
-    id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES creds(id) ON DELETE CASCADE,
     route_id TEXT NOT NULL
 );
@@ -52,6 +51,7 @@ BEGIN
           AND role = 'driver') < 1 THEN
         RAISE EXCEPTION 'User % is not a driver!', NEW.user_id;
     END IF;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 

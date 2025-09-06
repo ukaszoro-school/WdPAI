@@ -1,7 +1,7 @@
 import { getLines } from "./api.js";
 import { toast } from "@moaqzdev/toast/utils";
 import "active-table";
-import "@jsfe/material";
+import "@jsfe/shoelace";
 
 export async function initLines(container) {
   container.innerHTML = `

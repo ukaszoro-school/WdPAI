@@ -1,7 +1,7 @@
 import { getStops, createStop, removeStop } from "./api.js";
 import { toast } from "@moaqzdev/toast/utils";
 import "active-table";
-import '@jsfe/material';
+import '@jsfe/shoelace';
 
 export async function initStops(container) {
   container.innerHTML = `
@@ -21,7 +21,7 @@ export async function initStops(container) {
         }
     }
   };
-  const formEl = document.createElement("jsf-material");
+  const formEl = document.createElement("jsf-shoelace");
   formEl.schema = formSchema;
   formEl.submitCallback = async (newData, valid) => {
     console.info({ newData, valid });

@@ -78,13 +78,17 @@ final class RouteRegistrar
         $lineController = new LineController($pdo);
         $r->get('/lines', $requireAuth(fn(array $user) => $lineController->getLines()));
 
-        $r->get('/users', $requireAuth(fn(array $user) => $userController->getUsers()));
-        $r->post('/users', function(array $user) use ($userController) {
+        $r->get('/users', $requireAuth(fn(array $user) => json_encode($userController->getUsers())));
+        $r->post('/users', function() use ($userController) {
         $input = json_decode(file_get_contents('php://input'), true);
-        return $userController->createUser($input);
+            return json_encode($userController->createUser($input['username'], $input['password']));
         });
         $r->delete('/users/{id}', $requireAdmin(function(array $user, string $id) use ($userController) {
-            return $userController->deleteUser((int)$id);
+            if (!$userController->deleteUser((int)$id)) {
+                http_response_code(500);
+                return json_encode(['error' => 'Failed to delete user.']);
+            }
+            return json_encode(['message' => 'User delete sucessfully!']);
         }));
 
         $r->post('/users/{id}/roles', $requireAdmin(function(array $user, string $id) use ($userController) {
@@ -106,17 +110,11 @@ final class RouteRegistrar
 
         $r->post('/login', function() use ($sessionController) {
             $input = json_decode(file_get_contents('php://input'), true);
-            return ['token' => $sessionController->login($input['username'], $input['password'])];
+            return json_encode(['token' => $sessionController->login($input['username'], $input['password'])]);
         });
-        $r->post('/logout', $requireAuth(function(array $user) use ($sessionController) {
-            $headers = getallheaders();
-            $token = $headers['Authorization'] ?? '';
-            $sessionController->logout($token);
-            return ['success' => true];
-        }));
 
         $r->get('/me', $requireAuth(function(array $user) {
-            return array_merge(['logged_in' => true], $user);
+            return json_encode(array_merge(['logged_in' => true], $user));
         }));
     }
 }

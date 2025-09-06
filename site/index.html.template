@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#ADADAD" />
   <title>Fleet Manager</title>
   <link rel="stylesheet" media="all" href="/content/style.css">
+  <link rel="stylesheet" media="all" href="/content/bundle.css">
 </head>
 <body>
   <div class="sidebar">
@@ -18,14 +19,12 @@
       <a href="#lines">Lines</a>
     </div>
     <div class="sidebar-bottom">
-      <a href="#logout">Logout</a>
+      <a id="logout">Logout</a>
     </div>
   </div>
 
   <div class="content">
   </div>
-
-  <!-- <script src="/content/bundle.js"/></script> -->
 
   <script src="/content/bundle.js"
           integrity="<?= \App\Http\Csp::getInstance()->integrity('content/bundle.js') ?>"

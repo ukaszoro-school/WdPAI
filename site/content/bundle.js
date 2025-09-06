@@ -7,15 +7,20 @@
 
   // src/api.js
   async function getStops() {
-    const res = await fetch("/stops");
+    const token = localStorage.getItem("sessionToken");
+    const res = await fetch("/stops", { headers: { "Authorization": token } });
     if (!res.ok)
       throw new Error("Failed to fetch stops");
     return res.json();
   }
   async function createStop(location2) {
+    const token = localStorage.getItem("sessionToken");
     const res = await fetch("/stops", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
       body: JSON.stringify({ location: location2 })
     });
     if (!res.ok)
@@ -23,24 +28,33 @@
     return res.json();
   }
   async function removeStop(id) {
+    const token = localStorage.getItem("sessionToken");
     const res = await fetch(`/stops/${id}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      }
     });
     if (!res.ok)
       throw new Error("Failed to delete stop");
     return res.json();
   }
   async function getRoutes() {
-    const res = await fetch("/routes");
+    const token = localStorage.getItem("sessionToken");
+    const res = await fetch("/routes", { headers: { "Authorization": token } });
     if (!res.ok)
       throw new Error("Failed to fetch routes");
     return res.json();
   }
   async function createRoute(route_id, time, stop_id) {
+    const token = localStorage.getItem("sessionToken");
     const res = await fetch("/routes", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
       body: JSON.stringify({ route_id, time, stop_id })
     });
     if (!res.ok)
@@ -48,16 +62,21 @@
     return res.json();
   }
   async function removeRoute(id) {
+    const token = localStorage.getItem("sessionToken");
     const res = await fetch(`/routes/${id}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      }
     });
     if (!res.ok)
       throw new Error("Failed to delete route");
     return res.json();
   }
   async function getLines() {
-    const res = await fetch("/lines");
+    const token = localStorage.getItem("sessionToken");
+    const res = await fetch("/lines", { headers: { "Authorization": token } });
     if (!res.ok)
       throw new Error("Failed to fetch lines");
     return res.json();
@@ -83,14 +102,55 @@
     }
   }
   async function login(username, password) {
+    const token = localStorage.getItem("sessionToken");
     const res = await fetch("/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
       body: JSON.stringify({ username, password })
     });
     if (!res.ok)
       throw new Error("Failed to login");
     return res.json();
+  }
+  async function createUser(username, password) {
+    const token = localStorage.getItem("sessionToken");
+    const res = await fetch("/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    if (!res.ok)
+      throw new Error("Failed to register new user");
+    return res.json();
+  }
+  async function getUsers() {
+    const token = localStorage.getItem("sessionToken");
+    const res = await fetch("/users", { headers: { "Authorization": token } });
+    if (!res.ok)
+      throw new Error("Failed to fetch users");
+    return res.json();
+  }
+  async function getUserDuties(userId) {
+    const token = localStorage.getItem("sessionToken");
+    const users = await getUsers();
+    const user = users.find((u6) => u6.id === userId);
+    return user?.duties ?? [];
+  }
+  async function assignDuty(userId, routeId, method = "POST") {
+    const token = localStorage.getItem("sessionToken");
+    const res = await fetch(`/users/${userId}/duties`, {
+      method: method.toUpperCase(),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
+      body: JSON.stringify({ route_id: routeId })
+    });
+    if (!res.ok)
+      throw new Error(`Failed to ${method === "DELETE" ? "remove" : "assign"} duty`);
   }
 
   // node_modules/@moaqzdev/toast/dist/utils.mjs
@@ -10285,17 +10345,17 @@
   var s2 = Symbol();
   var o3 = /* @__PURE__ */ new WeakMap();
   var n2 = class {
-    constructor(t7, e11, o15) {
-      if (this._$cssResult$ = true, o15 !== s2)
+    constructor(t7, e13, o14) {
+      if (this._$cssResult$ = true, o14 !== s2)
         throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
-      this.cssText = t7, this.t = e11;
+      this.cssText = t7, this.t = e13;
     }
     get styleSheet() {
       let t7 = this.o;
       const s6 = this.t;
       if (e2 && void 0 === t7) {
-        const e11 = void 0 !== s6 && 1 === s6.length;
-        e11 && (t7 = o3.get(s6)), void 0 === t7 && ((this.o = t7 = new CSSStyleSheet()).replaceSync(this.cssText), e11 && o3.set(s6, t7));
+        const e13 = void 0 !== s6 && 1 === s6.length;
+        e13 && (t7 = o3.get(s6)), void 0 === t7 && ((this.o = t7 = new CSSStyleSheet()).replaceSync(this.cssText), e13 && o3.set(s6, t7));
       }
       return t7;
     }
@@ -10304,30 +10364,30 @@
     }
   };
   var r2 = (t7) => new n2("string" == typeof t7 ? t7 : t7 + "", void 0, s2);
-  var i3 = (t7, ...e11) => {
-    const o15 = 1 === t7.length ? t7[0] : e11.reduce((e12, s6, o16) => e12 + ((t8) => {
+  var i3 = (t7, ...e13) => {
+    const o14 = 1 === t7.length ? t7[0] : e13.reduce((e14, s6, o15) => e14 + ((t8) => {
       if (true === t8._$cssResult$)
         return t8.cssText;
       if ("number" == typeof t8)
         return t8;
       throw Error("Value passed to 'css' function must be a 'css' function result: " + t8 + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
-    })(s6) + t7[o16 + 1], t7[0]);
-    return new n2(o15, t7, s2);
+    })(s6) + t7[o15 + 1], t7[0]);
+    return new n2(o14, t7, s2);
   };
-  var S2 = (s6, o15) => {
+  var S2 = (s6, o14) => {
     if (e2)
-      s6.adoptedStyleSheets = o15.map((t7) => t7 instanceof CSSStyleSheet ? t7 : t7.styleSheet);
+      s6.adoptedStyleSheets = o14.map((t7) => t7 instanceof CSSStyleSheet ? t7 : t7.styleSheet);
     else
-      for (const e11 of o15) {
-        const o16 = document.createElement("style"), n12 = t2.litNonce;
-        void 0 !== n12 && o16.setAttribute("nonce", n12), o16.textContent = e11.cssText, s6.appendChild(o16);
+      for (const e13 of o14) {
+        const o15 = document.createElement("style"), n10 = t2.litNonce;
+        void 0 !== n10 && o15.setAttribute("nonce", n10), o15.textContent = e13.cssText, s6.appendChild(o15);
       }
   };
   var c2 = e2 ? (t7) => t7 : (t7) => t7 instanceof CSSStyleSheet ? ((t8) => {
-    let e11 = "";
+    let e13 = "";
     for (const s6 of t8.cssRules)
-      e11 += s6.cssText;
-    return r2(e11);
+      e13 += s6.cssText;
+    return r2(e13);
   })(t7) : t7;
 
   // node_modules/@lit/reactive-element/reactive-element.js
@@ -10348,23 +10408,23 @@
     }
     return t7;
   }, fromAttribute(t7, s6) {
-    let i10 = t7;
+    let i11 = t7;
     switch (s6) {
       case Boolean:
-        i10 = null !== t7;
+        i11 = null !== t7;
         break;
       case Number:
-        i10 = null === t7 ? null : Number(t7);
+        i11 = null === t7 ? null : Number(t7);
         break;
       case Object:
       case Array:
         try {
-          i10 = JSON.parse(t7);
+          i11 = JSON.parse(t7);
         } catch (t8) {
-          i10 = null;
+          i11 = null;
         }
     }
-    return i10;
+    return i11;
   } };
   var f2 = (t7, s6) => !i4(t7, s6);
   var b2 = { attribute: true, type: String, converter: u2, reflect: false, useDefault: false, hasChanged: f2 };
@@ -10378,19 +10438,19 @@
     }
     static createProperty(t7, s6 = b2) {
       if (s6.state && (s6.attribute = false), this._$Ei(), this.prototype.hasOwnProperty(t7) && ((s6 = Object.create(s6)).wrapped = true), this.elementProperties.set(t7, s6), !s6.noAccessor) {
-        const i10 = Symbol(), h6 = this.getPropertyDescriptor(t7, i10, s6);
+        const i11 = Symbol(), h6 = this.getPropertyDescriptor(t7, i11, s6);
         void 0 !== h6 && e3(this.prototype, t7, h6);
       }
     }
-    static getPropertyDescriptor(t7, s6, i10) {
-      const { get: e11, set: r10 } = h2(this.prototype, t7) ?? { get() {
+    static getPropertyDescriptor(t7, s6, i11) {
+      const { get: e13, set: r9 } = h2(this.prototype, t7) ?? { get() {
         return this[s6];
       }, set(t8) {
         this[s6] = t8;
       } };
-      return { get: e11, set(s7) {
-        const h6 = e11?.call(this);
-        r10?.call(this, s7), this.requestUpdate(t7, h6, i10);
+      return { get: e13, set(s7) {
+        const h6 = e13?.call(this);
+        r9?.call(this, s7), this.requestUpdate(t7, h6, i11);
       }, configurable: true, enumerable: true };
     }
     static getPropertyOptions(t7) {
@@ -10407,36 +10467,36 @@
         return;
       if (this.finalized = true, this._$Ei(), this.hasOwnProperty(d2("properties"))) {
         const t8 = this.properties, s6 = [...r3(t8), ...o4(t8)];
-        for (const i10 of s6)
-          this.createProperty(i10, t8[i10]);
+        for (const i11 of s6)
+          this.createProperty(i11, t8[i11]);
       }
       const t7 = this[Symbol.metadata];
       if (null !== t7) {
         const s6 = litPropertyMetadata.get(t7);
         if (void 0 !== s6)
-          for (const [t8, i10] of s6)
-            this.elementProperties.set(t8, i10);
+          for (const [t8, i11] of s6)
+            this.elementProperties.set(t8, i11);
       }
       this._$Eh = /* @__PURE__ */ new Map();
       for (const [t8, s6] of this.elementProperties) {
-        const i10 = this._$Eu(t8, s6);
-        void 0 !== i10 && this._$Eh.set(i10, t8);
+        const i11 = this._$Eu(t8, s6);
+        void 0 !== i11 && this._$Eh.set(i11, t8);
       }
       this.elementStyles = this.finalizeStyles(this.styles);
     }
     static finalizeStyles(s6) {
-      const i10 = [];
+      const i11 = [];
       if (Array.isArray(s6)) {
-        const e11 = new Set(s6.flat(1 / 0).reverse());
-        for (const s7 of e11)
-          i10.unshift(c2(s7));
+        const e13 = new Set(s6.flat(1 / 0).reverse());
+        for (const s7 of e13)
+          i11.unshift(c2(s7));
       } else
-        void 0 !== s6 && i10.push(c2(s6));
-      return i10;
+        void 0 !== s6 && i11.push(c2(s6));
+      return i11;
     }
     static _$Eu(t7, s6) {
-      const i10 = s6.attribute;
-      return false === i10 ? void 0 : "string" == typeof i10 ? i10 : "string" == typeof t7 ? t7.toLowerCase() : void 0;
+      const i11 = s6.attribute;
+      return false === i11 ? void 0 : "string" == typeof i11 ? i11 : "string" == typeof t7 ? t7.toLowerCase() : void 0;
     }
     constructor() {
       super(), this._$Ep = void 0, this.isUpdatePending = false, this.hasUpdated = false, this._$Em = null, this._$Ev();
@@ -10452,8 +10512,8 @@
     }
     _$E_() {
       const t7 = /* @__PURE__ */ new Map(), s6 = this.constructor.elementProperties;
-      for (const i10 of s6.keys())
-        this.hasOwnProperty(i10) && (t7.set(i10, this[i10]), delete this[i10]);
+      for (const i11 of s6.keys())
+        this.hasOwnProperty(i11) && (t7.set(i11, this[i11]), delete this[i11]);
       t7.size > 0 && (this._$Ep = t7);
     }
     createRenderRoot() {
@@ -10468,36 +10528,36 @@
     disconnectedCallback() {
       this._$EO?.forEach((t7) => t7.hostDisconnected?.());
     }
-    attributeChangedCallback(t7, s6, i10) {
-      this._$AK(t7, i10);
+    attributeChangedCallback(t7, s6, i11) {
+      this._$AK(t7, i11);
     }
     _$ET(t7, s6) {
-      const i10 = this.constructor.elementProperties.get(t7), e11 = this.constructor._$Eu(t7, i10);
-      if (void 0 !== e11 && true === i10.reflect) {
-        const h6 = (void 0 !== i10.converter?.toAttribute ? i10.converter : u2).toAttribute(s6, i10.type);
-        this._$Em = t7, null == h6 ? this.removeAttribute(e11) : this.setAttribute(e11, h6), this._$Em = null;
+      const i11 = this.constructor.elementProperties.get(t7), e13 = this.constructor._$Eu(t7, i11);
+      if (void 0 !== e13 && true === i11.reflect) {
+        const h6 = (void 0 !== i11.converter?.toAttribute ? i11.converter : u2).toAttribute(s6, i11.type);
+        this._$Em = t7, null == h6 ? this.removeAttribute(e13) : this.setAttribute(e13, h6), this._$Em = null;
       }
     }
     _$AK(t7, s6) {
-      const i10 = this.constructor, e11 = i10._$Eh.get(t7);
-      if (void 0 !== e11 && this._$Em !== e11) {
-        const t8 = i10.getPropertyOptions(e11), h6 = "function" == typeof t8.converter ? { fromAttribute: t8.converter } : void 0 !== t8.converter?.fromAttribute ? t8.converter : u2;
-        this._$Em = e11;
-        const r10 = h6.fromAttribute(s6, t8.type);
-        this[e11] = r10 ?? this._$Ej?.get(e11) ?? r10, this._$Em = null;
+      const i11 = this.constructor, e13 = i11._$Eh.get(t7);
+      if (void 0 !== e13 && this._$Em !== e13) {
+        const t8 = i11.getPropertyOptions(e13), h6 = "function" == typeof t8.converter ? { fromAttribute: t8.converter } : void 0 !== t8.converter?.fromAttribute ? t8.converter : u2;
+        this._$Em = e13;
+        const r9 = h6.fromAttribute(s6, t8.type);
+        this[e13] = r9 ?? this._$Ej?.get(e13) ?? r9, this._$Em = null;
       }
     }
-    requestUpdate(t7, s6, i10) {
+    requestUpdate(t7, s6, i11) {
       if (void 0 !== t7) {
-        const e11 = this.constructor, h6 = this[t7];
-        if (i10 ??= e11.getPropertyOptions(t7), !((i10.hasChanged ?? f2)(h6, s6) || i10.useDefault && i10.reflect && h6 === this._$Ej?.get(t7) && !this.hasAttribute(e11._$Eu(t7, i10))))
+        const e13 = this.constructor, h6 = this[t7];
+        if (i11 ??= e13.getPropertyOptions(t7), !((i11.hasChanged ?? f2)(h6, s6) || i11.useDefault && i11.reflect && h6 === this._$Ej?.get(t7) && !this.hasAttribute(e13._$Eu(t7, i11))))
           return;
-        this.C(t7, s6, i10);
+        this.C(t7, s6, i11);
       }
       false === this.isUpdatePending && (this._$ES = this._$EP());
     }
-    C(t7, s6, { useDefault: i10, reflect: e11, wrapped: h6 }, r10) {
-      i10 && !(this._$Ej ??= /* @__PURE__ */ new Map()).has(t7) && (this._$Ej.set(t7, r10 ?? s6 ?? this[t7]), true !== h6 || void 0 !== r10) || (this._$AL.has(t7) || (this.hasUpdated || i10 || (s6 = void 0), this._$AL.set(t7, s6)), true === e11 && this._$Em !== t7 && (this._$Eq ??= /* @__PURE__ */ new Set()).add(t7));
+    C(t7, s6, { useDefault: i11, reflect: e13, wrapped: h6 }, r9) {
+      i11 && !(this._$Ej ??= /* @__PURE__ */ new Map()).has(t7) && (this._$Ej.set(t7, r9 ?? s6 ?? this[t7]), true !== h6 || void 0 !== r9) || (this._$AL.has(t7) || (this.hasUpdated || i11 || (s6 = void 0), this._$AL.set(t7, s6)), true === e13 && this._$Em !== t7 && (this._$Eq ??= /* @__PURE__ */ new Set()).add(t7));
     }
     async _$EP() {
       this.isUpdatePending = true;
@@ -10523,9 +10583,9 @@
         }
         const t8 = this.constructor.elementProperties;
         if (t8.size > 0)
-          for (const [s7, i10] of t8) {
-            const { wrapped: t9 } = i10, e11 = this[s7];
-            true !== t9 || this._$AL.has(s7) || void 0 === e11 || this.C(s7, void 0, i10, e11);
+          for (const [s7, i11] of t8) {
+            const { wrapped: t9 } = i11, e13 = this[s7];
+            true !== t9 || this._$AL.has(s7) || void 0 === e13 || this.C(s7, void 0, i11, e13);
           }
       }
       let t7 = false;
@@ -10586,7 +10646,7 @@
   var p3 = /'/g;
   var g2 = /"/g;
   var $2 = /^(?:script|style|textarea|title)$/i;
-  var y3 = (t7) => (i10, ...s6) => ({ _$litType$: t7, strings: i10, values: s6 });
+  var y3 = (t7) => (i11, ...s6) => ({ _$litType$: t7, strings: i11, values: s6 });
   var x = y3(1);
   var b3 = y3(2);
   var w = y3(3);
@@ -10594,78 +10654,78 @@
   var E2 = Symbol.for("lit-nothing");
   var A2 = /* @__PURE__ */ new WeakMap();
   var C2 = r4.createTreeWalker(r4, 129);
-  function P2(t7, i10) {
+  function P2(t7, i11) {
     if (!a3(t7) || !t7.hasOwnProperty("raw"))
       throw Error("invalid template strings array");
-    return void 0 !== s3 ? s3.createHTML(i10) : i10;
+    return void 0 !== s3 ? s3.createHTML(i11) : i11;
   }
-  var V2 = (t7, i10) => {
-    const s6 = t7.length - 1, o15 = [];
-    let r10, l6 = 2 === i10 ? "<svg>" : 3 === i10 ? "<math>" : "", c7 = f3;
-    for (let i11 = 0; i11 < s6; i11++) {
-      const s7 = t7[i11];
+  var V2 = (t7, i11) => {
+    const s6 = t7.length - 1, o14 = [];
+    let r9, l6 = 2 === i11 ? "<svg>" : 3 === i11 ? "<math>" : "", c7 = f3;
+    for (let i12 = 0; i12 < s6; i12++) {
+      const s7 = t7[i12];
       let a5, u6, d4 = -1, y4 = 0;
       for (; y4 < s7.length && (c7.lastIndex = y4, u6 = c7.exec(s7), null !== u6); )
-        y4 = c7.lastIndex, c7 === f3 ? "!--" === u6[1] ? c7 = v2 : void 0 !== u6[1] ? c7 = _2 : void 0 !== u6[2] ? ($2.test(u6[2]) && (r10 = RegExp("</" + u6[2], "g")), c7 = m2) : void 0 !== u6[3] && (c7 = m2) : c7 === m2 ? ">" === u6[0] ? (c7 = r10 ?? f3, d4 = -1) : void 0 === u6[1] ? d4 = -2 : (d4 = c7.lastIndex - u6[2].length, a5 = u6[1], c7 = void 0 === u6[3] ? m2 : '"' === u6[3] ? g2 : p3) : c7 === g2 || c7 === p3 ? c7 = m2 : c7 === v2 || c7 === _2 ? c7 = f3 : (c7 = m2, r10 = void 0);
-      const x2 = c7 === m2 && t7[i11 + 1].startsWith("/>") ? " " : "";
-      l6 += c7 === f3 ? s7 + n4 : d4 >= 0 ? (o15.push(a5), s7.slice(0, d4) + e4 + s7.slice(d4) + h3 + x2) : s7 + h3 + (-2 === d4 ? i11 : x2);
+        y4 = c7.lastIndex, c7 === f3 ? "!--" === u6[1] ? c7 = v2 : void 0 !== u6[1] ? c7 = _2 : void 0 !== u6[2] ? ($2.test(u6[2]) && (r9 = RegExp("</" + u6[2], "g")), c7 = m2) : void 0 !== u6[3] && (c7 = m2) : c7 === m2 ? ">" === u6[0] ? (c7 = r9 ?? f3, d4 = -1) : void 0 === u6[1] ? d4 = -2 : (d4 = c7.lastIndex - u6[2].length, a5 = u6[1], c7 = void 0 === u6[3] ? m2 : '"' === u6[3] ? g2 : p3) : c7 === g2 || c7 === p3 ? c7 = m2 : c7 === v2 || c7 === _2 ? c7 = f3 : (c7 = m2, r9 = void 0);
+      const x2 = c7 === m2 && t7[i12 + 1].startsWith("/>") ? " " : "";
+      l6 += c7 === f3 ? s7 + n4 : d4 >= 0 ? (o14.push(a5), s7.slice(0, d4) + e4 + s7.slice(d4) + h3 + x2) : s7 + h3 + (-2 === d4 ? i12 : x2);
     }
-    return [P2(t7, l6 + (t7[s6] || "<?>") + (2 === i10 ? "</svg>" : 3 === i10 ? "</math>" : "")), o15];
+    return [P2(t7, l6 + (t7[s6] || "<?>") + (2 === i11 ? "</svg>" : 3 === i11 ? "</math>" : "")), o14];
   };
   var N2 = class _N {
-    constructor({ strings: t7, _$litType$: s6 }, n12) {
-      let r10;
+    constructor({ strings: t7, _$litType$: s6 }, n10) {
+      let r9;
       this.parts = [];
       let c7 = 0, a5 = 0;
       const u6 = t7.length - 1, d4 = this.parts, [f6, v3] = V2(t7, s6);
-      if (this.el = _N.createElement(f6, n12), C2.currentNode = this.el.content, 2 === s6 || 3 === s6) {
+      if (this.el = _N.createElement(f6, n10), C2.currentNode = this.el.content, 2 === s6 || 3 === s6) {
         const t8 = this.el.content.firstChild;
         t8.replaceWith(...t8.childNodes);
       }
-      for (; null !== (r10 = C2.nextNode()) && d4.length < u6; ) {
-        if (1 === r10.nodeType) {
-          if (r10.hasAttributes())
-            for (const t8 of r10.getAttributeNames())
+      for (; null !== (r9 = C2.nextNode()) && d4.length < u6; ) {
+        if (1 === r9.nodeType) {
+          if (r9.hasAttributes())
+            for (const t8 of r9.getAttributeNames())
               if (t8.endsWith(e4)) {
-                const i10 = v3[a5++], s7 = r10.getAttribute(t8).split(h3), e11 = /([.?@])?(.*)/.exec(i10);
-                d4.push({ type: 1, index: c7, name: e11[2], strings: s7, ctor: "." === e11[1] ? H2 : "?" === e11[1] ? I2 : "@" === e11[1] ? L2 : k2 }), r10.removeAttribute(t8);
+                const i11 = v3[a5++], s7 = r9.getAttribute(t8).split(h3), e13 = /([.?@])?(.*)/.exec(i11);
+                d4.push({ type: 1, index: c7, name: e13[2], strings: s7, ctor: "." === e13[1] ? H2 : "?" === e13[1] ? I2 : "@" === e13[1] ? L2 : k2 }), r9.removeAttribute(t8);
               } else
-                t8.startsWith(h3) && (d4.push({ type: 6, index: c7 }), r10.removeAttribute(t8));
-          if ($2.test(r10.tagName)) {
-            const t8 = r10.textContent.split(h3), s7 = t8.length - 1;
+                t8.startsWith(h3) && (d4.push({ type: 6, index: c7 }), r9.removeAttribute(t8));
+          if ($2.test(r9.tagName)) {
+            const t8 = r9.textContent.split(h3), s7 = t8.length - 1;
             if (s7 > 0) {
-              r10.textContent = i5 ? i5.emptyScript : "";
-              for (let i10 = 0; i10 < s7; i10++)
-                r10.append(t8[i10], l3()), C2.nextNode(), d4.push({ type: 2, index: ++c7 });
-              r10.append(t8[s7], l3());
+              r9.textContent = i5 ? i5.emptyScript : "";
+              for (let i11 = 0; i11 < s7; i11++)
+                r9.append(t8[i11], l3()), C2.nextNode(), d4.push({ type: 2, index: ++c7 });
+              r9.append(t8[s7], l3());
             }
           }
-        } else if (8 === r10.nodeType)
-          if (r10.data === o5)
+        } else if (8 === r9.nodeType)
+          if (r9.data === o5)
             d4.push({ type: 2, index: c7 });
           else {
             let t8 = -1;
-            for (; -1 !== (t8 = r10.data.indexOf(h3, t8 + 1)); )
+            for (; -1 !== (t8 = r9.data.indexOf(h3, t8 + 1)); )
               d4.push({ type: 7, index: c7 }), t8 += h3.length - 1;
           }
         c7++;
       }
     }
-    static createElement(t7, i10) {
+    static createElement(t7, i11) {
       const s6 = r4.createElement("template");
       return s6.innerHTML = t7, s6;
     }
   };
-  function S3(t7, i10, s6 = t7, e11) {
-    if (i10 === T2)
-      return i10;
-    let h6 = void 0 !== e11 ? s6._$Co?.[e11] : s6._$Cl;
-    const o15 = c4(i10) ? void 0 : i10._$litDirective$;
-    return h6?.constructor !== o15 && (h6?._$AO?.(false), void 0 === o15 ? h6 = void 0 : (h6 = new o15(t7), h6._$AT(t7, s6, e11)), void 0 !== e11 ? (s6._$Co ??= [])[e11] = h6 : s6._$Cl = h6), void 0 !== h6 && (i10 = S3(t7, h6._$AS(t7, i10.values), h6, e11)), i10;
+  function S3(t7, i11, s6 = t7, e13) {
+    if (i11 === T2)
+      return i11;
+    let h6 = void 0 !== e13 ? s6._$Co?.[e13] : s6._$Cl;
+    const o14 = c4(i11) ? void 0 : i11._$litDirective$;
+    return h6?.constructor !== o14 && (h6?._$AO?.(false), void 0 === o14 ? h6 = void 0 : (h6 = new o14(t7), h6._$AT(t7, s6, e13)), void 0 !== e13 ? (s6._$Co ??= [])[e13] = h6 : s6._$Cl = h6), void 0 !== h6 && (i11 = S3(t7, h6._$AS(t7, i11.values), h6, e13)), i11;
   }
   var M2 = class {
-    constructor(t7, i10) {
-      this._$AV = [], this._$AN = void 0, this._$AD = t7, this._$AM = i10;
+    constructor(t7, i11) {
+      this._$AV = [], this._$AN = void 0, this._$AD = t7, this._$AM = i11;
     }
     get parentNode() {
       return this._$AM.parentNode;
@@ -10674,35 +10734,35 @@
       return this._$AM._$AU;
     }
     u(t7) {
-      const { el: { content: i10 }, parts: s6 } = this._$AD, e11 = (t7?.creationScope ?? r4).importNode(i10, true);
-      C2.currentNode = e11;
-      let h6 = C2.nextNode(), o15 = 0, n12 = 0, l6 = s6[0];
+      const { el: { content: i11 }, parts: s6 } = this._$AD, e13 = (t7?.creationScope ?? r4).importNode(i11, true);
+      C2.currentNode = e13;
+      let h6 = C2.nextNode(), o14 = 0, n10 = 0, l6 = s6[0];
       for (; void 0 !== l6; ) {
-        if (o15 === l6.index) {
-          let i11;
-          2 === l6.type ? i11 = new R2(h6, h6.nextSibling, this, t7) : 1 === l6.type ? i11 = new l6.ctor(h6, l6.name, l6.strings, this, t7) : 6 === l6.type && (i11 = new z2(h6, this, t7)), this._$AV.push(i11), l6 = s6[++n12];
+        if (o14 === l6.index) {
+          let i12;
+          2 === l6.type ? i12 = new R2(h6, h6.nextSibling, this, t7) : 1 === l6.type ? i12 = new l6.ctor(h6, l6.name, l6.strings, this, t7) : 6 === l6.type && (i12 = new z2(h6, this, t7)), this._$AV.push(i12), l6 = s6[++n10];
         }
-        o15 !== l6?.index && (h6 = C2.nextNode(), o15++);
+        o14 !== l6?.index && (h6 = C2.nextNode(), o14++);
       }
-      return C2.currentNode = r4, e11;
+      return C2.currentNode = r4, e13;
     }
     p(t7) {
-      let i10 = 0;
+      let i11 = 0;
       for (const s6 of this._$AV)
-        void 0 !== s6 && (void 0 !== s6.strings ? (s6._$AI(t7, s6, i10), i10 += s6.strings.length - 2) : s6._$AI(t7[i10])), i10++;
+        void 0 !== s6 && (void 0 !== s6.strings ? (s6._$AI(t7, s6, i11), i11 += s6.strings.length - 2) : s6._$AI(t7[i11])), i11++;
     }
   };
   var R2 = class _R {
     get _$AU() {
       return this._$AM?._$AU ?? this._$Cv;
     }
-    constructor(t7, i10, s6, e11) {
-      this.type = 2, this._$AH = E2, this._$AN = void 0, this._$AA = t7, this._$AB = i10, this._$AM = s6, this.options = e11, this._$Cv = e11?.isConnected ?? true;
+    constructor(t7, i11, s6, e13) {
+      this.type = 2, this._$AH = E2, this._$AN = void 0, this._$AA = t7, this._$AB = i11, this._$AM = s6, this.options = e13, this._$Cv = e13?.isConnected ?? true;
     }
     get parentNode() {
       let t7 = this._$AA.parentNode;
-      const i10 = this._$AM;
-      return void 0 !== i10 && 11 === t7?.nodeType && (t7 = i10.parentNode), t7;
+      const i11 = this._$AM;
+      return void 0 !== i11 && 11 === t7?.nodeType && (t7 = i11.parentNode), t7;
     }
     get startNode() {
       return this._$AA;
@@ -10710,8 +10770,8 @@
     get endNode() {
       return this._$AB;
     }
-    _$AI(t7, i10 = this) {
-      t7 = S3(this, t7, i10), c4(t7) ? t7 === E2 || null == t7 || "" === t7 ? (this._$AH !== E2 && this._$AR(), this._$AH = E2) : t7 !== this._$AH && t7 !== T2 && this._(t7) : void 0 !== t7._$litType$ ? this.$(t7) : void 0 !== t7.nodeType ? this.T(t7) : u3(t7) ? this.k(t7) : this._(t7);
+    _$AI(t7, i11 = this) {
+      t7 = S3(this, t7, i11), c4(t7) ? t7 === E2 || null == t7 || "" === t7 ? (this._$AH !== E2 && this._$AR(), this._$AH = E2) : t7 !== this._$AH && t7 !== T2 && this._(t7) : void 0 !== t7._$litType$ ? this.$(t7) : void 0 !== t7.nodeType ? this.T(t7) : u3(t7) ? this.k(t7) : this._(t7);
     }
     O(t7) {
       return this._$AA.parentNode.insertBefore(t7, this._$AB);
@@ -10723,30 +10783,30 @@
       this._$AH !== E2 && c4(this._$AH) ? this._$AA.nextSibling.data = t7 : this.T(r4.createTextNode(t7)), this._$AH = t7;
     }
     $(t7) {
-      const { values: i10, _$litType$: s6 } = t7, e11 = "number" == typeof s6 ? this._$AC(t7) : (void 0 === s6.el && (s6.el = N2.createElement(P2(s6.h, s6.h[0]), this.options)), s6);
-      if (this._$AH?._$AD === e11)
-        this._$AH.p(i10);
+      const { values: i11, _$litType$: s6 } = t7, e13 = "number" == typeof s6 ? this._$AC(t7) : (void 0 === s6.el && (s6.el = N2.createElement(P2(s6.h, s6.h[0]), this.options)), s6);
+      if (this._$AH?._$AD === e13)
+        this._$AH.p(i11);
       else {
-        const t8 = new M2(e11, this), s7 = t8.u(this.options);
-        t8.p(i10), this.T(s7), this._$AH = t8;
+        const t8 = new M2(e13, this), s7 = t8.u(this.options);
+        t8.p(i11), this.T(s7), this._$AH = t8;
       }
     }
     _$AC(t7) {
-      let i10 = A2.get(t7.strings);
-      return void 0 === i10 && A2.set(t7.strings, i10 = new N2(t7)), i10;
+      let i11 = A2.get(t7.strings);
+      return void 0 === i11 && A2.set(t7.strings, i11 = new N2(t7)), i11;
     }
     k(t7) {
       a3(this._$AH) || (this._$AH = [], this._$AR());
-      const i10 = this._$AH;
-      let s6, e11 = 0;
+      const i11 = this._$AH;
+      let s6, e13 = 0;
       for (const h6 of t7)
-        e11 === i10.length ? i10.push(s6 = new _R(this.O(l3()), this.O(l3()), this, this.options)) : s6 = i10[e11], s6._$AI(h6), e11++;
-      e11 < i10.length && (this._$AR(s6 && s6._$AB.nextSibling, e11), i10.length = e11);
+        e13 === i11.length ? i11.push(s6 = new _R(this.O(l3()), this.O(l3()), this, this.options)) : s6 = i11[e13], s6._$AI(h6), e13++;
+      e13 < i11.length && (this._$AR(s6 && s6._$AB.nextSibling, e13), i11.length = e13);
     }
-    _$AR(t7 = this._$AA.nextSibling, i10) {
-      for (this._$AP?.(false, true, i10); t7 !== this._$AB; ) {
-        const i11 = t7.nextSibling;
-        t7.remove(), t7 = i11;
+    _$AR(t7 = this._$AA.nextSibling, i11) {
+      for (this._$AP?.(false, true, i11); t7 !== this._$AB; ) {
+        const i12 = t7.nextSibling;
+        t7.remove(), t7 = i12;
       }
     }
     setConnected(t7) {
@@ -10760,21 +10820,21 @@
     get _$AU() {
       return this._$AM._$AU;
     }
-    constructor(t7, i10, s6, e11, h6) {
-      this.type = 1, this._$AH = E2, this._$AN = void 0, this.element = t7, this.name = i10, this._$AM = e11, this.options = h6, s6.length > 2 || "" !== s6[0] || "" !== s6[1] ? (this._$AH = Array(s6.length - 1).fill(new String()), this.strings = s6) : this._$AH = E2;
+    constructor(t7, i11, s6, e13, h6) {
+      this.type = 1, this._$AH = E2, this._$AN = void 0, this.element = t7, this.name = i11, this._$AM = e13, this.options = h6, s6.length > 2 || "" !== s6[0] || "" !== s6[1] ? (this._$AH = Array(s6.length - 1).fill(new String()), this.strings = s6) : this._$AH = E2;
     }
-    _$AI(t7, i10 = this, s6, e11) {
+    _$AI(t7, i11 = this, s6, e13) {
       const h6 = this.strings;
-      let o15 = false;
+      let o14 = false;
       if (void 0 === h6)
-        t7 = S3(this, t7, i10, 0), o15 = !c4(t7) || t7 !== this._$AH && t7 !== T2, o15 && (this._$AH = t7);
+        t7 = S3(this, t7, i11, 0), o14 = !c4(t7) || t7 !== this._$AH && t7 !== T2, o14 && (this._$AH = t7);
       else {
-        const e12 = t7;
-        let n12, r10;
-        for (t7 = h6[0], n12 = 0; n12 < h6.length - 1; n12++)
-          r10 = S3(this, e12[s6 + n12], i10, n12), r10 === T2 && (r10 = this._$AH[n12]), o15 ||= !c4(r10) || r10 !== this._$AH[n12], r10 === E2 ? t7 = E2 : t7 !== E2 && (t7 += (r10 ?? "") + h6[n12 + 1]), this._$AH[n12] = r10;
+        const e14 = t7;
+        let n10, r9;
+        for (t7 = h6[0], n10 = 0; n10 < h6.length - 1; n10++)
+          r9 = S3(this, e14[s6 + n10], i11, n10), r9 === T2 && (r9 = this._$AH[n10]), o14 ||= !c4(r9) || r9 !== this._$AH[n10], r9 === E2 ? t7 = E2 : t7 !== E2 && (t7 += (r9 ?? "") + h6[n10 + 1]), this._$AH[n10] = r9;
       }
-      o15 && !e11 && this.j(t7);
+      o14 && !e13 && this.j(t7);
     }
     j(t7) {
       t7 === E2 ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t7 ?? "");
@@ -10797,22 +10857,22 @@
     }
   };
   var L2 = class extends k2 {
-    constructor(t7, i10, s6, e11, h6) {
-      super(t7, i10, s6, e11, h6), this.type = 5;
+    constructor(t7, i11, s6, e13, h6) {
+      super(t7, i11, s6, e13, h6), this.type = 5;
     }
-    _$AI(t7, i10 = this) {
-      if ((t7 = S3(this, t7, i10, 0) ?? E2) === T2)
+    _$AI(t7, i11 = this) {
+      if ((t7 = S3(this, t7, i11, 0) ?? E2) === T2)
         return;
-      const s6 = this._$AH, e11 = t7 === E2 && s6 !== E2 || t7.capture !== s6.capture || t7.once !== s6.once || t7.passive !== s6.passive, h6 = t7 !== E2 && (s6 === E2 || e11);
-      e11 && this.element.removeEventListener(this.name, this, s6), h6 && this.element.addEventListener(this.name, this, t7), this._$AH = t7;
+      const s6 = this._$AH, e13 = t7 === E2 && s6 !== E2 || t7.capture !== s6.capture || t7.once !== s6.once || t7.passive !== s6.passive, h6 = t7 !== E2 && (s6 === E2 || e13);
+      e13 && this.element.removeEventListener(this.name, this, s6), h6 && this.element.addEventListener(this.name, this, t7), this._$AH = t7;
     }
     handleEvent(t7) {
       "function" == typeof this._$AH ? this._$AH.call(this.options?.host ?? this.element, t7) : this._$AH.handleEvent(t7);
     }
   };
   var z2 = class {
-    constructor(t7, i10, s6) {
-      this.element = t7, this.type = 6, this._$AN = void 0, this._$AM = i10, this.options = s6;
+    constructor(t7, i11, s6) {
+      this.element = t7, this.type = 6, this._$AN = void 0, this._$AM = i11, this.options = s6;
     }
     get _$AU() {
       return this._$AM._$AU;
@@ -10824,12 +10884,12 @@
   var Z2 = { M: e4, P: h3, A: o5, C: 1, L: V2, R: M2, D: u3, V: S3, I: R2, H: k2, N: I2, U: L2, B: H2, F: z2 };
   var j2 = t3.litHtmlPolyfillSupport;
   j2?.(N2, R2), (t3.litHtmlVersions ??= []).push("3.3.1");
-  var B2 = (t7, i10, s6) => {
-    const e11 = s6?.renderBefore ?? i10;
-    let h6 = e11._$litPart$;
+  var B2 = (t7, i11, s6) => {
+    const e13 = s6?.renderBefore ?? i11;
+    let h6 = e13._$litPart$;
     if (void 0 === h6) {
       const t8 = s6?.renderBefore ?? null;
-      e11._$litPart$ = h6 = new R2(i10.insertBefore(l3(), t8), t8, void 0, s6 ?? {});
+      e13._$litPart$ = h6 = new R2(i11.insertBefore(l3(), t8), t8, void 0, s6 ?? {});
     }
     return h6._$AI(t7), h6;
   };
@@ -10845,8 +10905,8 @@
       return this.renderOptions.renderBefore ??= t7.firstChild, t7;
     }
     update(t7) {
-      const r10 = this.render();
-      this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t7), this._$Do = B2(r10, this.renderRoot, this.renderOptions);
+      const r9 = this.render();
+      this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t7), this._$Do = B2(r9, this.renderRoot, this.renderOptions);
     }
     connectedCallback() {
       super.connectedCallback(), this._$Do?.setConnected(true);
@@ -10863,202 +10923,164 @@
   o6?.({ LitElement: i6 });
   (s4.litElementVersions ??= []).push("4.2.1");
 
-  // node_modules/lit-html/is-server.js
-  var o7 = false;
-
-  // node_modules/@lit/reactive-element/decorators/custom-element.js
-  var t4 = (t7) => (e11, o15) => {
-    void 0 !== o15 ? o15.addInitializer(() => {
-      customElements.define(t7, e11);
-    }) : customElements.define(t7, e11);
-  };
-
   // node_modules/@lit/reactive-element/decorators/property.js
-  var o8 = { attribute: true, type: String, converter: u2, reflect: false, hasChanged: f2 };
-  var r5 = (t7 = o8, e11, r10) => {
-    const { kind: n12, metadata: i10 } = r10;
-    let s6 = globalThis.litPropertyMetadata.get(i10);
-    if (void 0 === s6 && globalThis.litPropertyMetadata.set(i10, s6 = /* @__PURE__ */ new Map()), "setter" === n12 && ((t7 = Object.create(t7)).wrapped = true), s6.set(r10.name, t7), "accessor" === n12) {
-      const { name: o15 } = r10;
-      return { set(r11) {
-        const n13 = e11.get.call(this);
-        e11.set.call(this, r11), this.requestUpdate(o15, n13, t7);
-      }, init(e12) {
-        return void 0 !== e12 && this.C(o15, void 0, t7, e12), e12;
+  var o7 = { attribute: true, type: String, converter: u2, reflect: false, hasChanged: f2 };
+  var r5 = (t7 = o7, e13, r9) => {
+    const { kind: n10, metadata: i11 } = r9;
+    let s6 = globalThis.litPropertyMetadata.get(i11);
+    if (void 0 === s6 && globalThis.litPropertyMetadata.set(i11, s6 = /* @__PURE__ */ new Map()), "setter" === n10 && ((t7 = Object.create(t7)).wrapped = true), s6.set(r9.name, t7), "accessor" === n10) {
+      const { name: o14 } = r9;
+      return { set(r10) {
+        const n11 = e13.get.call(this);
+        e13.set.call(this, r10), this.requestUpdate(o14, n11, t7);
+      }, init(e14) {
+        return void 0 !== e14 && this.C(o14, void 0, t7, e14), e14;
       } };
     }
-    if ("setter" === n12) {
-      const { name: o15 } = r10;
-      return function(r11) {
-        const n13 = this[o15];
-        e11.call(this, r11), this.requestUpdate(o15, n13, t7);
+    if ("setter" === n10) {
+      const { name: o14 } = r9;
+      return function(r10) {
+        const n11 = this[o14];
+        e13.call(this, r10), this.requestUpdate(o14, n11, t7);
       };
     }
-    throw Error("Unsupported decorator location: " + n12);
+    throw Error("Unsupported decorator location: " + n10);
   };
   function n5(t7) {
-    return (e11, o15) => "object" == typeof o15 ? r5(t7, e11, o15) : ((t8, e12, o16) => {
-      const r10 = e12.hasOwnProperty(o16);
-      return e12.constructor.createProperty(o16, t8), r10 ? Object.getOwnPropertyDescriptor(e12, o16) : void 0;
-    })(t7, e11, o15);
+    return (e13, o14) => "object" == typeof o14 ? r5(t7, e13, o14) : ((t8, e14, o15) => {
+      const r9 = e14.hasOwnProperty(o15);
+      return e14.constructor.createProperty(o15, t8), r9 ? Object.getOwnPropertyDescriptor(e14, o15) : void 0;
+    })(t7, e13, o14);
   }
 
   // node_modules/@lit/reactive-element/decorators/state.js
-  function r6(r10) {
-    return n5({ ...r10, state: true, attribute: false });
+  function r6(r9) {
+    return n5({ ...r9, state: true, attribute: false });
+  }
+
+  // node_modules/@lit/reactive-element/decorators/event-options.js
+  function t4(t7) {
+    return (n10, o14) => {
+      const c7 = "function" == typeof n10 ? n10 : n10[o14];
+      Object.assign(c7, t7);
+    };
   }
 
   // node_modules/@lit/reactive-element/decorators/base.js
-  var e5 = (e11, t7, c7) => (c7.configurable = true, c7.enumerable = true, Reflect.decorate && "object" != typeof t7 && Object.defineProperty(e11, t7, c7), c7);
+  var e5 = (e13, t7, c7) => (c7.configurable = true, c7.enumerable = true, Reflect.decorate && "object" != typeof t7 && Object.defineProperty(e13, t7, c7), c7);
 
   // node_modules/@lit/reactive-element/decorators/query.js
-  function e6(e11, r10) {
-    return (n12, s6, i10) => {
-      const o15 = (t7) => t7.renderRoot?.querySelector(e11) ?? null;
-      if (r10) {
-        const { get: e12, set: r11 } = "object" == typeof s6 ? n12 : i10 ?? (() => {
+  function e6(e13, r9) {
+    return (n10, s6, i11) => {
+      const o14 = (t7) => t7.renderRoot?.querySelector(e13) ?? null;
+      if (r9) {
+        const { get: e14, set: r10 } = "object" == typeof s6 ? n10 : i11 ?? (() => {
           const t7 = Symbol();
           return { get() {
             return this[t7];
-          }, set(e13) {
-            this[t7] = e13;
+          }, set(e15) {
+            this[t7] = e15;
           } };
         })();
-        return e5(n12, s6, { get() {
-          let t7 = e12.call(this);
-          return void 0 === t7 && (t7 = o15(this), (null !== t7 || this.hasUpdated) && r11.call(this, t7)), t7;
+        return e5(n10, s6, { get() {
+          let t7 = e14.call(this);
+          return void 0 === t7 && (t7 = o14(this), (null !== t7 || this.hasUpdated) && r10.call(this, t7)), t7;
         } });
       }
-      return e5(n12, s6, { get() {
-        return o15(this);
-      } });
-    };
-  }
-
-  // node_modules/@lit/reactive-element/decorators/query-all.js
-  var e7;
-  function r7(r10) {
-    return (n12, o15) => e5(n12, o15, { get() {
-      return (this.renderRoot ?? (e7 ??= document.createDocumentFragment())).querySelectorAll(r10);
-    } });
-  }
-
-  // node_modules/@lit/reactive-element/decorators/query-async.js
-  function r8(r10) {
-    return (n12, e11) => e5(n12, e11, { async get() {
-      return await this.updateComplete, this.renderRoot?.querySelector(r10) ?? null;
-    } });
-  }
-
-  // node_modules/@lit/reactive-element/decorators/query-assigned-elements.js
-  function o9(o15) {
-    return (e11, n12) => {
-      const { slot: r10, selector: s6 } = o15 ?? {}, c7 = "slot" + (r10 ? `[name=${r10}]` : ":not([name])");
-      return e5(e11, n12, { get() {
-        const t7 = this.renderRoot?.querySelector(c7), e12 = t7?.assignedElements(o15) ?? [];
-        return void 0 === s6 ? e12 : e12.filter((t8) => t8.matches(s6));
-      } });
-    };
-  }
-
-  // node_modules/@lit/reactive-element/decorators/query-assigned-nodes.js
-  function n6(n12) {
-    return (o15, r10) => {
-      const { slot: e11 } = n12 ?? {}, s6 = "slot" + (e11 ? `[name=${e11}]` : ":not([name])");
-      return e5(o15, r10, { get() {
-        const t7 = this.renderRoot?.querySelector(s6);
-        return t7?.assignedNodes(n12) ?? [];
+      return e5(n10, s6, { get() {
+        return o14(this);
       } });
     };
   }
 
   // node_modules/lit-html/directive-helpers.js
   var { I: t5 } = Z2;
-  var f4 = (o15) => void 0 === o15.strings;
+  var e7 = (o14, t7) => void 0 === t7 ? void 0 !== o14?._$litType$ : o14?._$litType$ === t7;
+  var f4 = (o14) => void 0 === o14.strings;
   var u4 = {};
-  var m3 = (o15, t7 = u4) => o15._$AH = t7;
+  var m3 = (o14, t7 = u4) => o14._$AH = t7;
 
   // node_modules/lit-html/directive.js
   var t6 = { ATTRIBUTE: 1, CHILD: 2, PROPERTY: 3, BOOLEAN_ATTRIBUTE: 4, EVENT: 5, ELEMENT: 6 };
-  var e8 = (t7) => (...e11) => ({ _$litDirective$: t7, values: e11 });
+  var e8 = (t7) => (...e13) => ({ _$litDirective$: t7, values: e13 });
   var i7 = class {
     constructor(t7) {
     }
     get _$AU() {
       return this._$AM._$AU;
     }
-    _$AT(t7, e11, i10) {
-      this._$Ct = t7, this._$AM = e11, this._$Ci = i10;
+    _$AT(t7, e13, i11) {
+      this._$Ct = t7, this._$AM = e13, this._$Ci = i11;
     }
-    _$AS(t7, e11) {
-      return this.update(t7, e11);
+    _$AS(t7, e13) {
+      return this.update(t7, e13);
     }
-    update(t7, e11) {
-      return this.render(...e11);
+    update(t7, e13) {
+      return this.render(...e13);
     }
   };
 
   // node_modules/lit-html/async-directive.js
-  var s5 = (i10, t7) => {
-    const e11 = i10._$AN;
-    if (void 0 === e11)
+  var s5 = (i11, t7) => {
+    const e13 = i11._$AN;
+    if (void 0 === e13)
       return false;
-    for (const i11 of e11)
-      i11._$AO?.(t7, false), s5(i11, t7);
+    for (const i12 of e13)
+      i12._$AO?.(t7, false), s5(i12, t7);
     return true;
   };
-  var o10 = (i10) => {
-    let t7, e11;
+  var o8 = (i11) => {
+    let t7, e13;
     do {
-      if (void 0 === (t7 = i10._$AM))
+      if (void 0 === (t7 = i11._$AM))
         break;
-      e11 = t7._$AN, e11.delete(i10), i10 = t7;
-    } while (0 === e11?.size);
+      e13 = t7._$AN, e13.delete(i11), i11 = t7;
+    } while (0 === e13?.size);
   };
-  var r9 = (i10) => {
-    for (let t7; t7 = i10._$AM; i10 = t7) {
-      let e11 = t7._$AN;
-      if (void 0 === e11)
-        t7._$AN = e11 = /* @__PURE__ */ new Set();
-      else if (e11.has(i10))
+  var r7 = (i11) => {
+    for (let t7; t7 = i11._$AM; i11 = t7) {
+      let e13 = t7._$AN;
+      if (void 0 === e13)
+        t7._$AN = e13 = /* @__PURE__ */ new Set();
+      else if (e13.has(i11))
         break;
-      e11.add(i10), c5(t7);
+      e13.add(i11), c5(t7);
     }
   };
-  function h4(i10) {
-    void 0 !== this._$AN ? (o10(this), this._$AM = i10, r9(this)) : this._$AM = i10;
+  function h4(i11) {
+    void 0 !== this._$AN ? (o8(this), this._$AM = i11, r7(this)) : this._$AM = i11;
   }
-  function n7(i10, t7 = false, e11 = 0) {
-    const r10 = this._$AH, h6 = this._$AN;
+  function n6(i11, t7 = false, e13 = 0) {
+    const r9 = this._$AH, h6 = this._$AN;
     if (void 0 !== h6 && 0 !== h6.size)
       if (t7)
-        if (Array.isArray(r10))
-          for (let i11 = e11; i11 < r10.length; i11++)
-            s5(r10[i11], false), o10(r10[i11]);
+        if (Array.isArray(r9))
+          for (let i12 = e13; i12 < r9.length; i12++)
+            s5(r9[i12], false), o8(r9[i12]);
         else
-          null != r10 && (s5(r10, false), o10(r10));
+          null != r9 && (s5(r9, false), o8(r9));
       else
-        s5(this, i10);
+        s5(this, i11);
   }
-  var c5 = (i10) => {
-    i10.type == t6.CHILD && (i10._$AP ??= n7, i10._$AQ ??= h4);
+  var c5 = (i11) => {
+    i11.type == t6.CHILD && (i11._$AP ??= n6, i11._$AQ ??= h4);
   };
   var f5 = class extends i7 {
     constructor() {
       super(...arguments), this._$AN = void 0;
     }
-    _$AT(i10, t7, e11) {
-      super._$AT(i10, t7, e11), r9(this), this.isConnected = i10._$AU;
+    _$AT(i11, t7, e13) {
+      super._$AT(i11, t7, e13), r7(this), this.isConnected = i11._$AU;
     }
-    _$AO(i10, t7 = true) {
-      i10 !== this.isConnected && (this.isConnected = i10, i10 ? this.reconnected?.() : this.disconnected?.()), t7 && (s5(this, i10), o10(this));
+    _$AO(i11, t7 = true) {
+      i11 !== this.isConnected && (this.isConnected = i11, i11 ? this.reconnected?.() : this.disconnected?.()), t7 && (s5(this, i11), o8(this));
     }
     setValue(t7) {
       if (f4(this._$Ct))
         this._$Ct._$AI(t7, this);
       else {
-        const i10 = [...this._$Ct._$AH];
-        i10[this._$Ci] = t7, this._$Ct._$AI(i10, this, 0);
+        const i11 = [...this._$Ct._$AH];
+        i11[this._$Ci] = t7, this._$Ct._$AI(i11, this, 0);
       }
     }
     disconnected() {
@@ -11071,25 +11093,25 @@
   var e9 = () => new h5();
   var h5 = class {
   };
-  var o11 = /* @__PURE__ */ new WeakMap();
-  var n8 = e8(class extends f5 {
-    render(i10) {
+  var o9 = /* @__PURE__ */ new WeakMap();
+  var n7 = e8(class extends f5 {
+    render(i11) {
       return E2;
     }
-    update(i10, [s6]) {
-      const e11 = s6 !== this.G;
-      return e11 && void 0 !== this.G && this.rt(void 0), (e11 || this.lt !== this.ct) && (this.G = s6, this.ht = i10.options?.host, this.rt(this.ct = i10.element)), E2;
+    update(i11, [s6]) {
+      const e13 = s6 !== this.G;
+      return e13 && void 0 !== this.G && this.rt(void 0), (e13 || this.lt !== this.ct) && (this.G = s6, this.ht = i11.options?.host, this.rt(this.ct = i11.element)), E2;
     }
     rt(t7) {
       if (this.isConnected || (t7 = void 0), "function" == typeof this.G) {
-        const i10 = this.ht ?? globalThis;
-        let s6 = o11.get(i10);
-        void 0 === s6 && (s6 = /* @__PURE__ */ new WeakMap(), o11.set(i10, s6)), void 0 !== s6.get(this.G) && this.G.call(this.ht, void 0), s6.set(this.G, t7), void 0 !== t7 && this.G.call(this.ht, t7);
+        const i11 = this.ht ?? globalThis;
+        let s6 = o9.get(i11);
+        void 0 === s6 && (s6 = /* @__PURE__ */ new WeakMap(), o9.set(i11, s6)), void 0 !== s6.get(this.G) && this.G.call(this.ht, void 0), s6.set(this.G, t7), void 0 !== t7 && this.G.call(this.ht, t7);
       } else
         this.G.value = t7;
     }
     get lt() {
-      return "function" == typeof this.G ? o11.get(this.ht ?? globalThis)?.get(this.G) : this.G?.value;
+      return "function" == typeof this.G ? o9.get(this.ht ?? globalThis)?.get(this.G) : this.G?.value;
     }
     disconnected() {
       this.lt === this.ct && this.rt(void 0);
@@ -11122,7 +11144,7 @@
     try {
       value2[symToStringTag] = void 0;
       var unmasked = true;
-    } catch (e11) {
+    } catch (e13) {
     }
     var result = nativeObjectToString.call(value2);
     if (unmasked) {
@@ -11198,11 +11220,11 @@
     if (func != null) {
       try {
         return funcToString.call(func);
-      } catch (e11) {
+      } catch (e13) {
       }
       try {
         return func + "";
-      } catch (e11) {
+      } catch (e13) {
       }
     }
     return "";
@@ -11247,7 +11269,7 @@
       var func = getNative_default(Object, "defineProperty");
       func({}, "", {});
       return func;
-    } catch (e11) {
+    } catch (e13) {
     }
   }();
   var defineProperty_default = defineProperty;
@@ -11392,10 +11414,10 @@
   var listCacheClear_default = listCacheClear;
 
   // node_modules/lodash-es/_assocIndexOf.js
-  function assocIndexOf(array, key) {
-    var length = array.length;
+  function assocIndexOf(array2, key) {
+    var length = array2.length;
     while (length--) {
-      if (eq_default(array[length][0], key)) {
+      if (eq_default(array2[length][0], key)) {
         return length;
       }
     }
@@ -11515,9 +11537,9 @@
 
   // node_modules/lodash-es/_mapCacheSet.js
   function mapCacheSet(key, value2) {
-    var data = getMapData_default(this, key), size = data.size;
+    var data = getMapData_default(this, key), size3 = data.size;
     data.set(key, value2);
-    this.size += data.size == size ? 0 : 1;
+    this.size += data.size == size3 ? 0 : 1;
     return this;
   }
   var mapCacheSet_default = mapCacheSet;
@@ -11589,10 +11611,10 @@
   var stringToPath_default = stringToPath;
 
   // node_modules/lodash-es/_arrayMap.js
-  function arrayMap(array, iteratee) {
-    var index = -1, length = array == null ? 0 : array.length, result = Array(length);
+  function arrayMap(array2, iteratee) {
+    var index = -1, length = array2 == null ? 0 : array2.length, result = Array(length);
     while (++index < length) {
-      result[index] = iteratee(array[index], index, array);
+      result[index] = iteratee(array2[index], index, array2);
     }
     return result;
   }
@@ -11766,7 +11788,7 @@
             click: (_event) => {
               if (!Array.isArray(dataLevel))
                 return;
-              dataLevel = dataLevel.filter((_3, i10) => i10 !== index);
+              dataLevel = dataLevel.filter((_3, i11) => i11 !== index);
               handleChange([...path], dataLevel, schemaPath);
             }
           },
@@ -12039,14 +12061,14 @@
 
   // node_modules/@jsfe/form/dist/esm/json-schema-form.js
   var __decorate = function(decorators, target, key, desc) {
-    var c7 = arguments.length, r10 = c7 < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d4;
+    var c7 = arguments.length, r9 = c7 < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d4;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
-      r10 = Reflect.decorate(decorators, target, key, desc);
+      r9 = Reflect.decorate(decorators, target, key, desc);
     else
-      for (var i10 = decorators.length - 1; i10 >= 0; i10--)
-        if (d4 = decorators[i10])
-          r10 = (c7 < 3 ? d4(r10) : c7 > 3 ? d4(target, key, r10) : d4(target, key)) || r10;
-    return c7 > 3 && r10 && Object.defineProperty(target, key, r10), r10;
+      for (var i11 = decorators.length - 1; i11 >= 0; i11--)
+        if (d4 = decorators[i11])
+          r9 = (c7 < 3 ? d4(r9) : c7 > 3 ? d4(target, key, r9) : d4(target, key)) || r9;
+    return c7 > 3 && r9 && Object.defineProperty(target, key, r9), r9;
   };
   var Jsf = class extends i6 {
     constructor() {
@@ -12112,9 +12134,9 @@
       if (typeof currentNode.items === "object") {
         if (Array.isArray(currentNode.items)) {
           const newNode = { ...node, properties: {} };
-          currentNode.items.forEach((e11, i10) => {
+          currentNode.items.forEach((e13, i11) => {
             if (newNode.properties)
-              newNode.properties[i10] = e11;
+              newNode.properties[i11] = e13;
           });
           const schemaPathAugmented = [...schemaPath, "items"];
           result = fieldObject(newNode, dataLevel, path, uiState, uiSchema, this._dig.bind(this), schemaPathAugmented, this.widgets, level);
@@ -12192,7 +12214,7 @@
 			</style>
 
 			<form
-				${n8(this.#formRef)}
+				${n7(this.#formRef)}
 				part="base"
 				@submit=${(event) => {
         console.log("hey");
@@ -12242,21 +12264,313 @@
   // node_modules/@jsfe/form/dist/esm/json-schema-form.def.js
   customElements.define("json-schema-form", Jsf);
 
-  // node_modules/@jsfe/material/dist/esm/widgets/index.js
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/index.js
   var widgets_exports = {};
   __export(widgets_exports, {
+    array: () => array,
+    buttonGroup: () => buttonGroup,
+    buttonGroupBoolean: () => buttonGroupBoolean,
     callout: () => callout,
     checkbox: () => checkbox,
+    checkboxGroup: () => checkboxGroup,
+    colorPicker: () => colorPicker,
     date: () => date,
     number: () => number,
     object: () => object,
+    radioGroup: () => radioGroup,
+    radioGroupBoolean: () => radioGroupBoolean,
     range: () => range,
+    rating: () => rating,
     select: () => select,
+    selectMultiple: () => selectMultiple,
     submit: () => submit,
     switch: () => switchh,
     text: () => text,
     textarea: () => textarea
   });
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.A5D6FTFY.js
+  var card_styles_default = i3`
+  :host {
+    --border-color: var(--sl-color-neutral-200);
+    --border-radius: var(--sl-border-radius-medium);
+    --border-width: 1px;
+    --padding: var(--sl-spacing-large);
+
+    display: inline-block;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--sl-panel-background-color);
+    box-shadow: var(--sl-shadow-x-small);
+    border: solid var(--border-width) var(--border-color);
+    border-radius: var(--border-radius);
+  }
+
+  .card__image {
+    display: flex;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    margin: calc(-1 * var(--border-width));
+    overflow: hidden;
+  }
+
+  .card__image::slotted(img) {
+    display: block;
+    width: 100%;
+  }
+
+  .card:not(.card--has-image) .card__image {
+    display: none;
+  }
+
+  .card__header {
+    display: block;
+    border-bottom: solid var(--border-width) var(--border-color);
+    padding: calc(var(--padding) / 2) var(--padding);
+  }
+
+  .card:not(.card--has-header) .card__header {
+    display: none;
+  }
+
+  .card:not(.card--has-image) .card__header {
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
+
+  .card__body {
+    display: block;
+    padding: var(--padding);
+  }
+
+  .card--has-footer .card__footer {
+    display: block;
+    border-top: solid var(--border-width) var(--border-color);
+    padding: var(--padding);
+  }
+
+  .card:not(.card--has-footer) .card__footer {
+    display: none;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.NYIIDP5N.js
+  var HasSlotController = class {
+    constructor(host, ...slotNames) {
+      this.slotNames = [];
+      this.handleSlotChange = (event) => {
+        const slot = event.target;
+        if (this.slotNames.includes("[default]") && !slot.name || slot.name && this.slotNames.includes(slot.name)) {
+          this.host.requestUpdate();
+        }
+      };
+      (this.host = host).addController(this);
+      this.slotNames = slotNames;
+    }
+    hasDefaultSlot() {
+      return [...this.host.childNodes].some((node) => {
+        if (node.nodeType === node.TEXT_NODE && node.textContent.trim() !== "") {
+          return true;
+        }
+        if (node.nodeType === node.ELEMENT_NODE) {
+          const el = node;
+          const tagName = el.tagName.toLowerCase();
+          if (tagName === "sl-visually-hidden") {
+            return false;
+          }
+          if (!el.hasAttribute("slot")) {
+            return true;
+          }
+        }
+        return false;
+      });
+    }
+    hasNamedSlot(name) {
+      return this.host.querySelector(`:scope > [slot="${name}"]`) !== null;
+    }
+    test(slotName) {
+      return slotName === "[default]" ? this.hasDefaultSlot() : this.hasNamedSlot(slotName);
+    }
+    hostConnected() {
+      this.host.shadowRoot.addEventListener("slotchange", this.handleSlotChange);
+    }
+    hostDisconnected() {
+      this.host.shadowRoot.removeEventListener("slotchange", this.handleSlotChange);
+    }
+  };
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.TUVJKY7S.js
+  var component_styles_default = i3`
+  :host {
+    box-sizing: border-box;
+  }
+
+  :host *,
+  :host *::before,
+  :host *::after {
+    box-sizing: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.KAW7D32O.js
+  var __defProp3 = Object.defineProperty;
+  var __defProps = Object.defineProperties;
+  var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
+  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __knownSymbol = (name, symbol) => (symbol = Symbol[name]) ? symbol : Symbol.for("Symbol." + name);
+  var __typeError = (msg) => {
+    throw TypeError(msg);
+  };
+  var __defNormalProp = (obj, key, value2) => key in obj ? __defProp3(obj, key, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj[key] = value2;
+  var __spreadValues = (a5, b4) => {
+    for (var prop in b4 || (b4 = {}))
+      if (__hasOwnProp.call(b4, prop))
+        __defNormalProp(a5, prop, b4[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b4)) {
+        if (__propIsEnum.call(b4, prop))
+          __defNormalProp(a5, prop, b4[prop]);
+      }
+    return a5;
+  };
+  var __spreadProps = (a5, b4) => __defProps(a5, __getOwnPropDescs(b4));
+  var __decorateClass2 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc2(target, key) : target;
+    for (var i11 = decorators.length - 1, decorator; i11 >= 0; i11--)
+      if (decorator = decorators[i11])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result)
+      __defProp3(target, key, result);
+    return result;
+  };
+  var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+  var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+  var __privateAdd = (obj, member, value2) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+  var __privateSet = (obj, member, value2, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value2) : member.set(obj, value2), value2);
+  var __await = function(promise, isYieldStar) {
+    this[0] = promise;
+    this[1] = isYieldStar;
+  };
+  var __yieldStar = (value2) => {
+    var obj = value2[__knownSymbol("asyncIterator")], isAwait = false, method, it2 = {};
+    if (obj == null) {
+      obj = value2[__knownSymbol("iterator")]();
+      method = (k3) => it2[k3] = (x2) => obj[k3](x2);
+    } else {
+      obj = obj.call(value2);
+      method = (k3) => it2[k3] = (v3) => {
+        if (isAwait) {
+          isAwait = false;
+          if (k3 === "throw")
+            throw v3;
+          return v3;
+        }
+        isAwait = true;
+        return {
+          done: false,
+          value: new __await(new Promise((resolve) => {
+            var x2 = obj[k3](v3);
+            if (!(x2 instanceof Object))
+              __typeError("Object expected");
+            resolve(x2);
+          }), 1)
+        };
+      };
+    }
+    return it2[__knownSymbol("iterator")] = () => it2, method("next"), "throw" in obj ? method("throw") : it2.throw = (x2) => {
+      throw x2;
+    }, "return" in obj && method("return"), it2;
+  };
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.4TUIT776.js
+  var _hasRecordedInitialProperties;
+  var ShoelaceElement = class extends i6 {
+    constructor() {
+      super();
+      __privateAdd(this, _hasRecordedInitialProperties, false);
+      this.initialReflectedProperties = /* @__PURE__ */ new Map();
+      Object.entries(this.constructor.dependencies).forEach(([name, component]) => {
+        this.constructor.define(name, component);
+      });
+    }
+    emit(name, options) {
+      const event = new CustomEvent(name, __spreadValues({
+        bubbles: true,
+        cancelable: false,
+        composed: true,
+        detail: {}
+      }, options));
+      this.dispatchEvent(event);
+      return event;
+    }
+    /* eslint-enable */
+    static define(name, elementConstructor = this, options = {}) {
+      const currentlyRegisteredConstructor = customElements.get(name);
+      if (!currentlyRegisteredConstructor) {
+        try {
+          customElements.define(name, elementConstructor, options);
+        } catch (_err) {
+          customElements.define(name, class extends elementConstructor {
+          }, options);
+        }
+        return;
+      }
+      let newVersion = " (unknown version)";
+      let existingVersion = newVersion;
+      if ("version" in elementConstructor && elementConstructor.version) {
+        newVersion = " v" + elementConstructor.version;
+      }
+      if ("version" in currentlyRegisteredConstructor && currentlyRegisteredConstructor.version) {
+        existingVersion = " v" + currentlyRegisteredConstructor.version;
+      }
+      if (newVersion && existingVersion && newVersion === existingVersion) {
+        return;
+      }
+      console.warn(
+        `Attempted to register <${name}>${newVersion}, but <${name}>${existingVersion} has already been registered.`
+      );
+    }
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (!__privateGet(this, _hasRecordedInitialProperties)) {
+        this.constructor.elementProperties.forEach(
+          (obj, prop) => {
+            if (obj.reflect && this[prop] != null) {
+              this.initialReflectedProperties.set(prop, this[prop]);
+            }
+          }
+        );
+        __privateSet(this, _hasRecordedInitialProperties, true);
+      }
+      super.attributeChangedCallback(name, oldValue, newValue);
+    }
+    willUpdate(changedProperties) {
+      super.willUpdate(changedProperties);
+      this.initialReflectedProperties.forEach((value2, prop) => {
+        if (changedProperties.has(prop) && this[prop] == null) {
+          this[prop] = value2;
+        }
+      });
+    }
+  };
+  _hasRecordedInitialProperties = /* @__PURE__ */ new WeakMap();
+  ShoelaceElement.version = "2.20.1";
+  ShoelaceElement.dependencies = {};
+  __decorateClass2([
+    n5()
+  ], ShoelaceElement.prototype, "dir", 2);
+  __decorateClass2([
+    n5()
+  ], ShoelaceElement.prototype, "lang", 2);
 
   // node_modules/lit-html/directives/class-map.js
   var e10 = e8(class extends i7 {
@@ -12267,31 +12581,2618 @@
     render(t7) {
       return " " + Object.keys(t7).filter((s6) => t7[s6]).join(" ") + " ";
     }
-    update(s6, [i10]) {
+    update(s6, [i11]) {
       if (void 0 === this.st) {
         this.st = /* @__PURE__ */ new Set(), void 0 !== s6.strings && (this.nt = new Set(s6.strings.join(" ").split(/\s/).filter((t7) => "" !== t7)));
-        for (const t7 in i10)
-          i10[t7] && !this.nt?.has(t7) && this.st.add(t7);
-        return this.render(i10);
+        for (const t7 in i11)
+          i11[t7] && !this.nt?.has(t7) && this.st.add(t7);
+        return this.render(i11);
       }
-      const r10 = s6.element.classList;
+      const r9 = s6.element.classList;
       for (const t7 of this.st)
-        t7 in i10 || (r10.remove(t7), this.st.delete(t7));
-      for (const t7 in i10) {
-        const s7 = !!i10[t7];
-        s7 === this.st.has(t7) || this.nt?.has(t7) || (s7 ? (r10.add(t7), this.st.add(t7)) : (r10.remove(t7), this.st.delete(t7)));
+        t7 in i11 || (r9.remove(t7), this.st.delete(t7));
+      for (const t7 in i11) {
+        const s7 = !!i11[t7];
+        s7 === this.st.has(t7) || this.nt?.has(t7) || (s7 ? (r9.add(t7), this.st.add(t7)) : (r9.remove(t7), this.st.delete(t7)));
       }
       return T2;
     }
   });
 
-  // node_modules/@jsfe/material/dist/esm/widgets/callout.js
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.PSUCFVU6.js
+  var SlCard = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.hasSlotController = new HasSlotController(this, "footer", "header", "image");
+    }
+    render() {
+      return x`
+      <div
+        part="base"
+        class=${e10({
+        card: true,
+        "card--has-footer": this.hasSlotController.test("footer"),
+        "card--has-image": this.hasSlotController.test("image"),
+        "card--has-header": this.hasSlotController.test("header")
+      })}
+      >
+        <slot name="image" part="image" class="card__image"></slot>
+        <slot name="header" part="header" class="card__header"></slot>
+        <slot part="body" class="card__body"></slot>
+        <slot name="footer" part="footer" class="card__footer"></slot>
+      </div>
+    `;
+    }
+  };
+  SlCard.styles = [component_styles_default, card_styles_default];
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.3LWOA5DF.js
+  SlCard.define("sl-card");
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.V2OL7VMD.js
+  var tag_styles_default = i3`
+  :host {
+    display: inline-block;
+  }
+
+  .tag {
+    display: flex;
+    align-items: center;
+    border: solid 1px;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .tag__remove::part(base) {
+    color: inherit;
+    padding: 0;
+  }
+
+  /*
+   * Variant modifiers
+   */
+
+  .tag--primary {
+    background-color: var(--sl-color-primary-50);
+    border-color: var(--sl-color-primary-200);
+    color: var(--sl-color-primary-800);
+  }
+
+  .tag--primary:active > sl-icon-button {
+    color: var(--sl-color-primary-600);
+  }
+
+  .tag--success {
+    background-color: var(--sl-color-success-50);
+    border-color: var(--sl-color-success-200);
+    color: var(--sl-color-success-800);
+  }
+
+  .tag--success:active > sl-icon-button {
+    color: var(--sl-color-success-600);
+  }
+
+  .tag--neutral {
+    background-color: var(--sl-color-neutral-50);
+    border-color: var(--sl-color-neutral-200);
+    color: var(--sl-color-neutral-800);
+  }
+
+  .tag--neutral:active > sl-icon-button {
+    color: var(--sl-color-neutral-600);
+  }
+
+  .tag--warning {
+    background-color: var(--sl-color-warning-50);
+    border-color: var(--sl-color-warning-200);
+    color: var(--sl-color-warning-800);
+  }
+
+  .tag--warning:active > sl-icon-button {
+    color: var(--sl-color-warning-600);
+  }
+
+  .tag--danger {
+    background-color: var(--sl-color-danger-50);
+    border-color: var(--sl-color-danger-200);
+    color: var(--sl-color-danger-800);
+  }
+
+  .tag--danger:active > sl-icon-button {
+    color: var(--sl-color-danger-600);
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .tag--small {
+    font-size: var(--sl-button-font-size-small);
+    height: calc(var(--sl-input-height-small) * 0.8);
+    line-height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-small);
+    padding: 0 var(--sl-spacing-x-small);
+  }
+
+  .tag--medium {
+    font-size: var(--sl-button-font-size-medium);
+    height: calc(var(--sl-input-height-medium) * 0.8);
+    line-height: calc(var(--sl-input-height-medium) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-medium);
+    padding: 0 var(--sl-spacing-small);
+  }
+
+  .tag--large {
+    font-size: var(--sl-button-font-size-large);
+    height: calc(var(--sl-input-height-large) * 0.8);
+    line-height: calc(var(--sl-input-height-large) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-large);
+    padding: 0 var(--sl-spacing-medium);
+  }
+
+  .tag__remove {
+    margin-inline-start: var(--sl-spacing-x-small);
+  }
+
+  /*
+   * Pill modifier
+   */
+
+  .tag--pill {
+    border-radius: var(--sl-border-radius-pill);
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.6I2T3DLI.js
+  var icon_button_styles_default = i3`
+  :host {
+    display: inline-block;
+    color: var(--sl-color-neutral-600);
+  }
+
+  .icon-button {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--sl-border-radius-medium);
+    font-size: inherit;
+    color: inherit;
+    padding: var(--sl-spacing-x-small);
+    cursor: pointer;
+    transition: var(--sl-transition-x-fast) color;
+    -webkit-appearance: none;
+  }
+
+  .icon-button:hover:not(.icon-button--disabled),
+  .icon-button:focus-visible:not(.icon-button--disabled) {
+    color: var(--sl-color-primary-600);
+  }
+
+  .icon-button:active:not(.icon-button--disabled) {
+    color: var(--sl-color-primary-700);
+  }
+
+  .icon-button:focus {
+    outline: none;
+  }
+
+  .icon-button--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .icon-button:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .icon-button__icon {
+    pointer-events: none;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.3Y6SB6QS.js
+  var basePath = "";
+  function setBasePath(path) {
+    basePath = path;
+  }
+  function getBasePath(subpath = "") {
+    if (!basePath) {
+      const scripts = [...document.getElementsByTagName("script")];
+      const configScript = scripts.find((script) => script.hasAttribute("data-shoelace"));
+      if (configScript) {
+        setBasePath(configScript.getAttribute("data-shoelace"));
+      } else {
+        const fallbackScript = scripts.find((s6) => {
+          return /shoelace(\.min)?\.js($|\?)/.test(s6.src) || /shoelace-autoloader(\.min)?\.js($|\?)/.test(s6.src);
+        });
+        let path = "";
+        if (fallbackScript) {
+          path = fallbackScript.getAttribute("src");
+        }
+        setBasePath(path.split("/").slice(0, -1).join("/"));
+      }
+    }
+    return basePath.replace(/\/$/, "") + (subpath ? `/${subpath.replace(/^\//, "")}` : ``);
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.P7ZG6EMR.js
+  var library = {
+    name: "default",
+    resolver: (name) => getBasePath(`assets/icons/${name}.svg`)
+  };
+  var library_default_default = library;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.3TFKS637.js
+  var icons = {
+    caret: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  `,
+    check: `
+    <svg part="checked-icon" class="checkbox__icon" viewBox="0 0 16 16">
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g stroke="currentColor">
+          <g transform="translate(3.428571, 3.428571)">
+            <path d="M0,5.71428571 L3.42857143,9.14285714"></path>
+            <path d="M9.14285714,0 L3.42857143,9.14285714"></path>
+          </g>
+        </g>
+      </g>
+    </svg>
+  `,
+    "chevron-down": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+    </svg>
+  `,
+    "chevron-left": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+    </svg>
+  `,
+    "chevron-right": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+    </svg>
+  `,
+    copy: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2Zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6ZM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2Z"/>
+    </svg>
+  `,
+    eye: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+    </svg>
+  `,
+    "eye-slash": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+      <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+      <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
+      <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
+    </svg>
+  `,
+    eyedropper: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eyedropper" viewBox="0 0 16 16">
+      <path d="M13.354.646a1.207 1.207 0 0 0-1.708 0L8.5 3.793l-.646-.647a.5.5 0 1 0-.708.708L8.293 5l-7.147 7.146A.5.5 0 0 0 1 12.5v1.793l-.854.853a.5.5 0 1 0 .708.707L1.707 15H3.5a.5.5 0 0 0 .354-.146L11 7.707l1.146 1.147a.5.5 0 0 0 .708-.708l-.647-.646 3.147-3.146a1.207 1.207 0 0 0 0-1.708l-2-2zM2 12.707l7-7L10.293 7l-7 7H2v-1.293z"></path>
+    </svg>
+  `,
+    "grip-vertical": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grip-vertical" viewBox="0 0 16 16">
+      <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+    </svg>
+  `,
+    indeterminate: `
+    <svg part="indeterminate-icon" class="checkbox__icon" viewBox="0 0 16 16">
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g stroke="currentColor" stroke-width="2">
+          <g transform="translate(2.285714, 6.857143)">
+            <path d="M10.2857143,1.14285714 L1.14285714,1.14285714"></path>
+          </g>
+        </g>
+      </g>
+    </svg>
+  `,
+    "person-fill": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+      <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+    </svg>
+  `,
+    "play-fill": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+      <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"></path>
+    </svg>
+  `,
+    "pause-fill": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill" viewBox="0 0 16 16">
+      <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"></path>
+    </svg>
+  `,
+    radio: `
+    <svg part="checked-icon" class="radio__icon" viewBox="0 0 16 16">
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="currentColor">
+          <circle cx="8" cy="8" r="3.42857143"></circle>
+        </g>
+      </g>
+    </svg>
+  `,
+    "star-fill": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+      <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+    </svg>
+  `,
+    "x-lg": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+    </svg>
+  `,
+    "x-circle-fill": `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"></path>
+    </svg>
+  `
+  };
+  var systemLibrary = {
+    name: "system",
+    resolver: (name) => {
+      if (name in icons) {
+        return `data:image/svg+xml,${encodeURIComponent(icons[name])}`;
+      }
+      return "";
+    }
+  };
+  var library_system_default = systemLibrary;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.ZL53POKZ.js
+  var registry = [library_default_default, library_system_default];
+  var watchedIcons = [];
+  function watchIcon(icon) {
+    watchedIcons.push(icon);
+  }
+  function unwatchIcon(icon) {
+    watchedIcons = watchedIcons.filter((el) => el !== icon);
+  }
+  function getIconLibrary(name) {
+    return registry.find((lib) => lib.name === name);
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.QLXRCYS4.js
+  var icon_styles_default = i3`
+  :host {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    box-sizing: content-box !important;
+  }
+
+  svg {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.GMYPQTFK.js
+  function watch(propertyName, options) {
+    const resolvedOptions = __spreadValues({
+      waitUntilFirstUpdate: false
+    }, options);
+    return (proto, decoratedFnName) => {
+      const { update: update2 } = proto;
+      const watchedProperties = Array.isArray(propertyName) ? propertyName : [propertyName];
+      proto.update = function(changedProps) {
+        watchedProperties.forEach((property) => {
+          const key = property;
+          if (changedProps.has(key)) {
+            const oldValue = changedProps.get(key);
+            const newValue = this[key];
+            if (oldValue !== newValue) {
+              if (!resolvedOptions.waitUntilFirstUpdate || this.hasUpdated) {
+                this[decoratedFnName](oldValue, newValue);
+              }
+            }
+          }
+        });
+        update2.call(this, changedProps);
+      };
+    };
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.YHLNUJ7P.js
+  var CACHEABLE_ERROR = Symbol();
+  var RETRYABLE_ERROR = Symbol();
+  var parser;
+  var iconCache = /* @__PURE__ */ new Map();
+  var SlIcon = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.initialRender = false;
+      this.svg = null;
+      this.label = "";
+      this.library = "default";
+    }
+    /** Given a URL, this function returns the resulting SVG element or an appropriate error symbol. */
+    async resolveIcon(url, library2) {
+      var _a;
+      let fileData;
+      if (library2 == null ? void 0 : library2.spriteSheet) {
+        this.svg = x`<svg part="svg">
+        <use part="use" href="${url}"></use>
+      </svg>`;
+        return this.svg;
+      }
+      try {
+        fileData = await fetch(url, { mode: "cors" });
+        if (!fileData.ok)
+          return fileData.status === 410 ? CACHEABLE_ERROR : RETRYABLE_ERROR;
+      } catch (e13) {
+        return RETRYABLE_ERROR;
+      }
+      try {
+        const div = document.createElement("div");
+        div.innerHTML = await fileData.text();
+        const svg = div.firstElementChild;
+        if (((_a = svg == null ? void 0 : svg.tagName) == null ? void 0 : _a.toLowerCase()) !== "svg")
+          return CACHEABLE_ERROR;
+        if (!parser)
+          parser = new DOMParser();
+        const doc = parser.parseFromString(svg.outerHTML, "text/html");
+        const svgEl = doc.body.querySelector("svg");
+        if (!svgEl)
+          return CACHEABLE_ERROR;
+        svgEl.part.add("svg");
+        return document.adoptNode(svgEl);
+      } catch (e13) {
+        return CACHEABLE_ERROR;
+      }
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      watchIcon(this);
+    }
+    firstUpdated() {
+      this.initialRender = true;
+      this.setIcon();
+    }
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      unwatchIcon(this);
+    }
+    getIconSource() {
+      const library2 = getIconLibrary(this.library);
+      if (this.name && library2) {
+        return {
+          url: library2.resolver(this.name),
+          fromLibrary: true
+        };
+      }
+      return {
+        url: this.src,
+        fromLibrary: false
+      };
+    }
+    handleLabelChange() {
+      const hasLabel = typeof this.label === "string" && this.label.length > 0;
+      if (hasLabel) {
+        this.setAttribute("role", "img");
+        this.setAttribute("aria-label", this.label);
+        this.removeAttribute("aria-hidden");
+      } else {
+        this.removeAttribute("role");
+        this.removeAttribute("aria-label");
+        this.setAttribute("aria-hidden", "true");
+      }
+    }
+    async setIcon() {
+      var _a;
+      const { url, fromLibrary } = this.getIconSource();
+      const library2 = fromLibrary ? getIconLibrary(this.library) : void 0;
+      if (!url) {
+        this.svg = null;
+        return;
+      }
+      let iconResolver = iconCache.get(url);
+      if (!iconResolver) {
+        iconResolver = this.resolveIcon(url, library2);
+        iconCache.set(url, iconResolver);
+      }
+      if (!this.initialRender) {
+        return;
+      }
+      const svg = await iconResolver;
+      if (svg === RETRYABLE_ERROR) {
+        iconCache.delete(url);
+      }
+      if (url !== this.getIconSource().url) {
+        return;
+      }
+      if (e7(svg)) {
+        this.svg = svg;
+        if (library2) {
+          await this.updateComplete;
+          const shadowSVG = this.shadowRoot.querySelector("[part='svg']");
+          if (typeof library2.mutator === "function" && shadowSVG) {
+            library2.mutator(shadowSVG);
+          }
+        }
+        return;
+      }
+      switch (svg) {
+        case RETRYABLE_ERROR:
+        case CACHEABLE_ERROR:
+          this.svg = null;
+          this.emit("sl-error");
+          break;
+        default:
+          this.svg = svg.cloneNode(true);
+          (_a = library2 == null ? void 0 : library2.mutator) == null ? void 0 : _a.call(library2, this.svg);
+          this.emit("sl-load");
+      }
+    }
+    render() {
+      return this.svg;
+    }
+  };
+  SlIcon.styles = [component_styles_default, icon_styles_default];
+  __decorateClass2([
+    r6()
+  ], SlIcon.prototype, "svg", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlIcon.prototype, "name", 2);
+  __decorateClass2([
+    n5()
+  ], SlIcon.prototype, "src", 2);
+  __decorateClass2([
+    n5()
+  ], SlIcon.prototype, "label", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlIcon.prototype, "library", 2);
+  __decorateClass2([
+    watch("label")
+  ], SlIcon.prototype, "handleLabelChange", 1);
+  __decorateClass2([
+    watch(["name", "src", "library"])
+  ], SlIcon.prototype, "setIcon", 1);
+
+  // node_modules/lit-html/static.js
+  var a4 = Symbol.for("");
+  var o10 = (t7) => {
+    if (t7?.r === a4)
+      return t7?._$litStatic$;
+  };
+  var i8 = (t7, ...r9) => ({ _$litStatic$: r9.reduce((r10, e13, a5) => r10 + ((t8) => {
+    if (void 0 !== t8._$litStatic$)
+      return t8._$litStatic$;
+    throw Error(`Value passed to 'literal' function must be a 'literal' result: ${t8}. Use 'unsafeStatic' to pass non-literal values, but
+            take care to ensure page security.`);
+  })(e13) + t7[a5 + 1], t7[0]), r: a4 });
+  var l4 = /* @__PURE__ */ new Map();
+  var n8 = (t7) => (r9, ...e13) => {
+    const a5 = e13.length;
+    let s6, i11;
+    const n10 = [], u6 = [];
+    let c7, $4 = 0, f6 = false;
+    for (; $4 < a5; ) {
+      for (c7 = r9[$4]; $4 < a5 && void 0 !== (i11 = e13[$4], s6 = o10(i11)); )
+        c7 += s6 + r9[++$4], f6 = true;
+      $4 !== a5 && u6.push(i11), n10.push(c7), $4++;
+    }
+    if ($4 === a5 && n10.push(r9[a5]), f6) {
+      const t8 = n10.join("$$lit$$");
+      void 0 === (r9 = l4.get(t8)) && (n10.raw = n10, l4.set(t8, r9 = n10)), e13 = u6;
+    }
+    return t7(r9, ...e13);
+  };
+  var u5 = n8(x);
+  var c6 = n8(b3);
+  var $3 = n8(w);
+
+  // node_modules/lit-html/directives/if-defined.js
+  var o11 = (o14) => o14 ?? E2;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.7E4JTYWU.js
+  var SlIconButton = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.hasFocus = false;
+      this.label = "";
+      this.disabled = false;
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+    handleClick(event) {
+      if (this.disabled) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+    /** Simulates a click on the icon button. */
+    click() {
+      this.button.click();
+    }
+    /** Sets focus on the icon button. */
+    focus(options) {
+      this.button.focus(options);
+    }
+    /** Removes focus from the icon button. */
+    blur() {
+      this.button.blur();
+    }
+    render() {
+      const isLink = this.href ? true : false;
+      const tag = isLink ? i8`a` : i8`button`;
+      return u5`
+      <${tag}
+        part="base"
+        class=${e10({
+        "icon-button": true,
+        "icon-button--disabled": !isLink && this.disabled,
+        "icon-button--focused": this.hasFocus
+      })}
+        ?disabled=${o11(isLink ? void 0 : this.disabled)}
+        type=${o11(isLink ? void 0 : "button")}
+        href=${o11(isLink ? this.href : void 0)}
+        target=${o11(isLink ? this.target : void 0)}
+        download=${o11(isLink ? this.download : void 0)}
+        rel=${o11(isLink && this.target ? "noreferrer noopener" : void 0)}
+        role=${o11(isLink ? void 0 : "button")}
+        aria-disabled=${this.disabled ? "true" : "false"}
+        aria-label="${this.label}"
+        tabindex=${this.disabled ? "-1" : "0"}
+        @blur=${this.handleBlur}
+        @focus=${this.handleFocus}
+        @click=${this.handleClick}
+      >
+        <sl-icon
+          class="icon-button__icon"
+          name=${o11(this.name)}
+          library=${o11(this.library)}
+          src=${o11(this.src)}
+          aria-hidden="true"
+        ></sl-icon>
+      </${tag}>
+    `;
+    }
+  };
+  SlIconButton.styles = [component_styles_default, icon_button_styles_default];
+  SlIconButton.dependencies = { "sl-icon": SlIcon };
+  __decorateClass2([
+    e6(".icon-button")
+  ], SlIconButton.prototype, "button", 2);
+  __decorateClass2([
+    r6()
+  ], SlIconButton.prototype, "hasFocus", 2);
+  __decorateClass2([
+    n5()
+  ], SlIconButton.prototype, "name", 2);
+  __decorateClass2([
+    n5()
+  ], SlIconButton.prototype, "library", 2);
+  __decorateClass2([
+    n5()
+  ], SlIconButton.prototype, "src", 2);
+  __decorateClass2([
+    n5()
+  ], SlIconButton.prototype, "href", 2);
+  __decorateClass2([
+    n5()
+  ], SlIconButton.prototype, "target", 2);
+  __decorateClass2([
+    n5()
+  ], SlIconButton.prototype, "download", 2);
+  __decorateClass2([
+    n5()
+  ], SlIconButton.prototype, "label", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlIconButton.prototype, "disabled", 2);
+
+  // node_modules/@shoelace-style/localize/dist/index.js
+  var connectedElements = /* @__PURE__ */ new Set();
+  var translations = /* @__PURE__ */ new Map();
+  var fallback;
+  var documentDirection = "ltr";
+  var documentLanguage = "en";
+  var isClient = typeof MutationObserver !== "undefined" && typeof document !== "undefined" && typeof document.documentElement !== "undefined";
+  if (isClient) {
+    const documentElementObserver = new MutationObserver(update);
+    documentDirection = document.documentElement.dir || "ltr";
+    documentLanguage = document.documentElement.lang || navigator.language;
+    documentElementObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["dir", "lang"]
+    });
+  }
+  function registerTranslation(...translation2) {
+    translation2.map((t7) => {
+      const code = t7.$code.toLowerCase();
+      if (translations.has(code)) {
+        translations.set(code, Object.assign(Object.assign({}, translations.get(code)), t7));
+      } else {
+        translations.set(code, t7);
+      }
+      if (!fallback) {
+        fallback = t7;
+      }
+    });
+    update();
+  }
+  function update() {
+    if (isClient) {
+      documentDirection = document.documentElement.dir || "ltr";
+      documentLanguage = document.documentElement.lang || navigator.language;
+    }
+    [...connectedElements.keys()].map((el) => {
+      if (typeof el.requestUpdate === "function") {
+        el.requestUpdate();
+      }
+    });
+  }
+  var LocalizeController = class {
+    constructor(host) {
+      this.host = host;
+      this.host.addController(this);
+    }
+    hostConnected() {
+      connectedElements.add(this.host);
+    }
+    hostDisconnected() {
+      connectedElements.delete(this.host);
+    }
+    dir() {
+      return `${this.host.dir || documentDirection}`.toLowerCase();
+    }
+    lang() {
+      return `${this.host.lang || documentLanguage}`.toLowerCase();
+    }
+    getTranslationData(lang) {
+      var _a, _b;
+      const locale = new Intl.Locale(lang.replace(/_/g, "-"));
+      const language = locale === null || locale === void 0 ? void 0 : locale.language.toLowerCase();
+      const region = (_b = (_a = locale === null || locale === void 0 ? void 0 : locale.region) === null || _a === void 0 ? void 0 : _a.toLowerCase()) !== null && _b !== void 0 ? _b : "";
+      const primary = translations.get(`${language}-${region}`);
+      const secondary = translations.get(language);
+      return { locale, language, region, primary, secondary };
+    }
+    exists(key, options) {
+      var _a;
+      const { primary, secondary } = this.getTranslationData((_a = options.lang) !== null && _a !== void 0 ? _a : this.lang());
+      options = Object.assign({ includeFallback: false }, options);
+      if (primary && primary[key] || secondary && secondary[key] || options.includeFallback && fallback && fallback[key]) {
+        return true;
+      }
+      return false;
+    }
+    term(key, ...args) {
+      const { primary, secondary } = this.getTranslationData(this.lang());
+      let term;
+      if (primary && primary[key]) {
+        term = primary[key];
+      } else if (secondary && secondary[key]) {
+        term = secondary[key];
+      } else if (fallback && fallback[key]) {
+        term = fallback[key];
+      } else {
+        console.error(`No translation found for: ${String(key)}`);
+        return String(key);
+      }
+      if (typeof term === "function") {
+        return term(...args);
+      }
+      return term;
+    }
+    date(dateToFormat, options) {
+      dateToFormat = new Date(dateToFormat);
+      return new Intl.DateTimeFormat(this.lang(), options).format(dateToFormat);
+    }
+    number(numberToFormat, options) {
+      numberToFormat = Number(numberToFormat);
+      return isNaN(numberToFormat) ? "" : new Intl.NumberFormat(this.lang(), options).format(numberToFormat);
+    }
+    relativeTime(value2, unit, options) {
+      return new Intl.RelativeTimeFormat(this.lang(), options).format(value2, unit);
+    }
+  };
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.7BTDLTNI.js
+  var translation = {
+    $code: "en",
+    $name: "English",
+    $dir: "ltr",
+    carousel: "Carousel",
+    clearEntry: "Clear entry",
+    close: "Close",
+    copied: "Copied",
+    copy: "Copy",
+    currentValue: "Current value",
+    error: "Error",
+    goToSlide: (slide, count) => `Go to slide ${slide} of ${count}`,
+    hidePassword: "Hide password",
+    loading: "Loading",
+    nextSlide: "Next slide",
+    numOptionsSelected: (num) => {
+      if (num === 0)
+        return "No options selected";
+      if (num === 1)
+        return "1 option selected";
+      return `${num} options selected`;
+    },
+    previousSlide: "Previous slide",
+    progress: "Progress",
+    remove: "Remove",
+    resize: "Resize",
+    scrollToEnd: "Scroll to end",
+    scrollToStart: "Scroll to start",
+    selectAColorFromTheScreen: "Select a color from the screen",
+    showPassword: "Show password",
+    slideNum: (slide) => `Slide ${slide}`,
+    toggleColorFormat: "Toggle color format"
+  };
+  registerTranslation(translation);
+  var en_default = translation;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.6CTB5ZDJ.js
+  var LocalizeController2 = class extends LocalizeController {
+  };
+  registerTranslation(en_default);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.6R4LM7O6.js
+  var SlTag = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.localize = new LocalizeController2(this);
+      this.variant = "neutral";
+      this.size = "medium";
+      this.pill = false;
+      this.removable = false;
+    }
+    handleRemoveClick() {
+      this.emit("sl-remove");
+    }
+    render() {
+      return x`
+      <span
+        part="base"
+        class=${e10({
+        tag: true,
+        // Types
+        "tag--primary": this.variant === "primary",
+        "tag--success": this.variant === "success",
+        "tag--neutral": this.variant === "neutral",
+        "tag--warning": this.variant === "warning",
+        "tag--danger": this.variant === "danger",
+        "tag--text": this.variant === "text",
+        // Sizes
+        "tag--small": this.size === "small",
+        "tag--medium": this.size === "medium",
+        "tag--large": this.size === "large",
+        // Modifiers
+        "tag--pill": this.pill,
+        "tag--removable": this.removable
+      })}
+      >
+        <slot part="content" class="tag__content"></slot>
+
+        ${this.removable ? x`
+              <sl-icon-button
+                part="remove-button"
+                exportparts="base:remove-button__base"
+                name="x-lg"
+                library="system"
+                label=${this.localize.term("remove")}
+                class="tag__remove"
+                @click=${this.handleRemoveClick}
+                tabindex="-1"
+              ></sl-icon-button>
+            ` : ""}
+      </span>
+    `;
+    }
+  };
+  SlTag.styles = [component_styles_default, tag_styles_default];
+  SlTag.dependencies = { "sl-icon-button": SlIconButton };
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlTag.prototype, "variant", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlTag.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlTag.prototype, "pill", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlTag.prototype, "removable", 2);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.6CGWZTF5.js
+  SlTag.define("sl-tag");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/array.js
+  var array = (options) => {
+    return x`
+		<fieldset
+			id=${options.id}
+			class="theme-shoelace widget-array widget-fieldset level-${options.level}"
+			part="widget-array"
+		>
+			${options.label ? x`<legend>${options.label}</legend>` : E2}
+			<!-- -->
+			${options.helpText ? x`<p class="widget-fieldset__description">${options.helpText}</p>` : E2}
+			<!--  -->
+			${options.items((index, widget, controls) => x`
+					<sl-card
+						class="widget-array__card"
+						@dragover=${controls.wrapper.dragover}
+						@dragenter=${controls.wrapper.dragenter}
+						@dragleave=${controls.wrapper.dragleave}
+						@drop=${controls.wrapper.drop}
+					>
+						<header slot="header" class="widget-array__header">
+							<div
+								class="widget-array__handle"
+								.draggable=${true}
+								@mousedown=${controls.handle.mousedown}
+								@dragstart=${controls.handle.dragstart}
+							>
+								<sl-tag size="small" pill>${index + 1}</sl-tag>
+								<div class="widget-array__handle-grip">
+									<sl-icon name="grip-horizontal" label="Settings"></sl-icon>
+								</div>
+							</div>
+
+							<nav>
+								<sl-tooltip content="Delete">
+									<sl-button size="small" @click=${controls.delete.click}>
+										<sl-icon name="x-lg" label="Settings"></sl-icon>
+									</sl-button>
+								</sl-tooltip>
+
+								<sl-divider vertical></sl-divider>
+
+								<sl-button-group>
+									<sl-tooltip content="Move item up">
+										<sl-button
+											size="small"
+											@click=${controls.up.click}
+											.disabled=${controls.up.disabled}
+										>
+											<sl-icon name="arrow-up" label="Up"></sl-icon>
+										</sl-button>
+									</sl-tooltip>
+
+									<sl-tooltip content="Move item down">
+										<sl-button
+											size="small"
+											@click=${controls.down.click}
+											.disabled=${controls.down.disabled}
+										>
+											<sl-icon name="arrow-down" label="Down"></sl-icon>
+										</sl-button>
+									</sl-tooltip>
+								</sl-button-group>
+							</nav>
+						</header>
+
+						${widget}
+					</sl-card>
+				`)}
+
+			<nav class="widget-array__add-zone">
+				<sl-button @click=${options.controls.add.click} size="large">
+					<sl-icon name="plus"></sl-icon> New
+					${options.itemLabel ? x`"<strong>${options.itemLabel}</strong>"` : E2}
+				</sl-button>
+			</nav>
+		</fieldset>
+	`;
+  };
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.B63YXDJO.js
+  var radio_group_styles_default = i3`
+  :host {
+    display: block;
+  }
+
+  .form-control {
+    position: relative;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .form-control__label {
+    padding: 0;
+  }
+
+  .radio-group--required .radio-group__label::after {
+    content: var(--sl-input-required-content);
+    margin-inline-start: var(--sl-input-required-content-offset);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.SI4ACBFK.js
+  var form_control_styles_default = i3`
+  .form-control .form-control__label {
+    display: none;
+  }
+
+  .form-control .form-control__help-text {
+    display: none;
+  }
+
+  /* Label */
+  .form-control--has-label .form-control__label {
+    display: inline-block;
+    color: var(--sl-input-label-color);
+    margin-bottom: var(--sl-spacing-3x-small);
+  }
+
+  .form-control--has-label.form-control--small .form-control__label {
+    font-size: var(--sl-input-label-font-size-small);
+  }
+
+  .form-control--has-label.form-control--medium .form-control__label {
+    font-size: var(--sl-input-label-font-size-medium);
+  }
+
+  .form-control--has-label.form-control--large .form-control__label {
+    font-size: var(--sl-input-label-font-size-large);
+  }
+
+  :host([required]) .form-control--has-label .form-control__label::after {
+    content: var(--sl-input-required-content);
+    margin-inline-start: var(--sl-input-required-content-offset);
+    color: var(--sl-input-required-content-color);
+  }
+
+  /* Help text */
+  .form-control--has-help-text .form-control__help-text {
+    display: block;
+    color: var(--sl-input-help-text-color);
+    margin-top: var(--sl-spacing-3x-small);
+  }
+
+  .form-control--has-help-text.form-control--small .form-control__help-text {
+    font-size: var(--sl-input-help-text-font-size-small);
+  }
+
+  .form-control--has-help-text.form-control--medium .form-control__help-text {
+    font-size: var(--sl-input-help-text-font-size-medium);
+  }
+
+  .form-control--has-help-text.form-control--large .form-control__help-text {
+    font-size: var(--sl-input-help-text-font-size-large);
+  }
+
+  .form-control--has-help-text.form-control--radio-group .form-control__help-text {
+    margin-top: var(--sl-spacing-2x-small);
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.2OUC42YY.js
+  var button_group_styles_default = i3`
+  :host {
+    display: inline-block;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.A36OXQYR.js
+  var SlButtonGroup = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.disableRole = false;
+      this.label = "";
+    }
+    handleFocus(event) {
+      const button = findButton(event.target);
+      button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--focus", true);
+    }
+    handleBlur(event) {
+      const button = findButton(event.target);
+      button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--focus", false);
+    }
+    handleMouseOver(event) {
+      const button = findButton(event.target);
+      button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--hover", true);
+    }
+    handleMouseOut(event) {
+      const button = findButton(event.target);
+      button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--hover", false);
+    }
+    handleSlotChange() {
+      const slottedElements = [...this.defaultSlot.assignedElements({ flatten: true })];
+      slottedElements.forEach((el) => {
+        const index = slottedElements.indexOf(el);
+        const button = findButton(el);
+        if (button) {
+          button.toggleAttribute("data-sl-button-group__button", true);
+          button.toggleAttribute("data-sl-button-group__button--first", index === 0);
+          button.toggleAttribute("data-sl-button-group__button--inner", index > 0 && index < slottedElements.length - 1);
+          button.toggleAttribute("data-sl-button-group__button--last", index === slottedElements.length - 1);
+          button.toggleAttribute(
+            "data-sl-button-group__button--radio",
+            button.tagName.toLowerCase() === "sl-radio-button"
+          );
+        }
+      });
+    }
+    render() {
+      return x`
+      <div
+        part="base"
+        class="button-group"
+        role="${this.disableRole ? "presentation" : "group"}"
+        aria-label=${this.label}
+        @focusout=${this.handleBlur}
+        @focusin=${this.handleFocus}
+        @mouseover=${this.handleMouseOver}
+        @mouseout=${this.handleMouseOut}
+      >
+        <slot @slotchange=${this.handleSlotChange}></slot>
+      </div>
+    `;
+    }
+  };
+  SlButtonGroup.styles = [component_styles_default, button_group_styles_default];
+  __decorateClass2([
+    e6("slot")
+  ], SlButtonGroup.prototype, "defaultSlot", 2);
+  __decorateClass2([
+    r6()
+  ], SlButtonGroup.prototype, "disableRole", 2);
+  __decorateClass2([
+    n5()
+  ], SlButtonGroup.prototype, "label", 2);
+  function findButton(el) {
+    var _a;
+    const selector = "sl-button, sl-radio-button";
+    return (_a = el.closest(selector)) != null ? _a : el.querySelector(selector);
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.3RPBFEDE.js
+  var formCollections = /* @__PURE__ */ new WeakMap();
+  var reportValidityOverloads = /* @__PURE__ */ new WeakMap();
+  var checkValidityOverloads = /* @__PURE__ */ new WeakMap();
+  var userInteractedControls = /* @__PURE__ */ new WeakSet();
+  var interactions = /* @__PURE__ */ new WeakMap();
+  var FormControlController = class {
+    constructor(host, options) {
+      this.handleFormData = (event) => {
+        const disabled = this.options.disabled(this.host);
+        const name = this.options.name(this.host);
+        const value2 = this.options.value(this.host);
+        const isButton = this.host.tagName.toLowerCase() === "sl-button";
+        if (this.host.isConnected && !disabled && !isButton && typeof name === "string" && name.length > 0 && typeof value2 !== "undefined") {
+          if (Array.isArray(value2)) {
+            value2.forEach((val) => {
+              event.formData.append(name, val.toString());
+            });
+          } else {
+            event.formData.append(name, value2.toString());
+          }
+        }
+      };
+      this.handleFormSubmit = (event) => {
+        var _a;
+        const disabled = this.options.disabled(this.host);
+        const reportValidity = this.options.reportValidity;
+        if (this.form && !this.form.noValidate) {
+          (_a = formCollections.get(this.form)) == null ? void 0 : _a.forEach((control) => {
+            this.setUserInteracted(control, true);
+          });
+        }
+        if (this.form && !this.form.noValidate && !disabled && !reportValidity(this.host)) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      };
+      this.handleFormReset = () => {
+        this.options.setValue(this.host, this.options.defaultValue(this.host));
+        this.setUserInteracted(this.host, false);
+        interactions.set(this.host, []);
+      };
+      this.handleInteraction = (event) => {
+        const emittedEvents = interactions.get(this.host);
+        if (!emittedEvents.includes(event.type)) {
+          emittedEvents.push(event.type);
+        }
+        if (emittedEvents.length === this.options.assumeInteractionOn.length) {
+          this.setUserInteracted(this.host, true);
+        }
+      };
+      this.checkFormValidity = () => {
+        if (this.form && !this.form.noValidate) {
+          const elements = this.form.querySelectorAll("*");
+          for (const element of elements) {
+            if (typeof element.checkValidity === "function") {
+              if (!element.checkValidity()) {
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      };
+      this.reportFormValidity = () => {
+        if (this.form && !this.form.noValidate) {
+          const elements = this.form.querySelectorAll("*");
+          for (const element of elements) {
+            if (typeof element.reportValidity === "function") {
+              if (!element.reportValidity()) {
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      };
+      (this.host = host).addController(this);
+      this.options = __spreadValues({
+        form: (input) => {
+          const formId = input.form;
+          if (formId) {
+            const root2 = input.getRootNode();
+            const form = root2.querySelector(`#${formId}`);
+            if (form) {
+              return form;
+            }
+          }
+          return input.closest("form");
+        },
+        name: (input) => input.name,
+        value: (input) => input.value,
+        defaultValue: (input) => input.defaultValue,
+        disabled: (input) => {
+          var _a;
+          return (_a = input.disabled) != null ? _a : false;
+        },
+        reportValidity: (input) => typeof input.reportValidity === "function" ? input.reportValidity() : true,
+        checkValidity: (input) => typeof input.checkValidity === "function" ? input.checkValidity() : true,
+        setValue: (input, value2) => input.value = value2,
+        assumeInteractionOn: ["sl-input"]
+      }, options);
+    }
+    hostConnected() {
+      const form = this.options.form(this.host);
+      if (form) {
+        this.attachForm(form);
+      }
+      interactions.set(this.host, []);
+      this.options.assumeInteractionOn.forEach((event) => {
+        this.host.addEventListener(event, this.handleInteraction);
+      });
+    }
+    hostDisconnected() {
+      this.detachForm();
+      interactions.delete(this.host);
+      this.options.assumeInteractionOn.forEach((event) => {
+        this.host.removeEventListener(event, this.handleInteraction);
+      });
+    }
+    hostUpdated() {
+      const form = this.options.form(this.host);
+      if (!form) {
+        this.detachForm();
+      }
+      if (form && this.form !== form) {
+        this.detachForm();
+        this.attachForm(form);
+      }
+      if (this.host.hasUpdated) {
+        this.setValidity(this.host.validity.valid);
+      }
+    }
+    attachForm(form) {
+      if (form) {
+        this.form = form;
+        if (formCollections.has(this.form)) {
+          formCollections.get(this.form).add(this.host);
+        } else {
+          formCollections.set(this.form, /* @__PURE__ */ new Set([this.host]));
+        }
+        this.form.addEventListener("formdata", this.handleFormData);
+        this.form.addEventListener("submit", this.handleFormSubmit);
+        this.form.addEventListener("reset", this.handleFormReset);
+        if (!reportValidityOverloads.has(this.form)) {
+          reportValidityOverloads.set(this.form, this.form.reportValidity);
+          this.form.reportValidity = () => this.reportFormValidity();
+        }
+        if (!checkValidityOverloads.has(this.form)) {
+          checkValidityOverloads.set(this.form, this.form.checkValidity);
+          this.form.checkValidity = () => this.checkFormValidity();
+        }
+      } else {
+        this.form = void 0;
+      }
+    }
+    detachForm() {
+      if (!this.form)
+        return;
+      const formCollection = formCollections.get(this.form);
+      if (!formCollection) {
+        return;
+      }
+      formCollection.delete(this.host);
+      if (formCollection.size <= 0) {
+        this.form.removeEventListener("formdata", this.handleFormData);
+        this.form.removeEventListener("submit", this.handleFormSubmit);
+        this.form.removeEventListener("reset", this.handleFormReset);
+        if (reportValidityOverloads.has(this.form)) {
+          this.form.reportValidity = reportValidityOverloads.get(this.form);
+          reportValidityOverloads.delete(this.form);
+        }
+        if (checkValidityOverloads.has(this.form)) {
+          this.form.checkValidity = checkValidityOverloads.get(this.form);
+          checkValidityOverloads.delete(this.form);
+        }
+        this.form = void 0;
+      }
+    }
+    setUserInteracted(el, hasInteracted) {
+      if (hasInteracted) {
+        userInteractedControls.add(el);
+      } else {
+        userInteractedControls.delete(el);
+      }
+      el.requestUpdate();
+    }
+    doAction(type, submitter) {
+      if (this.form) {
+        const button = document.createElement("button");
+        button.type = type;
+        button.style.position = "absolute";
+        button.style.width = "0";
+        button.style.height = "0";
+        button.style.clipPath = "inset(50%)";
+        button.style.overflow = "hidden";
+        button.style.whiteSpace = "nowrap";
+        if (submitter) {
+          button.name = submitter.name;
+          button.value = submitter.value;
+          ["formaction", "formenctype", "formmethod", "formnovalidate", "formtarget"].forEach((attr) => {
+            if (submitter.hasAttribute(attr)) {
+              button.setAttribute(attr, submitter.getAttribute(attr));
+            }
+          });
+        }
+        this.form.append(button);
+        button.click();
+        button.remove();
+      }
+    }
+    /** Returns the associated `<form>` element, if one exists. */
+    getForm() {
+      var _a;
+      return (_a = this.form) != null ? _a : null;
+    }
+    /** Resets the form, restoring all the control to their default value */
+    reset(submitter) {
+      this.doAction("reset", submitter);
+    }
+    /** Submits the form, triggering validation and form data injection. */
+    submit(submitter) {
+      this.doAction("submit", submitter);
+    }
+    /**
+     * Synchronously sets the form control's validity. Call this when you know the future validity but need to update
+     * the host element immediately, i.e. before Lit updates the component in the next update.
+     */
+    setValidity(isValid) {
+      const host = this.host;
+      const hasInteracted = Boolean(userInteractedControls.has(host));
+      const required = Boolean(host.required);
+      host.toggleAttribute("data-required", required);
+      host.toggleAttribute("data-optional", !required);
+      host.toggleAttribute("data-invalid", !isValid);
+      host.toggleAttribute("data-valid", isValid);
+      host.toggleAttribute("data-user-invalid", !isValid && hasInteracted);
+      host.toggleAttribute("data-user-valid", isValid && hasInteracted);
+    }
+    /**
+     * Updates the form control's validity based on the current value of `host.validity.valid`. Call this when anything
+     * that affects constraint validation changes so the component receives the correct validity states.
+     */
+    updateValidity() {
+      const host = this.host;
+      this.setValidity(host.validity.valid);
+    }
+    /**
+     * Dispatches a non-bubbling, cancelable custom event of type `sl-invalid`.
+     * If the `sl-invalid` event will be cancelled then the original `invalid`
+     * event (which may have been passed as argument) will also be cancelled.
+     * If no original `invalid` event has been passed then the `sl-invalid`
+     * event will be cancelled before being dispatched.
+     */
+    emitInvalidEvent(originalInvalidEvent) {
+      const slInvalidEvent = new CustomEvent("sl-invalid", {
+        bubbles: false,
+        composed: false,
+        cancelable: true,
+        detail: {}
+      });
+      if (!originalInvalidEvent) {
+        slInvalidEvent.preventDefault();
+      }
+      if (!this.host.dispatchEvent(slInvalidEvent)) {
+        originalInvalidEvent == null ? void 0 : originalInvalidEvent.preventDefault();
+      }
+    }
+  };
+  var validValidityState = Object.freeze({
+    badInput: false,
+    customError: false,
+    patternMismatch: false,
+    rangeOverflow: false,
+    rangeUnderflow: false,
+    stepMismatch: false,
+    tooLong: false,
+    tooShort: false,
+    typeMismatch: false,
+    valid: true,
+    valueMissing: false
+  });
+  var valueMissingValidityState = Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+    valid: false,
+    valueMissing: true
+  }));
+  var customErrorValidityState = Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+    valid: false,
+    customError: true
+  }));
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.ZJNIZFRS.js
+  var SlRadioGroup = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.formControlController = new FormControlController(this);
+      this.hasSlotController = new HasSlotController(this, "help-text", "label");
+      this.customValidityMessage = "";
+      this.hasButtonGroup = false;
+      this.errorMessage = "";
+      this.defaultValue = "";
+      this.label = "";
+      this.helpText = "";
+      this.name = "option";
+      this.value = "";
+      this.size = "medium";
+      this.form = "";
+      this.required = false;
+    }
+    /** Gets the validity state object */
+    get validity() {
+      const isRequiredAndEmpty = this.required && !this.value;
+      const hasCustomValidityMessage = this.customValidityMessage !== "";
+      if (hasCustomValidityMessage) {
+        return customErrorValidityState;
+      } else if (isRequiredAndEmpty) {
+        return valueMissingValidityState;
+      }
+      return validValidityState;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      const isRequiredAndEmpty = this.required && !this.value;
+      const hasCustomValidityMessage = this.customValidityMessage !== "";
+      if (hasCustomValidityMessage) {
+        return this.customValidityMessage;
+      } else if (isRequiredAndEmpty) {
+        return this.validationInput.validationMessage;
+      }
+      return "";
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      this.defaultValue = this.value;
+    }
+    firstUpdated() {
+      this.formControlController.updateValidity();
+    }
+    getAllRadios() {
+      return [...this.querySelectorAll("sl-radio, sl-radio-button")];
+    }
+    handleRadioClick(event) {
+      const target = event.target.closest("sl-radio, sl-radio-button");
+      const radios = this.getAllRadios();
+      const oldValue = this.value;
+      if (!target || target.disabled) {
+        return;
+      }
+      this.value = target.value;
+      radios.forEach((radio) => radio.checked = radio === target);
+      if (this.value !== oldValue) {
+        this.emit("sl-change");
+        this.emit("sl-input");
+      }
+    }
+    handleKeyDown(event) {
+      var _a;
+      if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) {
+        return;
+      }
+      const radios = this.getAllRadios().filter((radio) => !radio.disabled);
+      const checkedRadio = (_a = radios.find((radio) => radio.checked)) != null ? _a : radios[0];
+      const incr = event.key === " " ? 0 : ["ArrowUp", "ArrowLeft"].includes(event.key) ? -1 : 1;
+      const oldValue = this.value;
+      let index = radios.indexOf(checkedRadio) + incr;
+      if (index < 0) {
+        index = radios.length - 1;
+      }
+      if (index > radios.length - 1) {
+        index = 0;
+      }
+      this.getAllRadios().forEach((radio) => {
+        radio.checked = false;
+        if (!this.hasButtonGroup) {
+          radio.setAttribute("tabindex", "-1");
+        }
+      });
+      this.value = radios[index].value;
+      radios[index].checked = true;
+      if (!this.hasButtonGroup) {
+        radios[index].setAttribute("tabindex", "0");
+        radios[index].focus();
+      } else {
+        radios[index].shadowRoot.querySelector("button").focus();
+      }
+      if (this.value !== oldValue) {
+        this.emit("sl-change");
+        this.emit("sl-input");
+      }
+      event.preventDefault();
+    }
+    handleLabelClick() {
+      this.focus();
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    async syncRadioElements() {
+      var _a, _b;
+      const radios = this.getAllRadios();
+      await Promise.all(
+        // Sync the checked state and size
+        radios.map(async (radio) => {
+          await radio.updateComplete;
+          radio.checked = radio.value === this.value;
+          radio.size = this.size;
+        })
+      );
+      this.hasButtonGroup = radios.some((radio) => radio.tagName.toLowerCase() === "sl-radio-button");
+      if (radios.length > 0 && !radios.some((radio) => radio.checked)) {
+        if (this.hasButtonGroup) {
+          const buttonRadio = (_a = radios[0].shadowRoot) == null ? void 0 : _a.querySelector("button");
+          if (buttonRadio) {
+            buttonRadio.setAttribute("tabindex", "0");
+          }
+        } else {
+          radios[0].setAttribute("tabindex", "0");
+        }
+      }
+      if (this.hasButtonGroup) {
+        const buttonGroup2 = (_b = this.shadowRoot) == null ? void 0 : _b.querySelector("sl-button-group");
+        if (buttonGroup2) {
+          buttonGroup2.disableRole = true;
+        }
+      }
+    }
+    syncRadios() {
+      if (customElements.get("sl-radio") && customElements.get("sl-radio-button")) {
+        this.syncRadioElements();
+        return;
+      }
+      if (customElements.get("sl-radio")) {
+        this.syncRadioElements();
+      } else {
+        customElements.whenDefined("sl-radio").then(() => this.syncRadios());
+      }
+      if (customElements.get("sl-radio-button")) {
+        this.syncRadioElements();
+      } else {
+        customElements.whenDefined("sl-radio-button").then(() => this.syncRadios());
+      }
+    }
+    updateCheckedRadio() {
+      const radios = this.getAllRadios();
+      radios.forEach((radio) => radio.checked = radio.value === this.value);
+      this.formControlController.setValidity(this.validity.valid);
+    }
+    handleSizeChange() {
+      this.syncRadios();
+    }
+    handleValueChange() {
+      if (this.hasUpdated) {
+        this.updateCheckedRadio();
+      }
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      const isRequiredAndEmpty = this.required && !this.value;
+      const hasCustomValidityMessage = this.customValidityMessage !== "";
+      if (isRequiredAndEmpty || hasCustomValidityMessage) {
+        this.formControlController.emitInvalidEvent();
+        return false;
+      }
+      return true;
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      const isValid = this.validity.valid;
+      this.errorMessage = this.customValidityMessage || isValid ? "" : this.validationInput.validationMessage;
+      this.formControlController.setValidity(isValid);
+      this.validationInput.hidden = true;
+      clearTimeout(this.validationTimeout);
+      if (!isValid) {
+        this.validationInput.hidden = false;
+        this.validationInput.reportValidity();
+        this.validationTimeout = setTimeout(() => this.validationInput.hidden = true, 1e4);
+      }
+      return isValid;
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message = "") {
+      this.customValidityMessage = message;
+      this.errorMessage = message;
+      this.validationInput.setCustomValidity(message);
+      this.formControlController.updateValidity();
+    }
+    /** Sets focus on the radio-group. */
+    focus(options) {
+      const radios = this.getAllRadios();
+      const checked = radios.find((radio) => radio.checked);
+      const firstEnabledRadio = radios.find((radio) => !radio.disabled);
+      const radioToFocus = checked || firstEnabledRadio;
+      if (radioToFocus) {
+        radioToFocus.focus(options);
+      }
+    }
+    render() {
+      const hasLabelSlot = this.hasSlotController.test("label");
+      const hasHelpTextSlot = this.hasSlotController.test("help-text");
+      const hasLabel = this.label ? true : !!hasLabelSlot;
+      const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+      const defaultSlot = x`
+      <slot @slotchange=${this.syncRadios} @click=${this.handleRadioClick} @keydown=${this.handleKeyDown}></slot>
+    `;
+      return x`
+      <fieldset
+        part="form-control"
+        class=${e10({
+        "form-control": true,
+        "form-control--small": this.size === "small",
+        "form-control--medium": this.size === "medium",
+        "form-control--large": this.size === "large",
+        "form-control--radio-group": true,
+        "form-control--has-label": hasLabel,
+        "form-control--has-help-text": hasHelpText
+      })}
+        role="radiogroup"
+        aria-labelledby="label"
+        aria-describedby="help-text"
+        aria-errormessage="error-message"
+      >
+        <label
+          part="form-control-label"
+          id="label"
+          class="form-control__label"
+          aria-hidden=${hasLabel ? "false" : "true"}
+          @click=${this.handleLabelClick}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div class="visually-hidden">
+            <div id="error-message" aria-live="assertive">${this.errorMessage}</div>
+            <label class="radio-group__validation">
+              <input
+                type="text"
+                class="radio-group__validation-input"
+                ?required=${this.required}
+                tabindex="-1"
+                hidden
+                @invalid=${this.handleInvalid}
+              />
+            </label>
+          </div>
+
+          ${this.hasButtonGroup ? x`
+                <sl-button-group part="button-group" exportparts="base:button-group__base" role="presentation">
+                  ${defaultSlot}
+                </sl-button-group>
+              ` : defaultSlot}
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </fieldset>
+    `;
+    }
+  };
+  SlRadioGroup.styles = [component_styles_default, form_control_styles_default, radio_group_styles_default];
+  SlRadioGroup.dependencies = { "sl-button-group": SlButtonGroup };
+  __decorateClass2([
+    e6("slot:not([name])")
+  ], SlRadioGroup.prototype, "defaultSlot", 2);
+  __decorateClass2([
+    e6(".radio-group__validation-input")
+  ], SlRadioGroup.prototype, "validationInput", 2);
+  __decorateClass2([
+    r6()
+  ], SlRadioGroup.prototype, "hasButtonGroup", 2);
+  __decorateClass2([
+    r6()
+  ], SlRadioGroup.prototype, "errorMessage", 2);
+  __decorateClass2([
+    r6()
+  ], SlRadioGroup.prototype, "defaultValue", 2);
+  __decorateClass2([
+    n5()
+  ], SlRadioGroup.prototype, "label", 2);
+  __decorateClass2([
+    n5({ attribute: "help-text" })
+  ], SlRadioGroup.prototype, "helpText", 2);
+  __decorateClass2([
+    n5()
+  ], SlRadioGroup.prototype, "name", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlRadioGroup.prototype, "value", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlRadioGroup.prototype, "size", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlRadioGroup.prototype, "form", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRadioGroup.prototype, "required", 2);
+  __decorateClass2([
+    watch("size", { waitUntilFirstUpdate: true })
+  ], SlRadioGroup.prototype, "handleSizeChange", 1);
+  __decorateClass2([
+    watch("value")
+  ], SlRadioGroup.prototype, "handleValueChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.2PCBEMQZ.js
+  SlRadioGroup.define("sl-radio-group");
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.MAQXLKQ7.js
+  var button_styles_default = i3`
+  :host {
+    display: inline-block;
+    position: relative;
+    width: auto;
+    cursor: pointer;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    border-style: solid;
+    border-width: var(--sl-input-border-width);
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-font-weight-semibold);
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0;
+    transition:
+      var(--sl-transition-x-fast) background-color,
+      var(--sl-transition-x-fast) color,
+      var(--sl-transition-x-fast) border,
+      var(--sl-transition-x-fast) box-shadow;
+    cursor: inherit;
+  }
+
+  .button::-moz-focus-inner {
+    border: 0;
+  }
+
+  .button:focus {
+    outline: none;
+  }
+
+  .button:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .button--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* When disabled, prevent mouse events from bubbling up from children */
+  .button--disabled * {
+    pointer-events: none;
+  }
+
+  .button__prefix,
+  .button__suffix {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .button__label {
+    display: inline-block;
+  }
+
+  .button__label::slotted(sl-icon) {
+    vertical-align: -2px;
+  }
+
+  /*
+   * Standard buttons
+   */
+
+  /* Default */
+  .button--standard.button--default {
+    background-color: var(--sl-color-neutral-0);
+    border-color: var(--sl-input-border-color);
+    color: var(--sl-color-neutral-700);
+  }
+
+  .button--standard.button--default:hover:not(.button--disabled) {
+    background-color: var(--sl-color-primary-50);
+    border-color: var(--sl-color-primary-300);
+    color: var(--sl-color-primary-700);
+  }
+
+  .button--standard.button--default:active:not(.button--disabled) {
+    background-color: var(--sl-color-primary-100);
+    border-color: var(--sl-color-primary-400);
+    color: var(--sl-color-primary-700);
+  }
+
+  /* Primary */
+  .button--standard.button--primary {
+    background-color: var(--sl-color-primary-600);
+    border-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--primary:hover:not(.button--disabled) {
+    background-color: var(--sl-color-primary-500);
+    border-color: var(--sl-color-primary-500);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--primary:active:not(.button--disabled) {
+    background-color: var(--sl-color-primary-600);
+    border-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Success */
+  .button--standard.button--success {
+    background-color: var(--sl-color-success-600);
+    border-color: var(--sl-color-success-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--success:hover:not(.button--disabled) {
+    background-color: var(--sl-color-success-500);
+    border-color: var(--sl-color-success-500);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--success:active:not(.button--disabled) {
+    background-color: var(--sl-color-success-600);
+    border-color: var(--sl-color-success-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Neutral */
+  .button--standard.button--neutral {
+    background-color: var(--sl-color-neutral-600);
+    border-color: var(--sl-color-neutral-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--neutral:hover:not(.button--disabled) {
+    background-color: var(--sl-color-neutral-500);
+    border-color: var(--sl-color-neutral-500);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--neutral:active:not(.button--disabled) {
+    background-color: var(--sl-color-neutral-600);
+    border-color: var(--sl-color-neutral-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Warning */
+  .button--standard.button--warning {
+    background-color: var(--sl-color-warning-600);
+    border-color: var(--sl-color-warning-600);
+    color: var(--sl-color-neutral-0);
+  }
+  .button--standard.button--warning:hover:not(.button--disabled) {
+    background-color: var(--sl-color-warning-500);
+    border-color: var(--sl-color-warning-500);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--warning:active:not(.button--disabled) {
+    background-color: var(--sl-color-warning-600);
+    border-color: var(--sl-color-warning-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Danger */
+  .button--standard.button--danger {
+    background-color: var(--sl-color-danger-600);
+    border-color: var(--sl-color-danger-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--danger:hover:not(.button--disabled) {
+    background-color: var(--sl-color-danger-500);
+    border-color: var(--sl-color-danger-500);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--standard.button--danger:active:not(.button--disabled) {
+    background-color: var(--sl-color-danger-600);
+    border-color: var(--sl-color-danger-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /*
+   * Outline buttons
+   */
+
+  .button--outline {
+    background: none;
+    border: solid 1px;
+  }
+
+  /* Default */
+  .button--outline.button--default {
+    border-color: var(--sl-input-border-color);
+    color: var(--sl-color-neutral-700);
+  }
+
+  .button--outline.button--default:hover:not(.button--disabled),
+  .button--outline.button--default.button--checked:not(.button--disabled) {
+    border-color: var(--sl-color-primary-600);
+    background-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--outline.button--default:active:not(.button--disabled) {
+    border-color: var(--sl-color-primary-700);
+    background-color: var(--sl-color-primary-700);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Primary */
+  .button--outline.button--primary {
+    border-color: var(--sl-color-primary-600);
+    color: var(--sl-color-primary-600);
+  }
+
+  .button--outline.button--primary:hover:not(.button--disabled),
+  .button--outline.button--primary.button--checked:not(.button--disabled) {
+    background-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--outline.button--primary:active:not(.button--disabled) {
+    border-color: var(--sl-color-primary-700);
+    background-color: var(--sl-color-primary-700);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Success */
+  .button--outline.button--success {
+    border-color: var(--sl-color-success-600);
+    color: var(--sl-color-success-600);
+  }
+
+  .button--outline.button--success:hover:not(.button--disabled),
+  .button--outline.button--success.button--checked:not(.button--disabled) {
+    background-color: var(--sl-color-success-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--outline.button--success:active:not(.button--disabled) {
+    border-color: var(--sl-color-success-700);
+    background-color: var(--sl-color-success-700);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Neutral */
+  .button--outline.button--neutral {
+    border-color: var(--sl-color-neutral-600);
+    color: var(--sl-color-neutral-600);
+  }
+
+  .button--outline.button--neutral:hover:not(.button--disabled),
+  .button--outline.button--neutral.button--checked:not(.button--disabled) {
+    background-color: var(--sl-color-neutral-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--outline.button--neutral:active:not(.button--disabled) {
+    border-color: var(--sl-color-neutral-700);
+    background-color: var(--sl-color-neutral-700);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Warning */
+  .button--outline.button--warning {
+    border-color: var(--sl-color-warning-600);
+    color: var(--sl-color-warning-600);
+  }
+
+  .button--outline.button--warning:hover:not(.button--disabled),
+  .button--outline.button--warning.button--checked:not(.button--disabled) {
+    background-color: var(--sl-color-warning-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--outline.button--warning:active:not(.button--disabled) {
+    border-color: var(--sl-color-warning-700);
+    background-color: var(--sl-color-warning-700);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Danger */
+  .button--outline.button--danger {
+    border-color: var(--sl-color-danger-600);
+    color: var(--sl-color-danger-600);
+  }
+
+  .button--outline.button--danger:hover:not(.button--disabled),
+  .button--outline.button--danger.button--checked:not(.button--disabled) {
+    background-color: var(--sl-color-danger-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .button--outline.button--danger:active:not(.button--disabled) {
+    border-color: var(--sl-color-danger-700);
+    background-color: var(--sl-color-danger-700);
+    color: var(--sl-color-neutral-0);
+  }
+
+  @media (forced-colors: active) {
+    .button.button--outline.button--checked:not(.button--disabled) {
+      outline: solid 2px transparent;
+    }
+  }
+
+  /*
+   * Text buttons
+   */
+
+  .button--text {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--sl-color-primary-600);
+  }
+
+  .button--text:hover:not(.button--disabled) {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--sl-color-primary-500);
+  }
+
+  .button--text:focus-visible:not(.button--disabled) {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--sl-color-primary-500);
+  }
+
+  .button--text:active:not(.button--disabled) {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--sl-color-primary-700);
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .button--small {
+    height: auto;
+    min-height: var(--sl-input-height-small);
+    font-size: var(--sl-button-font-size-small);
+    line-height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-small);
+  }
+
+  .button--medium {
+    height: auto;
+    min-height: var(--sl-input-height-medium);
+    font-size: var(--sl-button-font-size-medium);
+    line-height: calc(var(--sl-input-height-medium) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-medium);
+  }
+
+  .button--large {
+    height: auto;
+    min-height: var(--sl-input-height-large);
+    font-size: var(--sl-button-font-size-large);
+    line-height: calc(var(--sl-input-height-large) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-large);
+  }
+
+  /*
+   * Pill modifier
+   */
+
+  .button--pill.button--small {
+    border-radius: var(--sl-input-height-small);
+  }
+
+  .button--pill.button--medium {
+    border-radius: var(--sl-input-height-medium);
+  }
+
+  .button--pill.button--large {
+    border-radius: var(--sl-input-height-large);
+  }
+
+  /*
+   * Circle modifier
+   */
+
+  .button--circle {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .button--circle.button--small {
+    width: var(--sl-input-height-small);
+    border-radius: 50%;
+  }
+
+  .button--circle.button--medium {
+    width: var(--sl-input-height-medium);
+    border-radius: 50%;
+  }
+
+  .button--circle.button--large {
+    width: var(--sl-input-height-large);
+    border-radius: 50%;
+  }
+
+  .button--circle .button__prefix,
+  .button--circle .button__suffix,
+  .button--circle .button__caret {
+    display: none;
+  }
+
+  /*
+   * Caret modifier
+   */
+
+  .button--caret .button__suffix {
+    display: none;
+  }
+
+  .button--caret .button__caret {
+    height: auto;
+  }
+
+  /*
+   * Loading modifier
+   */
+
+  .button--loading {
+    position: relative;
+    cursor: wait;
+  }
+
+  .button--loading .button__prefix,
+  .button--loading .button__label,
+  .button--loading .button__suffix,
+  .button--loading .button__caret {
+    visibility: hidden;
+  }
+
+  .button--loading sl-spinner {
+    --indicator-color: currentColor;
+    position: absolute;
+    font-size: 1em;
+    height: 1em;
+    width: 1em;
+    top: calc(50% - 0.5em);
+    left: calc(50% - 0.5em);
+  }
+
+  /*
+   * Badges
+   */
+
+  .button ::slotted(sl-badge) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    translate: 50% -50%;
+    pointer-events: none;
+  }
+
+  .button--rtl ::slotted(sl-badge) {
+    right: auto;
+    left: 0;
+    translate: -50% -50%;
+  }
+
+  /*
+   * Button spacing
+   */
+
+  .button--has-label.button--small .button__label {
+    padding: 0 var(--sl-spacing-small);
+  }
+
+  .button--has-label.button--medium .button__label {
+    padding: 0 var(--sl-spacing-medium);
+  }
+
+  .button--has-label.button--large .button__label {
+    padding: 0 var(--sl-spacing-large);
+  }
+
+  .button--has-prefix.button--small {
+    padding-inline-start: var(--sl-spacing-x-small);
+  }
+
+  .button--has-prefix.button--small .button__label {
+    padding-inline-start: var(--sl-spacing-x-small);
+  }
+
+  .button--has-prefix.button--medium {
+    padding-inline-start: var(--sl-spacing-small);
+  }
+
+  .button--has-prefix.button--medium .button__label {
+    padding-inline-start: var(--sl-spacing-small);
+  }
+
+  .button--has-prefix.button--large {
+    padding-inline-start: var(--sl-spacing-small);
+  }
+
+  .button--has-prefix.button--large .button__label {
+    padding-inline-start: var(--sl-spacing-small);
+  }
+
+  .button--has-suffix.button--small,
+  .button--caret.button--small {
+    padding-inline-end: var(--sl-spacing-x-small);
+  }
+
+  .button--has-suffix.button--small .button__label,
+  .button--caret.button--small .button__label {
+    padding-inline-end: var(--sl-spacing-x-small);
+  }
+
+  .button--has-suffix.button--medium,
+  .button--caret.button--medium {
+    padding-inline-end: var(--sl-spacing-small);
+  }
+
+  .button--has-suffix.button--medium .button__label,
+  .button--caret.button--medium .button__label {
+    padding-inline-end: var(--sl-spacing-small);
+  }
+
+  .button--has-suffix.button--large,
+  .button--caret.button--large {
+    padding-inline-end: var(--sl-spacing-small);
+  }
+
+  .button--has-suffix.button--large .button__label,
+  .button--caret.button--large .button__label {
+    padding-inline-end: var(--sl-spacing-small);
+  }
+
+  /*
+   * Button groups support a variety of button types (e.g. buttons with tooltips, buttons as dropdown triggers, etc.).
+   * This means buttons aren't always direct descendants of the button group, thus we can't target them with the
+   * ::slotted selector. To work around this, the button group component does some magic to add these special classes to
+   * buttons and we style them here instead.
+   */
+
+  :host([data-sl-button-group__button--first]:not([data-sl-button-group__button--last])) .button {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  :host([data-sl-button-group__button--inner]) .button {
+    border-radius: 0;
+  }
+
+  :host([data-sl-button-group__button--last]:not([data-sl-button-group__button--first])) .button {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  /* All except the first */
+  :host([data-sl-button-group__button]:not([data-sl-button-group__button--first])) {
+    margin-inline-start: calc(-1 * var(--sl-input-border-width));
+  }
+
+  /* Add a visual separator between solid buttons */
+  :host(
+      [data-sl-button-group__button]:not(
+          [data-sl-button-group__button--first],
+          [data-sl-button-group__button--radio],
+          [variant='default']
+        ):not(:hover)
+    )
+    .button:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    bottom: 0;
+    border-left: solid 1px rgb(128 128 128 / 33%);
+    mix-blend-mode: multiply;
+  }
+
+  /* Bump hovered, focused, and checked buttons up so their focus ring isn't clipped */
+  :host([data-sl-button-group__button--hover]) {
+    z-index: 1;
+  }
+
+  /* Focus and checked are always on top */
+  :host([data-sl-button-group__button--focus]),
+  :host([data-sl-button-group__button][checked]) {
+    z-index: 2;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.2P5EQCYK.js
+  var radio_button_styles_default = i3`
+  ${button_styles_default}
+
+  .button__prefix,
+  .button__suffix,
+  .button__label {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+  }
+
+  /* We use a hidden input so constraint validation errors work, since they don't appear to show when used with buttons.
+    We can't actually hide it, though, otherwise the messages will be suppressed by the browser. */
+  .hidden-input {
+    all: unset;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    outline: dotted 1px red;
+    opacity: 0;
+    z-index: -1;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.G7RQ5NDY.js
+  var SlRadioButton = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.hasSlotController = new HasSlotController(this, "[default]", "prefix", "suffix");
+      this.hasFocus = false;
+      this.checked = false;
+      this.disabled = false;
+      this.size = "medium";
+      this.pill = false;
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      this.setAttribute("role", "presentation");
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleClick(e13) {
+      if (this.disabled) {
+        e13.preventDefault();
+        e13.stopPropagation();
+        return;
+      }
+      this.checked = true;
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+    handleDisabledChange() {
+      this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+    }
+    /** Sets focus on the radio button. */
+    focus(options) {
+      this.input.focus(options);
+    }
+    /** Removes focus from the radio button. */
+    blur() {
+      this.input.blur();
+    }
+    render() {
+      return u5`
+      <div part="base" role="presentation">
+        <button
+          part="${`button${this.checked ? " button--checked" : ""}`}"
+          role="radio"
+          aria-checked="${this.checked}"
+          class=${e10({
+        button: true,
+        "button--default": true,
+        "button--small": this.size === "small",
+        "button--medium": this.size === "medium",
+        "button--large": this.size === "large",
+        "button--checked": this.checked,
+        "button--disabled": this.disabled,
+        "button--focused": this.hasFocus,
+        "button--outline": true,
+        "button--pill": this.pill,
+        "button--has-label": this.hasSlotController.test("[default]"),
+        "button--has-prefix": this.hasSlotController.test("prefix"),
+        "button--has-suffix": this.hasSlotController.test("suffix")
+      })}
+          aria-disabled=${this.disabled}
+          type="button"
+          value=${o11(this.value)}
+          @blur=${this.handleBlur}
+          @focus=${this.handleFocus}
+          @click=${this.handleClick}
+        >
+          <slot name="prefix" part="prefix" class="button__prefix"></slot>
+          <slot part="label" class="button__label"></slot>
+          <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        </button>
+      </div>
+    `;
+    }
+  };
+  SlRadioButton.styles = [component_styles_default, radio_button_styles_default];
+  __decorateClass2([
+    e6(".button")
+  ], SlRadioButton.prototype, "input", 2);
+  __decorateClass2([
+    e6(".hidden-input")
+  ], SlRadioButton.prototype, "hiddenInput", 2);
+  __decorateClass2([
+    r6()
+  ], SlRadioButton.prototype, "hasFocus", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRadioButton.prototype, "checked", 2);
+  __decorateClass2([
+    n5()
+  ], SlRadioButton.prototype, "value", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRadioButton.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlRadioButton.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRadioButton.prototype, "pill", 2);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlRadioButton.prototype, "handleDisabledChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.5P45LHIX.js
+  SlRadioButton.define("sl-radio-button");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/button-group.js
+  var buttonGroup = (options) => x`
+	<sl-radio-group
+		size="medium"
+		.label=${options.label ?? ""}
+		.helpText=${options.helpText ?? ""}
+		value=${typeof options.value !== "undefined" ? String(options.value) : ""}
+		.name=${options.id}
+		.required=${options.required ?? false}
+		@sl-change=${(event) => {
+    let newValue = event.target.value;
+    if (options.type === "number") {
+      newValue = Number(newValue);
+    }
+    options.valueChangedCallback?.(newValue);
+  }}
+	>
+		${options.enum?.map((enumVal) => x`<sl-radio-button
+					.disabled=${String(enumVal) === options.value ? false : options.disabled}
+					value=${String(enumVal)}
+					>${enumVal}</sl-radio-button
+				>`)}
+	</sl-radio-group>
+`;
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/button-group-boolean.js
+  var buttonGroupBoolean = (options) => x`
+	<sl-radio-group
+		size="medium"
+		.label=${options.label ?? ""}
+		.helpText=${options.helpText ?? ""}
+		value=${typeof options.value !== "undefined" ? String(options.value) : ""}
+		.name=${options.id}
+		.required?=${options.required}
+		@sl-change=${(event) => {
+    const newValue = event.target.value;
+    options.valueChangedCallback?.(newValue === "true");
+  }}
+	>
+		<sl-radio-button
+			value="true"
+			.disabled=${options.value === true ? false : options.disabled}
+			>${options.trueLabel ?? "Yes"}</sl-radio-button
+		>
+		<sl-radio-button
+			value="false"
+			.disabled=${options.value === false ? false : options.disabled}
+			>${options.falseLabel ?? "No"}</sl-radio-button
+		>
+	</sl-radio-group>
+`;
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/callout.js
   var callout = (options) => {
     console.warn(options.message);
     return x`
 		<div
 			role="alert"
-			class=${`callout--${options.type ?? "warning"} theme-material`}
+			class=${`callout--${options.type ?? "warning"} theme-shoelace widget-callout`}
 			id=${options.id}
 			part="widget-callout"
 		>
@@ -12300,5352 +15201,9082 @@
 	`;
   };
 
-  // node_modules/tslib/tslib.es6.mjs
-  function __decorate2(decorators, target, key, desc) {
-    var c7 = arguments.length, r10 = c7 < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d4;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
-      r10 = Reflect.decorate(decorators, target, key, desc);
-    else
-      for (var i10 = decorators.length - 1; i10 >= 0; i10--)
-        if (d4 = decorators[i10])
-          r10 = (c7 < 3 ? d4(r10) : c7 > 3 ? d4(target, key, r10) : d4(target, key)) || r10;
-    return c7 > 3 && r10 && Object.defineProperty(target, key, r10), r10;
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.GGT72J62.js
+  var input_styles_default = i3`
+  :host {
+    display: block;
   }
 
-  // node_modules/@material/web/internal/controller/attachable-controller.js
-  var ATTACHABLE_CONTROLLER = Symbol("attachableController");
-  var FOR_ATTRIBUTE_OBSERVER;
-  if (!o7) {
-    FOR_ATTRIBUTE_OBSERVER = new MutationObserver((records) => {
-      for (const record of records) {
-        record.target[ATTACHABLE_CONTROLLER]?.hostConnected();
-      }
-    });
+  .input {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: stretch;
+    justify-content: start;
+    position: relative;
+    width: 100%;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    letter-spacing: var(--sl-input-letter-spacing);
+    vertical-align: middle;
+    overflow: hidden;
+    cursor: text;
+    transition:
+      var(--sl-transition-fast) color,
+      var(--sl-transition-fast) border,
+      var(--sl-transition-fast) box-shadow,
+      var(--sl-transition-fast) background-color;
   }
-  var AttachableController = class {
-    get htmlFor() {
-      return this.host.getAttribute("for");
-    }
-    set htmlFor(htmlFor) {
-      if (htmlFor === null) {
-        this.host.removeAttribute("for");
-      } else {
-        this.host.setAttribute("for", htmlFor);
-      }
-    }
-    get control() {
-      if (this.host.hasAttribute("for")) {
-        if (!this.htmlFor || !this.host.isConnected) {
-          return null;
-        }
-        return this.host.getRootNode().querySelector(`#${this.htmlFor}`);
-      }
-      return this.currentControl || this.host.parentElement;
-    }
-    set control(control) {
-      if (control) {
-        this.attach(control);
-      } else {
-        this.detach();
-      }
-    }
-    /**
-     * Creates a new controller for an `Attachable` element.
-     *
-     * @param host The `Attachable` element.
-     * @param onControlChange A callback with two parameters for the previous and
-     *     next control. An `Attachable` element may perform setup or teardown
-     *     logic whenever the control changes.
-     */
-    constructor(host, onControlChange) {
-      this.host = host;
-      this.onControlChange = onControlChange;
-      this.currentControl = null;
-      host.addController(this);
-      host[ATTACHABLE_CONTROLLER] = this;
-      FOR_ATTRIBUTE_OBSERVER?.observe(host, { attributeFilter: ["for"] });
-    }
-    attach(control) {
-      if (control === this.currentControl) {
-        return;
-      }
-      this.setCurrentControl(control);
-      this.host.removeAttribute("for");
-    }
-    detach() {
-      this.setCurrentControl(null);
-      this.host.setAttribute("for", "");
-    }
-    /** @private */
-    hostConnected() {
-      this.setCurrentControl(this.control);
-    }
-    /** @private */
-    hostDisconnected() {
-      this.setCurrentControl(null);
-    }
-    setCurrentControl(control) {
-      this.onControlChange(this.currentControl, control);
-      this.currentControl = control;
-    }
-  };
 
-  // node_modules/@material/web/focus/internal/focus-ring.js
-  var EVENTS = ["focusin", "focusout", "pointerdown"];
-  var FocusRing = class extends i6 {
-    constructor() {
-      super(...arguments);
-      this.visible = false;
-      this.inward = false;
-      this.attachableController = new AttachableController(this, this.onControlChange.bind(this));
-    }
-    get htmlFor() {
-      return this.attachableController.htmlFor;
-    }
-    set htmlFor(htmlFor) {
-      this.attachableController.htmlFor = htmlFor;
-    }
-    get control() {
-      return this.attachableController.control;
-    }
-    set control(control) {
-      this.attachableController.control = control;
-    }
-    attach(control) {
-      this.attachableController.attach(control);
-    }
-    detach() {
-      this.attachableController.detach();
-    }
-    connectedCallback() {
-      super.connectedCallback();
-      this.setAttribute("aria-hidden", "true");
-    }
-    /** @private */
-    handleEvent(event) {
-      if (event[HANDLED_BY_FOCUS_RING]) {
-        return;
-      }
-      switch (event.type) {
-        default:
-          return;
-        case "focusin":
-          this.visible = this.control?.matches(":focus-visible") ?? false;
-          break;
-        case "focusout":
-        case "pointerdown":
-          this.visible = false;
-          break;
-      }
-      event[HANDLED_BY_FOCUS_RING] = true;
-    }
-    onControlChange(prev, next) {
-      if (o7)
-        return;
-      for (const event of EVENTS) {
-        prev?.removeEventListener(event, this);
-        next?.addEventListener(event, this);
-      }
-    }
-    update(changed) {
-      if (changed.has("visible")) {
-        this.dispatchEvent(new Event("visibility-changed"));
-      }
-      super.update(changed);
-    }
-  };
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], FocusRing.prototype, "visible", void 0);
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], FocusRing.prototype, "inward", void 0);
-  var HANDLED_BY_FOCUS_RING = Symbol("handledByFocusRing");
+  /* Standard inputs */
+  .input--standard {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  }
 
-  // node_modules/@material/web/focus/internal/focus-ring-styles.js
-  var styles = i3`:host{animation-delay:0s,calc(var(--md-focus-ring-duration, 600ms)*.25);animation-duration:calc(var(--md-focus-ring-duration, 600ms)*.25),calc(var(--md-focus-ring-duration, 600ms)*.75);animation-timing-function:cubic-bezier(0.2, 0, 0, 1);box-sizing:border-box;color:var(--md-focus-ring-color, var(--md-sys-color-secondary, #625b71));display:none;pointer-events:none;position:absolute}:host([visible]){display:flex}:host(:not([inward])){animation-name:outward-grow,outward-shrink;border-end-end-radius:calc(var(--md-focus-ring-shape-end-end, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) + var(--md-focus-ring-outward-offset, 2px));border-end-start-radius:calc(var(--md-focus-ring-shape-end-start, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) + var(--md-focus-ring-outward-offset, 2px));border-start-end-radius:calc(var(--md-focus-ring-shape-start-end, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) + var(--md-focus-ring-outward-offset, 2px));border-start-start-radius:calc(var(--md-focus-ring-shape-start-start, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) + var(--md-focus-ring-outward-offset, 2px));inset:calc(-1*var(--md-focus-ring-outward-offset, 2px));outline:var(--md-focus-ring-width, 3px) solid currentColor}:host([inward]){animation-name:inward-grow,inward-shrink;border-end-end-radius:calc(var(--md-focus-ring-shape-end-end, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) - var(--md-focus-ring-inward-offset, 0px));border-end-start-radius:calc(var(--md-focus-ring-shape-end-start, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) - var(--md-focus-ring-inward-offset, 0px));border-start-end-radius:calc(var(--md-focus-ring-shape-start-end, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) - var(--md-focus-ring-inward-offset, 0px));border-start-start-radius:calc(var(--md-focus-ring-shape-start-start, var(--md-focus-ring-shape, var(--md-sys-shape-corner-full, 9999px))) - var(--md-focus-ring-inward-offset, 0px));border:var(--md-focus-ring-width, 3px) solid currentColor;inset:var(--md-focus-ring-inward-offset, 0px)}@keyframes outward-grow{from{outline-width:0}to{outline-width:var(--md-focus-ring-active-width, 8px)}}@keyframes outward-shrink{from{outline-width:var(--md-focus-ring-active-width, 8px)}}@keyframes inward-grow{from{border-width:0}to{border-width:var(--md-focus-ring-active-width, 8px)}}@keyframes inward-shrink{from{border-width:var(--md-focus-ring-active-width, 8px)}}@media(prefers-reduced-motion){:host{animation:none}}
+  .input--standard:hover:not(.input--disabled) {
+    background-color: var(--sl-input-background-color-hover);
+    border-color: var(--sl-input-border-color-hover);
+  }
+
+  .input--standard.input--focused:not(.input--disabled) {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  }
+
+  .input--standard.input--focused:not(.input--disabled) .input__control {
+    color: var(--sl-input-color-focus);
+  }
+
+  .input--standard.input--disabled {
+    background-color: var(--sl-input-background-color-disabled);
+    border-color: var(--sl-input-border-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .input--standard.input--disabled .input__control {
+    color: var(--sl-input-color-disabled);
+  }
+
+  .input--standard.input--disabled .input__control::placeholder {
+    color: var(--sl-input-placeholder-color-disabled);
+  }
+
+  /* Filled inputs */
+  .input--filled {
+    border: none;
+    background-color: var(--sl-input-filled-background-color);
+    color: var(--sl-input-color);
+  }
+
+  .input--filled:hover:not(.input--disabled) {
+    background-color: var(--sl-input-filled-background-color-hover);
+  }
+
+  .input--filled.input--focused:not(.input--disabled) {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .input--filled.input--disabled {
+    background-color: var(--sl-input-filled-background-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .input__control {
+    flex: 1 1 auto;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    min-width: 0;
+    height: 100%;
+    color: var(--sl-input-color);
+    border: none;
+    background: inherit;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    cursor: inherit;
+    -webkit-appearance: none;
+  }
+
+  .input__control::-webkit-search-decoration,
+  .input__control::-webkit-search-cancel-button,
+  .input__control::-webkit-search-results-button,
+  .input__control::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+
+  .input__control:-webkit-autofill,
+  .input__control:-webkit-autofill:hover,
+  .input__control:-webkit-autofill:focus,
+  .input__control:-webkit-autofill:active {
+    box-shadow: 0 0 0 var(--sl-input-height-large) var(--sl-input-background-color-hover) inset !important;
+    -webkit-text-fill-color: var(--sl-color-primary-500);
+    caret-color: var(--sl-input-color);
+  }
+
+  .input--filled .input__control:-webkit-autofill,
+  .input--filled .input__control:-webkit-autofill:hover,
+  .input--filled .input__control:-webkit-autofill:focus,
+  .input--filled .input__control:-webkit-autofill:active {
+    box-shadow: 0 0 0 var(--sl-input-height-large) var(--sl-input-filled-background-color) inset !important;
+  }
+
+  .input__control::placeholder {
+    color: var(--sl-input-placeholder-color);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .input:hover:not(.input--disabled) .input__control {
+    color: var(--sl-input-color-hover);
+  }
+
+  .input__control:focus {
+    outline: none;
+  }
+
+  .input__prefix,
+  .input__suffix {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    cursor: default;
+  }
+
+  .input__prefix ::slotted(sl-icon),
+  .input__suffix ::slotted(sl-icon) {
+    color: var(--sl-input-icon-color);
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .input--small {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+    height: var(--sl-input-height-small);
+  }
+
+  .input--small .input__control {
+    height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2);
+    padding: 0 var(--sl-input-spacing-small);
+  }
+
+  .input--small .input__clear,
+  .input--small .input__password-toggle {
+    width: calc(1em + var(--sl-input-spacing-small) * 2);
+  }
+
+  .input--small .input__prefix ::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-small);
+  }
+
+  .input--small .input__suffix ::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-small);
+  }
+
+  .input--medium {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+    height: var(--sl-input-height-medium);
+  }
+
+  .input--medium .input__control {
+    height: calc(var(--sl-input-height-medium) - var(--sl-input-border-width) * 2);
+    padding: 0 var(--sl-input-spacing-medium);
+  }
+
+  .input--medium .input__clear,
+  .input--medium .input__password-toggle {
+    width: calc(1em + var(--sl-input-spacing-medium) * 2);
+  }
+
+  .input--medium .input__prefix ::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-medium);
+  }
+
+  .input--medium .input__suffix ::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-medium);
+  }
+
+  .input--large {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+    height: var(--sl-input-height-large);
+  }
+
+  .input--large .input__control {
+    height: calc(var(--sl-input-height-large) - var(--sl-input-border-width) * 2);
+    padding: 0 var(--sl-input-spacing-large);
+  }
+
+  .input--large .input__clear,
+  .input--large .input__password-toggle {
+    width: calc(1em + var(--sl-input-spacing-large) * 2);
+  }
+
+  .input--large .input__prefix ::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-large);
+  }
+
+  .input--large .input__suffix ::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-large);
+  }
+
+  /*
+   * Pill modifier
+   */
+
+  .input--pill.input--small {
+    border-radius: var(--sl-input-height-small);
+  }
+
+  .input--pill.input--medium {
+    border-radius: var(--sl-input-height-medium);
+  }
+
+  .input--pill.input--large {
+    border-radius: var(--sl-input-height-large);
+  }
+
+  /*
+   * Clearable + Password Toggle
+   */
+
+  .input__clear,
+  .input__password-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: inherit;
+    color: var(--sl-input-icon-color);
+    border: none;
+    background: none;
+    padding: 0;
+    transition: var(--sl-transition-fast) color;
+    cursor: pointer;
+  }
+
+  .input__clear:hover,
+  .input__password-toggle:hover {
+    color: var(--sl-input-icon-color-hover);
+  }
+
+  .input__clear:focus,
+  .input__password-toggle:focus {
+    outline: none;
+  }
+
+  /* Don't show the browser's password toggle in Edge */
+  ::-ms-reveal {
+    display: none;
+  }
+
+  /* Hide the built-in number spinner */
+  .input--no-spin-buttons input[type='number']::-webkit-outer-spin-button,
+  .input--no-spin-buttons input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    display: none;
+  }
+
+  .input--no-spin-buttons input[type='number'] {
+    -moz-appearance: textfield;
+  }
 `;
 
-  // node_modules/@material/web/focus/md-focus-ring.js
-  var MdFocusRing = class MdFocusRing2 extends FocusRing {
-  };
-  MdFocusRing.styles = [styles];
-  MdFocusRing = __decorate2([
-    t4("md-focus-ring")
-  ], MdFocusRing);
-
-  // node_modules/@material/web/internal/motion/animation.js
-  var EASING = {
-    STANDARD: "cubic-bezier(0.2, 0, 0, 1)",
-    STANDARD_ACCELERATE: "cubic-bezier(.3,0,1,1)",
-    STANDARD_DECELERATE: "cubic-bezier(0,0,0,1)",
-    EMPHASIZED: "cubic-bezier(.3,0,0,1)",
-    EMPHASIZED_ACCELERATE: "cubic-bezier(.3,0,.8,.15)",
-    EMPHASIZED_DECELERATE: "cubic-bezier(.05,.7,.1,1)"
-  };
-  function createAnimationSignal() {
-    let animationAbortController = null;
-    return {
-      start() {
-        animationAbortController?.abort();
-        animationAbortController = new AbortController();
-        return animationAbortController.signal;
-      },
-      finish() {
-        animationAbortController = null;
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.GI7VDIWX.js
+  var defaultValue = (propertyName = "value") => (proto, key) => {
+    const ctor = proto.constructor;
+    const attributeChangedCallback = ctor.prototype.attributeChangedCallback;
+    ctor.prototype.attributeChangedCallback = function(name, old, value2) {
+      var _a;
+      const options = ctor.getPropertyOptions(propertyName);
+      const attributeName = typeof options.attribute === "string" ? options.attribute : propertyName;
+      if (name === attributeName) {
+        const converter = options.converter || u2;
+        const fromAttribute = typeof converter === "function" ? converter : (_a = converter == null ? void 0 : converter.fromAttribute) != null ? _a : u2.fromAttribute;
+        const newValue = fromAttribute(value2, options.type);
+        if (this[propertyName] !== newValue) {
+          this[key] = newValue;
+        }
       }
+      attributeChangedCallback.call(this, name, old, value2);
     };
-  }
-
-  // node_modules/@material/web/ripple/internal/ripple.js
-  var PRESS_GROW_MS = 450;
-  var MINIMUM_PRESS_MS = 225;
-  var INITIAL_ORIGIN_SCALE = 0.2;
-  var PADDING = 10;
-  var SOFT_EDGE_MINIMUM_SIZE = 75;
-  var SOFT_EDGE_CONTAINER_RATIO = 0.35;
-  var PRESS_PSEUDO = "::after";
-  var ANIMATION_FILL = "forwards";
-  var State;
-  (function(State2) {
-    State2[State2["INACTIVE"] = 0] = "INACTIVE";
-    State2[State2["TOUCH_DELAY"] = 1] = "TOUCH_DELAY";
-    State2[State2["HOLDING"] = 2] = "HOLDING";
-    State2[State2["WAITING_FOR_CLICK"] = 3] = "WAITING_FOR_CLICK";
-  })(State || (State = {}));
-  var EVENTS2 = [
-    "click",
-    "contextmenu",
-    "pointercancel",
-    "pointerdown",
-    "pointerenter",
-    "pointerleave",
-    "pointerup"
-  ];
-  var TOUCH_DELAY_MS = 150;
-  var FORCED_COLORS = o7 ? null : window.matchMedia("(forced-colors: active)");
-  var Ripple = class extends i6 {
-    constructor() {
-      super(...arguments);
-      this.disabled = false;
-      this.hovered = false;
-      this.pressed = false;
-      this.rippleSize = "";
-      this.rippleScale = "";
-      this.initialSize = 0;
-      this.state = State.INACTIVE;
-      this.checkBoundsAfterContextMenu = false;
-      this.attachableController = new AttachableController(this, this.onControlChange.bind(this));
-    }
-    get htmlFor() {
-      return this.attachableController.htmlFor;
-    }
-    set htmlFor(htmlFor) {
-      this.attachableController.htmlFor = htmlFor;
-    }
-    get control() {
-      return this.attachableController.control;
-    }
-    set control(control) {
-      this.attachableController.control = control;
-    }
-    attach(control) {
-      this.attachableController.attach(control);
-    }
-    detach() {
-      this.attachableController.detach();
-    }
-    connectedCallback() {
-      super.connectedCallback();
-      this.setAttribute("aria-hidden", "true");
-    }
-    render() {
-      const classes = {
-        "hovered": this.hovered,
-        "pressed": this.pressed
-      };
-      return x`<div class="surface ${e10(classes)}"></div>`;
-    }
-    update(changedProps) {
-      if (changedProps.has("disabled") && this.disabled) {
-        this.hovered = false;
-        this.pressed = false;
-      }
-      super.update(changedProps);
-    }
-    /**
-     * TODO(b/269799771): make private
-     * @private only public for slider
-     */
-    handlePointerenter(event) {
-      if (!this.shouldReactToEvent(event)) {
-        return;
-      }
-      this.hovered = true;
-    }
-    /**
-     * TODO(b/269799771): make private
-     * @private only public for slider
-     */
-    handlePointerleave(event) {
-      if (!this.shouldReactToEvent(event)) {
-        return;
-      }
-      this.hovered = false;
-      if (this.state !== State.INACTIVE) {
-        this.endPressAnimation();
-      }
-    }
-    handlePointerup(event) {
-      if (!this.shouldReactToEvent(event)) {
-        return;
-      }
-      if (this.state === State.HOLDING) {
-        this.state = State.WAITING_FOR_CLICK;
-        return;
-      }
-      if (this.state === State.TOUCH_DELAY) {
-        this.state = State.WAITING_FOR_CLICK;
-        this.startPressAnimation(this.rippleStartEvent);
-        return;
-      }
-    }
-    async handlePointerdown(event) {
-      if (!this.shouldReactToEvent(event)) {
-        return;
-      }
-      this.rippleStartEvent = event;
-      if (!this.isTouch(event)) {
-        this.state = State.WAITING_FOR_CLICK;
-        this.startPressAnimation(event);
-        return;
-      }
-      if (this.checkBoundsAfterContextMenu && !this.inBounds(event)) {
-        return;
-      }
-      this.checkBoundsAfterContextMenu = false;
-      this.state = State.TOUCH_DELAY;
-      await new Promise((resolve) => {
-        setTimeout(resolve, TOUCH_DELAY_MS);
-      });
-      if (this.state !== State.TOUCH_DELAY) {
-        return;
-      }
-      this.state = State.HOLDING;
-      this.startPressAnimation(event);
-    }
-    handleClick() {
-      if (this.disabled) {
-        return;
-      }
-      if (this.state === State.WAITING_FOR_CLICK) {
-        this.endPressAnimation();
-        return;
-      }
-      if (this.state === State.INACTIVE) {
-        this.startPressAnimation();
-        this.endPressAnimation();
-      }
-    }
-    handlePointercancel(event) {
-      if (!this.shouldReactToEvent(event)) {
-        return;
-      }
-      this.endPressAnimation();
-    }
-    handleContextmenu() {
-      if (this.disabled) {
-        return;
-      }
-      this.checkBoundsAfterContextMenu = true;
-      this.endPressAnimation();
-    }
-    determineRippleSize() {
-      const { height, width } = this.getBoundingClientRect();
-      const maxDim = Math.max(height, width);
-      const softEdgeSize = Math.max(SOFT_EDGE_CONTAINER_RATIO * maxDim, SOFT_EDGE_MINIMUM_SIZE);
-      const initialSize = Math.floor(maxDim * INITIAL_ORIGIN_SCALE);
-      const hypotenuse = Math.sqrt(width ** 2 + height ** 2);
-      const maxRadius = hypotenuse + PADDING;
-      this.initialSize = initialSize;
-      this.rippleScale = `${(maxRadius + softEdgeSize) / initialSize}`;
-      this.rippleSize = `${initialSize}px`;
-    }
-    getNormalizedPointerEventCoords(pointerEvent) {
-      const { scrollX, scrollY } = window;
-      const { left, top } = this.getBoundingClientRect();
-      const documentX = scrollX + left;
-      const documentY = scrollY + top;
-      const { pageX, pageY } = pointerEvent;
-      return { x: pageX - documentX, y: pageY - documentY };
-    }
-    getTranslationCoordinates(positionEvent) {
-      const { height, width } = this.getBoundingClientRect();
-      const endPoint = {
-        x: (width - this.initialSize) / 2,
-        y: (height - this.initialSize) / 2
-      };
-      let startPoint;
-      if (positionEvent instanceof PointerEvent) {
-        startPoint = this.getNormalizedPointerEventCoords(positionEvent);
-      } else {
-        startPoint = {
-          x: width / 2,
-          y: height / 2
-        };
-      }
-      startPoint = {
-        x: startPoint.x - this.initialSize / 2,
-        y: startPoint.y - this.initialSize / 2
-      };
-      return { startPoint, endPoint };
-    }
-    startPressAnimation(positionEvent) {
-      if (!this.mdRoot) {
-        return;
-      }
-      this.pressed = true;
-      this.growAnimation?.cancel();
-      this.determineRippleSize();
-      const { startPoint, endPoint } = this.getTranslationCoordinates(positionEvent);
-      const translateStart = `${startPoint.x}px, ${startPoint.y}px`;
-      const translateEnd = `${endPoint.x}px, ${endPoint.y}px`;
-      this.growAnimation = this.mdRoot.animate({
-        top: [0, 0],
-        left: [0, 0],
-        height: [this.rippleSize, this.rippleSize],
-        width: [this.rippleSize, this.rippleSize],
-        transform: [
-          `translate(${translateStart}) scale(1)`,
-          `translate(${translateEnd}) scale(${this.rippleScale})`
-        ]
-      }, {
-        pseudoElement: PRESS_PSEUDO,
-        duration: PRESS_GROW_MS,
-        easing: EASING.STANDARD,
-        fill: ANIMATION_FILL
-      });
-    }
-    async endPressAnimation() {
-      this.rippleStartEvent = void 0;
-      this.state = State.INACTIVE;
-      const animation = this.growAnimation;
-      let pressAnimationPlayState = Infinity;
-      if (typeof animation?.currentTime === "number") {
-        pressAnimationPlayState = animation.currentTime;
-      } else if (animation?.currentTime) {
-        pressAnimationPlayState = animation.currentTime.to("ms").value;
-      }
-      if (pressAnimationPlayState >= MINIMUM_PRESS_MS) {
-        this.pressed = false;
-        return;
-      }
-      await new Promise((resolve) => {
-        setTimeout(resolve, MINIMUM_PRESS_MS - pressAnimationPlayState);
-      });
-      if (this.growAnimation !== animation) {
-        return;
-      }
-      this.pressed = false;
-    }
-    /**
-     * Returns `true` if
-     *  - the ripple element is enabled
-     *  - the pointer is primary for the input type
-     *  - the pointer is the pointer that started the interaction, or will start
-     * the interaction
-     *  - the pointer is a touch, or the pointer state has the primary button
-     * held, or the pointer is hovering
-     */
-    shouldReactToEvent(event) {
-      if (this.disabled || !event.isPrimary) {
-        return false;
-      }
-      if (this.rippleStartEvent && this.rippleStartEvent.pointerId !== event.pointerId) {
-        return false;
-      }
-      if (event.type === "pointerenter" || event.type === "pointerleave") {
-        return !this.isTouch(event);
-      }
-      const isPrimaryButton = event.buttons === 1;
-      return this.isTouch(event) || isPrimaryButton;
-    }
-    /**
-     * Check if the event is within the bounds of the element.
-     *
-     * This is only needed for the "stuck" contextmenu longpress on Chrome.
-     */
-    inBounds({ x: x2, y: y4 }) {
-      const { top, left, bottom, right } = this.getBoundingClientRect();
-      return x2 >= left && x2 <= right && y4 >= top && y4 <= bottom;
-    }
-    isTouch({ pointerType }) {
-      return pointerType === "touch";
-    }
-    /** @private */
-    async handleEvent(event) {
-      if (FORCED_COLORS?.matches) {
-        return;
-      }
-      switch (event.type) {
-        case "click":
-          this.handleClick();
-          break;
-        case "contextmenu":
-          this.handleContextmenu();
-          break;
-        case "pointercancel":
-          this.handlePointercancel(event);
-          break;
-        case "pointerdown":
-          await this.handlePointerdown(event);
-          break;
-        case "pointerenter":
-          this.handlePointerenter(event);
-          break;
-        case "pointerleave":
-          this.handlePointerleave(event);
-          break;
-        case "pointerup":
-          this.handlePointerup(event);
-          break;
-        default:
-          break;
-      }
-    }
-    onControlChange(prev, next) {
-      if (o7)
-        return;
-      for (const event of EVENTS2) {
-        prev?.removeEventListener(event, this);
-        next?.addEventListener(event, this);
-      }
-    }
   };
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], Ripple.prototype, "disabled", void 0);
-  __decorate2([
-    r6()
-  ], Ripple.prototype, "hovered", void 0);
-  __decorate2([
-    r6()
-  ], Ripple.prototype, "pressed", void 0);
-  __decorate2([
-    e6(".surface")
-  ], Ripple.prototype, "mdRoot", void 0);
-
-  // node_modules/@material/web/ripple/internal/ripple-styles.js
-  var styles2 = i3`:host{display:flex;margin:auto;pointer-events:none}:host([disabled]){display:none}@media(forced-colors: active){:host{display:none}}:host,.surface{border-radius:inherit;position:absolute;inset:0;overflow:hidden}.surface{-webkit-tap-highlight-color:rgba(0,0,0,0)}.surface::before,.surface::after{content:"";opacity:0;position:absolute}.surface::before{background-color:var(--md-ripple-hover-color, var(--md-sys-color-on-surface, #1d1b20));inset:0;transition:opacity 15ms linear,background-color 15ms linear}.surface::after{background:radial-gradient(closest-side, var(--md-ripple-pressed-color, var(--md-sys-color-on-surface, #1d1b20)) max(100% - 70px, 65%), transparent 100%);transform-origin:center center;transition:opacity 375ms linear}.hovered::before{background-color:var(--md-ripple-hover-color, var(--md-sys-color-on-surface, #1d1b20));opacity:var(--md-ripple-hover-opacity, 0.08)}.pressed::after{opacity:var(--md-ripple-pressed-opacity, 0.12);transition-duration:105ms}
-`;
-
-  // node_modules/@material/web/ripple/ripple.js
-  var MdRipple = class MdRipple2 extends Ripple {
-  };
-  MdRipple.styles = [styles2];
-  MdRipple = __decorate2([
-    t4("md-ripple")
-  ], MdRipple);
-
-  // node_modules/@material/web/internal/aria/aria.js
-  var ARIA_PROPERTIES = [
-    "role",
-    "ariaAtomic",
-    "ariaAutoComplete",
-    "ariaBusy",
-    "ariaChecked",
-    "ariaColCount",
-    "ariaColIndex",
-    "ariaColSpan",
-    "ariaCurrent",
-    "ariaDisabled",
-    "ariaExpanded",
-    "ariaHasPopup",
-    "ariaHidden",
-    "ariaInvalid",
-    "ariaKeyShortcuts",
-    "ariaLabel",
-    "ariaLevel",
-    "ariaLive",
-    "ariaModal",
-    "ariaMultiLine",
-    "ariaMultiSelectable",
-    "ariaOrientation",
-    "ariaPlaceholder",
-    "ariaPosInSet",
-    "ariaPressed",
-    "ariaReadOnly",
-    "ariaRequired",
-    "ariaRoleDescription",
-    "ariaRowCount",
-    "ariaRowIndex",
-    "ariaRowSpan",
-    "ariaSelected",
-    "ariaSetSize",
-    "ariaSort",
-    "ariaValueMax",
-    "ariaValueMin",
-    "ariaValueNow",
-    "ariaValueText"
-  ];
-  var ARIA_ATTRIBUTES = ARIA_PROPERTIES.map(ariaPropertyToAttribute);
-  function ariaPropertyToAttribute(property) {
-    return property.replace("aria", "aria-").replace(/Elements?/g, "").toLowerCase();
-  }
-
-  // node_modules/@material/web/internal/aria/delegate.js
-  function requestUpdateOnAriaChange(ctor) {
-    for (const ariaProperty of ARIA_PROPERTIES) {
-      ctor.createProperty(ariaProperty, {
-        attribute: ariaPropertyToAttribute(ariaProperty),
-        reflect: true
-      });
-    }
-    ctor.addInitializer((element) => {
-      const controller = {
-        hostConnected() {
-          element.setAttribute("role", "presentation");
-        }
-      };
-      element.addController(controller);
-    });
-  }
-
-  // node_modules/@material/web/internal/events/form-label-activation.js
-  function dispatchActivationClick(element) {
-    const event = new MouseEvent("click", { bubbles: true });
-    element.dispatchEvent(event);
-    return event;
-  }
-  function isActivationClick(event) {
-    if (event.currentTarget !== event.target) {
-      return false;
-    }
-    if (event.composedPath()[0] !== event.target) {
-      return false;
-    }
-    if (event.target.disabled) {
-      return false;
-    }
-    return !squelchEvent(event);
-  }
-  function squelchEvent(event) {
-    const squelched = isSquelchingEvents;
-    if (squelched) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-    squelchEventsForMicrotask();
-    return squelched;
-  }
-  var isSquelchingEvents = false;
-  async function squelchEventsForMicrotask() {
-    isSquelchingEvents = true;
-    await null;
-    isSquelchingEvents = false;
-  }
-
-  // node_modules/@material/web/internal/events/redispatch-event.js
-  function redispatchEvent(element, event) {
-    if (event.bubbles && (!element.shadowRoot || event.composed)) {
-      event.stopPropagation();
-    }
-    const copy = Reflect.construct(event.constructor, [event.type, event]);
-    const dispatched = element.dispatchEvent(copy);
-    if (!dispatched) {
-      event.preventDefault();
-    }
-    return dispatched;
-  }
-
-  // node_modules/@material/web/labs/behaviors/element-internals.js
-  var internals = Symbol("internals");
-  var privateInternals = Symbol("privateInternals");
-  function mixinElementInternals(base) {
-    class WithElementInternalsElement extends base {
-      get [internals]() {
-        if (!this[privateInternals]) {
-          this[privateInternals] = this.attachInternals();
-        }
-        return this[privateInternals];
-      }
-    }
-    return WithElementInternalsElement;
-  }
-
-  // node_modules/@material/web/labs/behaviors/constraint-validation.js
-  var createValidator = Symbol("createValidator");
-  var getValidityAnchor = Symbol("getValidityAnchor");
-  var privateValidator = Symbol("privateValidator");
-  var privateSyncValidity = Symbol("privateSyncValidity");
-  var privateCustomValidationMessage = Symbol("privateCustomValidationMessage");
-  function mixinConstraintValidation(base) {
-    var _a2;
-    class ConstraintValidationElement extends base {
-      constructor() {
-        super(...arguments);
-        this[_a2] = "";
-      }
-      get validity() {
-        this[privateSyncValidity]();
-        return this[internals].validity;
-      }
-      get validationMessage() {
-        this[privateSyncValidity]();
-        return this[internals].validationMessage;
-      }
-      get willValidate() {
-        this[privateSyncValidity]();
-        return this[internals].willValidate;
-      }
-      checkValidity() {
-        this[privateSyncValidity]();
-        return this[internals].checkValidity();
-      }
-      reportValidity() {
-        this[privateSyncValidity]();
-        return this[internals].reportValidity();
-      }
-      setCustomValidity(error) {
-        this[privateCustomValidationMessage] = error;
-        this[privateSyncValidity]();
-      }
-      requestUpdate(name, oldValue, options) {
-        super.requestUpdate(name, oldValue, options);
-        this[privateSyncValidity]();
-      }
-      firstUpdated(changed) {
-        super.firstUpdated(changed);
-        this[privateSyncValidity]();
-      }
-      [(_a2 = privateCustomValidationMessage, privateSyncValidity)]() {
-        if (o7) {
-          return;
-        }
-        if (!this[privateValidator]) {
-          this[privateValidator] = this[createValidator]();
-        }
-        const { validity, validationMessage: nonCustomValidationMessage } = this[privateValidator].getValidity();
-        const customError = !!this[privateCustomValidationMessage];
-        const validationMessage = this[privateCustomValidationMessage] || nonCustomValidationMessage;
-        this[internals].setValidity({ ...validity, customError }, validationMessage, this[getValidityAnchor]() ?? void 0);
-      }
-      [createValidator]() {
-        throw new Error("Implement [createValidator]");
-      }
-      [getValidityAnchor]() {
-        throw new Error("Implement [getValidityAnchor]");
-      }
-    }
-    return ConstraintValidationElement;
-  }
-
-  // node_modules/@material/web/labs/behaviors/form-associated.js
-  var getFormValue = Symbol("getFormValue");
-  var getFormState = Symbol("getFormState");
-  function mixinFormAssociated(base) {
-    class FormAssociatedElement extends base {
-      get form() {
-        return this[internals].form;
-      }
-      get labels() {
-        return this[internals].labels;
-      }
-      // Use @property for the `name` and `disabled` properties to add them to the
-      // `observedAttributes` array and trigger `attributeChangedCallback()`.
-      //
-      // We don't use Lit's default getter/setter (`noAccessor: true`) because
-      // the attributes need to be updated synchronously to work with synchronous
-      // form APIs, and Lit updates attributes async by default.
-      get name() {
-        return this.getAttribute("name") ?? "";
-      }
-      set name(name) {
-        this.setAttribute("name", name);
-      }
-      get disabled() {
-        return this.hasAttribute("disabled");
-      }
-      set disabled(disabled) {
-        this.toggleAttribute("disabled", disabled);
-      }
-      attributeChangedCallback(name, old, value2) {
-        if (name === "name" || name === "disabled") {
-          const oldValue = name === "disabled" ? old !== null : old;
-          this.requestUpdate(name, oldValue);
-          return;
-        }
-        super.attributeChangedCallback(name, old, value2);
-      }
-      requestUpdate(name, oldValue, options) {
-        super.requestUpdate(name, oldValue, options);
-        this[internals].setFormValue(this[getFormValue](), this[getFormState]());
-      }
-      [getFormValue]() {
-        throw new Error("Implement [getFormValue]");
-      }
-      [getFormState]() {
-        return this[getFormValue]();
-      }
-      formDisabledCallback(disabled) {
-        this.disabled = disabled;
-      }
-    }
-    FormAssociatedElement.formAssociated = true;
-    __decorate2([
-      n5({ noAccessor: true })
-    ], FormAssociatedElement.prototype, "name", null);
-    __decorate2([
-      n5({ type: Boolean, noAccessor: true })
-    ], FormAssociatedElement.prototype, "disabled", null);
-    return FormAssociatedElement;
-  }
-
-  // node_modules/@material/web/labs/behaviors/validators/validator.js
-  var Validator = class {
-    /**
-     * Creates a new validator.
-     *
-     * @param getCurrentState A callback that returns the current state of
-     *     constraint validation-related properties.
-     */
-    constructor(getCurrentState) {
-      this.getCurrentState = getCurrentState;
-      this.currentValidity = {
-        validity: {},
-        validationMessage: ""
-      };
-    }
-    /**
-     * Returns the current `ValidityStateFlags` and validation message for the
-     * validator.
-     *
-     * If the constraint validation state has not changed, this will return a
-     * cached result. This is important since `getValidity()` can be called
-     * frequently in response to synchronous property changes.
-     *
-     * @return The current validity and validation message.
-     */
-    getValidity() {
-      const state = this.getCurrentState();
-      const hasStateChanged = !this.prevState || !this.equals(this.prevState, state);
-      if (!hasStateChanged) {
-        return this.currentValidity;
-      }
-      const { validity, validationMessage } = this.computeValidity(state);
-      this.prevState = this.copy(state);
-      this.currentValidity = {
-        validationMessage,
-        validity: {
-          // Change any `ValidityState` instances into `ValidityStateFlags` since
-          // `ValidityState` cannot be easily `{...spread}`.
-          badInput: validity.badInput,
-          customError: validity.customError,
-          patternMismatch: validity.patternMismatch,
-          rangeOverflow: validity.rangeOverflow,
-          rangeUnderflow: validity.rangeUnderflow,
-          stepMismatch: validity.stepMismatch,
-          tooLong: validity.tooLong,
-          tooShort: validity.tooShort,
-          typeMismatch: validity.typeMismatch,
-          valueMissing: validity.valueMissing
-        }
-      };
-      return this.currentValidity;
-    }
-  };
-
-  // node_modules/@material/web/labs/behaviors/validators/checkbox-validator.js
-  var CheckboxValidator = class extends Validator {
-    computeValidity(state) {
-      if (!this.checkboxControl) {
-        this.checkboxControl = document.createElement("input");
-        this.checkboxControl.type = "checkbox";
-      }
-      this.checkboxControl.checked = state.checked;
-      this.checkboxControl.required = state.required;
-      return {
-        validity: this.checkboxControl.validity,
-        validationMessage: this.checkboxControl.validationMessage
-      };
-    }
-    equals(prev, next) {
-      return prev.checked === next.checked && prev.required === next.required;
-    }
-    copy({ checked, required }) {
-      return { checked, required };
-    }
-  };
-
-  // node_modules/@material/web/checkbox/internal/checkbox.js
-  var checkboxBaseClass = mixinConstraintValidation(mixinFormAssociated(mixinElementInternals(i6)));
-  var Checkbox = class extends checkboxBaseClass {
-    constructor() {
-      super();
-      this.checked = false;
-      this.indeterminate = false;
-      this.required = false;
-      this.value = "on";
-      this.prevChecked = false;
-      this.prevDisabled = false;
-      this.prevIndeterminate = false;
-      if (!o7) {
-        this.addEventListener("click", (event) => {
-          if (!isActivationClick(event) || !this.input) {
-            return;
-          }
-          this.focus();
-          dispatchActivationClick(this.input);
-        });
-      }
-    }
-    update(changed) {
-      if (changed.has("checked") || changed.has("disabled") || changed.has("indeterminate")) {
-        this.prevChecked = changed.get("checked") ?? this.checked;
-        this.prevDisabled = changed.get("disabled") ?? this.disabled;
-        this.prevIndeterminate = changed.get("indeterminate") ?? this.indeterminate;
-      }
-      super.update(changed);
-    }
-    render() {
-      const prevNone = !this.prevChecked && !this.prevIndeterminate;
-      const prevChecked = this.prevChecked && !this.prevIndeterminate;
-      const prevIndeterminate = this.prevIndeterminate;
-      const isChecked = this.checked && !this.indeterminate;
-      const isIndeterminate = this.indeterminate;
-      const containerClasses = e10({
-        "disabled": this.disabled,
-        "selected": isChecked || isIndeterminate,
-        "unselected": !isChecked && !isIndeterminate,
-        "checked": isChecked,
-        "indeterminate": isIndeterminate,
-        "prev-unselected": prevNone,
-        "prev-checked": prevChecked,
-        "prev-indeterminate": prevIndeterminate,
-        "prev-disabled": this.prevDisabled
-      });
-      const { ariaLabel, ariaInvalid } = this;
-      return x`
-      <div class="container ${containerClasses}">
-        <input
-          type="checkbox"
-          id="input"
-          aria-checked=${isIndeterminate ? "mixed" : E2}
-          aria-label=${ariaLabel || E2}
-          aria-invalid=${ariaInvalid || E2}
-          ?disabled=${this.disabled}
-          ?required=${this.required}
-          .indeterminate=${this.indeterminate}
-          .checked=${this.checked}
-          @input=${this.handleInput}
-          @change=${this.handleChange} />
-
-        <div class="outline"></div>
-        <div class="background"></div>
-        <md-focus-ring part="focus-ring" for="input"></md-focus-ring>
-        <md-ripple for="input" ?disabled=${this.disabled}></md-ripple>
-        <svg class="icon" viewBox="0 0 18 18" aria-hidden="true">
-          <rect class="mark short" />
-          <rect class="mark long" />
-        </svg>
-      </div>
-    `;
-    }
-    handleInput(event) {
-      const target = event.target;
-      this.checked = target.checked;
-      this.indeterminate = target.indeterminate;
-    }
-    handleChange(event) {
-      redispatchEvent(this, event);
-    }
-    [getFormValue]() {
-      if (!this.checked || this.indeterminate) {
-        return null;
-      }
-      return this.value;
-    }
-    [getFormState]() {
-      return String(this.checked);
-    }
-    formResetCallback() {
-      this.checked = this.hasAttribute("checked");
-    }
-    formStateRestoreCallback(state) {
-      this.checked = state === "true";
-    }
-    [createValidator]() {
-      return new CheckboxValidator(() => this);
-    }
-    [getValidityAnchor]() {
-      return this.input;
-    }
-  };
-  (() => {
-    requestUpdateOnAriaChange(Checkbox);
-  })();
-  Checkbox.shadowRootOptions = {
-    ...i6.shadowRootOptions,
-    delegatesFocus: true
-  };
-  __decorate2([
-    n5({ type: Boolean })
-  ], Checkbox.prototype, "checked", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Checkbox.prototype, "indeterminate", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Checkbox.prototype, "required", void 0);
-  __decorate2([
-    n5()
-  ], Checkbox.prototype, "value", void 0);
-  __decorate2([
-    r6()
-  ], Checkbox.prototype, "prevChecked", void 0);
-  __decorate2([
-    r6()
-  ], Checkbox.prototype, "prevDisabled", void 0);
-  __decorate2([
-    r6()
-  ], Checkbox.prototype, "prevIndeterminate", void 0);
-  __decorate2([
-    e6("input")
-  ], Checkbox.prototype, "input", void 0);
-
-  // node_modules/@material/web/checkbox/internal/checkbox-styles.js
-  var styles3 = i3`:host{border-start-start-radius:var(--md-checkbox-container-shape-start-start, var(--md-checkbox-container-shape, 2px));border-start-end-radius:var(--md-checkbox-container-shape-start-end, var(--md-checkbox-container-shape, 2px));border-end-end-radius:var(--md-checkbox-container-shape-end-end, var(--md-checkbox-container-shape, 2px));border-end-start-radius:var(--md-checkbox-container-shape-end-start, var(--md-checkbox-container-shape, 2px));display:inline-flex;height:var(--md-checkbox-container-size, 18px);position:relative;vertical-align:top;width:var(--md-checkbox-container-size, 18px);-webkit-tap-highlight-color:rgba(0,0,0,0);cursor:pointer}:host([disabled]){cursor:default}:host([touch-target=wrapper]){margin:max(0px,(48px - var(--md-checkbox-container-size, 18px))/2)}md-focus-ring{height:44px;inset:unset;width:44px}input{appearance:none;height:48px;margin:0;opacity:0;outline:none;position:absolute;width:48px;z-index:1;cursor:inherit}:host([touch-target=none]) input{height:100%;width:100%}.container{border-radius:inherit;display:flex;height:100%;place-content:center;place-items:center;position:relative;width:100%}.outline,.background,.icon{inset:0;position:absolute}.outline,.background{border-radius:inherit}.outline{border-color:var(--md-checkbox-outline-color, var(--md-sys-color-on-surface-variant, #49454f));border-style:solid;border-width:var(--md-checkbox-outline-width, 2px);box-sizing:border-box}.background{background-color:var(--md-checkbox-selected-container-color, var(--md-sys-color-primary, #6750a4))}.background,.icon{opacity:0;transition-duration:150ms,50ms;transition-property:transform,opacity;transition-timing-function:cubic-bezier(0.3, 0, 0.8, 0.15),linear;transform:scale(0.6)}:where(.selected) :is(.background,.icon){opacity:1;transition-duration:350ms,50ms;transition-timing-function:cubic-bezier(0.05, 0.7, 0.1, 1),linear;transform:scale(1)}md-ripple{border-radius:var(--md-checkbox-state-layer-shape, var(--md-sys-shape-corner-full, 9999px));height:var(--md-checkbox-state-layer-size, 40px);inset:unset;width:var(--md-checkbox-state-layer-size, 40px);--md-ripple-hover-color: var(--md-checkbox-hover-state-layer-color, var(--md-sys-color-on-surface, #1d1b20));--md-ripple-hover-opacity: var(--md-checkbox-hover-state-layer-opacity, 0.08);--md-ripple-pressed-color: var(--md-checkbox-pressed-state-layer-color, var(--md-sys-color-primary, #6750a4));--md-ripple-pressed-opacity: var(--md-checkbox-pressed-state-layer-opacity, 0.12)}.selected md-ripple{--md-ripple-hover-color: var(--md-checkbox-selected-hover-state-layer-color, var(--md-sys-color-primary, #6750a4));--md-ripple-hover-opacity: var(--md-checkbox-selected-hover-state-layer-opacity, 0.08);--md-ripple-pressed-color: var(--md-checkbox-selected-pressed-state-layer-color, var(--md-sys-color-on-surface, #1d1b20));--md-ripple-pressed-opacity: var(--md-checkbox-selected-pressed-state-layer-opacity, 0.12)}.icon{fill:var(--md-checkbox-selected-icon-color, var(--md-sys-color-on-primary, #fff));height:var(--md-checkbox-icon-size, 18px);width:var(--md-checkbox-icon-size, 18px)}.mark.short{height:2px;transition-property:transform,height;width:2px}.mark.long{height:2px;transition-property:transform,width;width:10px}.mark{animation-duration:150ms;animation-timing-function:cubic-bezier(0.3, 0, 0.8, 0.15);transition-duration:150ms;transition-timing-function:cubic-bezier(0.3, 0, 0.8, 0.15)}.selected .mark{animation-duration:350ms;animation-timing-function:cubic-bezier(0.05, 0.7, 0.1, 1);transition-duration:350ms;transition-timing-function:cubic-bezier(0.05, 0.7, 0.1, 1)}.checked .mark,.prev-checked.unselected .mark{transform:scaleY(-1) translate(7px, -14px) rotate(45deg)}.checked .mark.short,.prev-checked.unselected .mark.short{height:5.6568542495px}.checked .mark.long,.prev-checked.unselected .mark.long{width:11.313708499px}.indeterminate .mark,.prev-indeterminate.unselected .mark{transform:scaleY(-1) translate(4px, -10px) rotate(0deg)}.prev-unselected .mark{transition-property:none}.prev-unselected.checked .mark.long{animation-name:prev-unselected-to-checked}@keyframes prev-unselected-to-checked{from{width:0}}:where(:hover) .outline{border-color:var(--md-checkbox-hover-outline-color, var(--md-sys-color-on-surface, #1d1b20));border-width:var(--md-checkbox-hover-outline-width, 2px)}:where(:hover) .background{background:var(--md-checkbox-selected-hover-container-color, var(--md-sys-color-primary, #6750a4))}:where(:hover) .icon{fill:var(--md-checkbox-selected-hover-icon-color, var(--md-sys-color-on-primary, #fff))}:where(:focus-within) .outline{border-color:var(--md-checkbox-focus-outline-color, var(--md-sys-color-on-surface, #1d1b20));border-width:var(--md-checkbox-focus-outline-width, 2px)}:where(:focus-within) .background{background:var(--md-checkbox-selected-focus-container-color, var(--md-sys-color-primary, #6750a4))}:where(:focus-within) .icon{fill:var(--md-checkbox-selected-focus-icon-color, var(--md-sys-color-on-primary, #fff))}:where(:active) .outline{border-color:var(--md-checkbox-pressed-outline-color, var(--md-sys-color-on-surface, #1d1b20));border-width:var(--md-checkbox-pressed-outline-width, 2px)}:where(:active) .background{background:var(--md-checkbox-selected-pressed-container-color, var(--md-sys-color-primary, #6750a4))}:where(:active) .icon{fill:var(--md-checkbox-selected-pressed-icon-color, var(--md-sys-color-on-primary, #fff))}:where(.disabled,.prev-disabled) :is(.background,.icon,.mark){animation-duration:0s;transition-duration:0s}:where(.disabled) .outline{border-color:var(--md-checkbox-disabled-outline-color, var(--md-sys-color-on-surface, #1d1b20));border-width:var(--md-checkbox-disabled-outline-width, 2px);opacity:var(--md-checkbox-disabled-container-opacity, 0.38)}:where(.selected.disabled) .outline{visibility:hidden}:where(.selected.disabled) .background{background:var(--md-checkbox-selected-disabled-container-color, var(--md-sys-color-on-surface, #1d1b20));opacity:var(--md-checkbox-selected-disabled-container-opacity, 0.38)}:where(.disabled) .icon{fill:var(--md-checkbox-selected-disabled-icon-color, var(--md-sys-color-surface, #fef7ff))}@media(forced-colors: active){.background{background-color:CanvasText}.selected.disabled .background{background-color:GrayText;opacity:1}.outline{border-color:CanvasText}.disabled .outline{border-color:GrayText;opacity:1}.icon{fill:Canvas}}
-`;
-
-  // node_modules/@material/web/checkbox/checkbox.js
-  var MdCheckbox = class MdCheckbox2 extends Checkbox {
-  };
-  MdCheckbox.styles = [styles3];
-  MdCheckbox = __decorate2([
-    t4("md-checkbox")
-  ], MdCheckbox);
-
-  // node_modules/@jsfe/material/dist/esm/widgets/checkbox.js
-  var checkbox = (options) => x`
-	<label
-		for=${options.id}
-		class="theme-material widget-switch widget-toggle"
-		part="field-checkbox"
-	>
-		<div>
-			<div>${options.label}</div>
-			<small>${options.helpText}</small>
-		</div>
-
-		<md-checkbox
-			.id=${options.id}
-			.name=${options.id}
-			.required=${options.required}
-			.checked=${options.value ?? false}
-			@input=${(event) => {
-    const { checked: newValue } = event.target;
-    options.valueChangedCallback?.(newValue);
-  }}
-			@keydown=${options.handleKeydown}
-		>
-			<!-- touch-target="wrapper" -->
-		</md-checkbox>
-		<!--  -->
-	</label>
-`;
-
-  // node_modules/@material/web/field/internal/field.js
-  var Field = class extends i6 {
-    constructor() {
-      super(...arguments);
-      this.disabled = false;
-      this.error = false;
-      this.focused = false;
-      this.label = "";
-      this.noAsterisk = false;
-      this.populated = false;
-      this.required = false;
-      this.resizable = false;
-      this.supportingText = "";
-      this.errorText = "";
-      this.count = -1;
-      this.max = -1;
-      this.hasStart = false;
-      this.hasEnd = false;
-      this.isAnimating = false;
-      this.refreshErrorAlert = false;
-      this.disableTransitions = false;
-    }
-    get counterText() {
-      const countAsNumber = this.count ?? -1;
-      const maxAsNumber = this.max ?? -1;
-      if (countAsNumber < 0 || maxAsNumber <= 0) {
-        return "";
-      }
-      return `${countAsNumber} / ${maxAsNumber}`;
-    }
-    get supportingOrErrorText() {
-      return this.error && this.errorText ? this.errorText : this.supportingText;
-    }
-    /**
-     * Re-announces the field's error supporting text to screen readers.
-     *
-     * Error text announces to screen readers anytime it is visible and changes.
-     * Use the method to re-announce the message when the text has not changed,
-     * but announcement is still needed (such as for `reportValidity()`).
-     */
-    reannounceError() {
-      this.refreshErrorAlert = true;
-    }
-    update(props) {
-      const isDisabledChanging = props.has("disabled") && props.get("disabled") !== void 0;
-      if (isDisabledChanging) {
-        this.disableTransitions = true;
-      }
-      if (this.disabled && this.focused) {
-        props.set("focused", true);
-        this.focused = false;
-      }
-      this.animateLabelIfNeeded({
-        wasFocused: props.get("focused"),
-        wasPopulated: props.get("populated")
-      });
-      super.update(props);
-    }
-    render() {
-      const floatingLabel = this.renderLabel(
-        /*isFloating*/
-        true
-      );
-      const restingLabel = this.renderLabel(
-        /*isFloating*/
-        false
-      );
-      const outline = this.renderOutline?.(floatingLabel);
-      const classes = {
-        "disabled": this.disabled,
-        "disable-transitions": this.disableTransitions,
-        "error": this.error && !this.disabled,
-        "focused": this.focused,
-        "with-start": this.hasStart,
-        "with-end": this.hasEnd,
-        "populated": this.populated,
-        "resizable": this.resizable,
-        "required": this.required,
-        "no-label": !this.label
-      };
-      return x`
-      <div class="field ${e10(classes)}">
-        <div class="container-overflow">
-          ${this.renderBackground?.()} ${this.renderIndicator?.()} ${outline}
-          <div class="container">
-            <div class="start">
-              <slot name="start"></slot>
-            </div>
-            <div class="middle">
-              <div class="label-wrapper">
-                ${restingLabel} ${outline ? E2 : floatingLabel}
-              </div>
-              <div class="content">
-                <slot></slot>
-              </div>
-            </div>
-            <div class="end">
-              <slot name="end"></slot>
-            </div>
-          </div>
-        </div>
-        ${this.renderSupportingText()}
-      </div>
-    `;
-    }
-    updated(changed) {
-      if (changed.has("supportingText") || changed.has("errorText") || changed.has("count") || changed.has("max")) {
-        this.updateSlottedAriaDescribedBy();
-      }
-      if (this.refreshErrorAlert) {
-        requestAnimationFrame(() => {
-          this.refreshErrorAlert = false;
-        });
-      }
-      if (this.disableTransitions) {
-        requestAnimationFrame(() => {
-          this.disableTransitions = false;
-        });
-      }
-    }
-    renderSupportingText() {
-      const { supportingOrErrorText, counterText } = this;
-      if (!supportingOrErrorText && !counterText) {
-        return E2;
-      }
-      const start = x`<span>${supportingOrErrorText}</span>`;
-      const end = counterText ? x`<span class="counter">${counterText}</span>` : E2;
-      const shouldErrorAnnounce = this.error && this.errorText && !this.refreshErrorAlert;
-      const role = shouldErrorAnnounce ? "alert" : E2;
-      return x`
-      <div class="supporting-text" role=${role}>${start}${end}</div>
-      <slot
-        name="aria-describedby"
-        @slotchange=${this.updateSlottedAriaDescribedBy}></slot>
-    `;
-    }
-    updateSlottedAriaDescribedBy() {
-      for (const element of this.slottedAriaDescribedBy) {
-        B2(x`${this.supportingOrErrorText} ${this.counterText}`, element);
-        element.setAttribute("hidden", "");
-      }
-    }
-    renderLabel(isFloating) {
-      if (!this.label) {
-        return E2;
-      }
-      let visible;
-      if (isFloating) {
-        visible = this.focused || this.populated || this.isAnimating;
-      } else {
-        visible = !this.focused && !this.populated && !this.isAnimating;
-      }
-      const classes = {
-        "hidden": !visible,
-        "floating": isFloating,
-        "resting": !isFloating
-      };
-      const labelText = `${this.label}${this.required && !this.noAsterisk ? "*" : ""}`;
-      return x`
-      <span class="label ${e10(classes)}" aria-hidden=${!visible}
-        >${labelText}</span
-      >
-    `;
-    }
-    animateLabelIfNeeded({ wasFocused, wasPopulated }) {
-      if (!this.label) {
-        return;
-      }
-      wasFocused ?? (wasFocused = this.focused);
-      wasPopulated ?? (wasPopulated = this.populated);
-      const wasFloating = wasFocused || wasPopulated;
-      const shouldBeFloating = this.focused || this.populated;
-      if (wasFloating === shouldBeFloating) {
-        return;
-      }
-      this.isAnimating = true;
-      this.labelAnimation?.cancel();
-      this.labelAnimation = this.floatingLabelEl?.animate(this.getLabelKeyframes(), { duration: 150, easing: EASING.STANDARD });
-      this.labelAnimation?.addEventListener("finish", () => {
-        this.isAnimating = false;
-      });
-    }
-    getLabelKeyframes() {
-      const { floatingLabelEl, restingLabelEl } = this;
-      if (!floatingLabelEl || !restingLabelEl) {
-        return [];
-      }
-      const { x: floatingX, y: floatingY, height: floatingHeight } = floatingLabelEl.getBoundingClientRect();
-      const { x: restingX, y: restingY, height: restingHeight } = restingLabelEl.getBoundingClientRect();
-      const floatingScrollWidth = floatingLabelEl.scrollWidth;
-      const restingScrollWidth = restingLabelEl.scrollWidth;
-      const scale = restingScrollWidth / floatingScrollWidth;
-      const xDelta = restingX - floatingX;
-      const yDelta = restingY - floatingY + Math.round((restingHeight - floatingHeight * scale) / 2);
-      const restTransform = `translateX(${xDelta}px) translateY(${yDelta}px) scale(${scale})`;
-      const floatTransform = `translateX(0) translateY(0) scale(1)`;
-      const restingClientWidth = restingLabelEl.clientWidth;
-      const isRestingClipped = restingScrollWidth > restingClientWidth;
-      const width = isRestingClipped ? `${restingClientWidth / scale}px` : "";
-      if (this.focused || this.populated) {
-        return [
-          { transform: restTransform, width },
-          { transform: floatTransform, width }
-        ];
-      }
-      return [
-        { transform: floatTransform, width },
-        { transform: restTransform, width }
-      ];
-    }
-    getSurfacePositionClientRect() {
-      return this.containerEl.getBoundingClientRect();
-    }
-  };
-  __decorate2([
-    n5({ type: Boolean })
-  ], Field.prototype, "disabled", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Field.prototype, "error", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Field.prototype, "focused", void 0);
-  __decorate2([
-    n5()
-  ], Field.prototype, "label", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "no-asterisk" })
-  ], Field.prototype, "noAsterisk", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Field.prototype, "populated", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Field.prototype, "required", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Field.prototype, "resizable", void 0);
-  __decorate2([
-    n5({ attribute: "supporting-text" })
-  ], Field.prototype, "supportingText", void 0);
-  __decorate2([
-    n5({ attribute: "error-text" })
-  ], Field.prototype, "errorText", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], Field.prototype, "count", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], Field.prototype, "max", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "has-start" })
-  ], Field.prototype, "hasStart", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "has-end" })
-  ], Field.prototype, "hasEnd", void 0);
-  __decorate2([
-    o9({ slot: "aria-describedby" })
-  ], Field.prototype, "slottedAriaDescribedBy", void 0);
-  __decorate2([
-    r6()
-  ], Field.prototype, "isAnimating", void 0);
-  __decorate2([
-    r6()
-  ], Field.prototype, "refreshErrorAlert", void 0);
-  __decorate2([
-    r6()
-  ], Field.prototype, "disableTransitions", void 0);
-  __decorate2([
-    e6(".label.floating")
-  ], Field.prototype, "floatingLabelEl", void 0);
-  __decorate2([
-    e6(".label.resting")
-  ], Field.prototype, "restingLabelEl", void 0);
-  __decorate2([
-    e6(".container")
-  ], Field.prototype, "containerEl", void 0);
-
-  // node_modules/@material/web/field/internal/outlined-field.js
-  var OutlinedField = class extends Field {
-    renderOutline(floatingLabel) {
-      return x`
-      <div class="outline">
-        <div class="outline-start"></div>
-        <div class="outline-notch">
-          <div class="outline-panel-inactive"></div>
-          <div class="outline-panel-active"></div>
-          <div class="outline-label">${floatingLabel}</div>
-        </div>
-        <div class="outline-end"></div>
-      </div>
-    `;
-    }
-  };
-
-  // node_modules/@material/web/field/internal/outlined-styles.js
-  var styles4 = i3`@layer styles{:host{--_bottom-space: var(--md-outlined-field-bottom-space, 16px);--_content-color: var(--md-outlined-field-content-color, var(--md-sys-color-on-surface, #1d1b20));--_content-font: var(--md-outlined-field-content-font, var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto)));--_content-line-height: var(--md-outlined-field-content-line-height, var(--md-sys-typescale-body-large-line-height, 1.5rem));--_content-size: var(--md-outlined-field-content-size, var(--md-sys-typescale-body-large-size, 1rem));--_content-weight: var(--md-outlined-field-content-weight, var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400)));--_disabled-content-color: var(--md-outlined-field-disabled-content-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-content-opacity: var(--md-outlined-field-disabled-content-opacity, 0.38);--_disabled-label-text-color: var(--md-outlined-field-disabled-label-text-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-label-text-opacity: var(--md-outlined-field-disabled-label-text-opacity, 0.38);--_disabled-leading-content-color: var(--md-outlined-field-disabled-leading-content-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-leading-content-opacity: var(--md-outlined-field-disabled-leading-content-opacity, 0.38);--_disabled-outline-color: var(--md-outlined-field-disabled-outline-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-outline-opacity: var(--md-outlined-field-disabled-outline-opacity, 0.12);--_disabled-outline-width: var(--md-outlined-field-disabled-outline-width, 1px);--_disabled-supporting-text-color: var(--md-outlined-field-disabled-supporting-text-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-supporting-text-opacity: var(--md-outlined-field-disabled-supporting-text-opacity, 0.38);--_disabled-trailing-content-color: var(--md-outlined-field-disabled-trailing-content-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-trailing-content-opacity: var(--md-outlined-field-disabled-trailing-content-opacity, 0.38);--_error-content-color: var(--md-outlined-field-error-content-color, var(--md-sys-color-on-surface, #1d1b20));--_error-focus-content-color: var(--md-outlined-field-error-focus-content-color, var(--md-sys-color-on-surface, #1d1b20));--_error-focus-label-text-color: var(--md-outlined-field-error-focus-label-text-color, var(--md-sys-color-error, #b3261e));--_error-focus-leading-content-color: var(--md-outlined-field-error-focus-leading-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_error-focus-outline-color: var(--md-outlined-field-error-focus-outline-color, var(--md-sys-color-error, #b3261e));--_error-focus-supporting-text-color: var(--md-outlined-field-error-focus-supporting-text-color, var(--md-sys-color-error, #b3261e));--_error-focus-trailing-content-color: var(--md-outlined-field-error-focus-trailing-content-color, var(--md-sys-color-error, #b3261e));--_error-hover-content-color: var(--md-outlined-field-error-hover-content-color, var(--md-sys-color-on-surface, #1d1b20));--_error-hover-label-text-color: var(--md-outlined-field-error-hover-label-text-color, var(--md-sys-color-on-error-container, #410e0b));--_error-hover-leading-content-color: var(--md-outlined-field-error-hover-leading-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_error-hover-outline-color: var(--md-outlined-field-error-hover-outline-color, var(--md-sys-color-on-error-container, #410e0b));--_error-hover-supporting-text-color: var(--md-outlined-field-error-hover-supporting-text-color, var(--md-sys-color-error, #b3261e));--_error-hover-trailing-content-color: var(--md-outlined-field-error-hover-trailing-content-color, var(--md-sys-color-on-error-container, #410e0b));--_error-label-text-color: var(--md-outlined-field-error-label-text-color, var(--md-sys-color-error, #b3261e));--_error-leading-content-color: var(--md-outlined-field-error-leading-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_error-outline-color: var(--md-outlined-field-error-outline-color, var(--md-sys-color-error, #b3261e));--_error-supporting-text-color: var(--md-outlined-field-error-supporting-text-color, var(--md-sys-color-error, #b3261e));--_error-trailing-content-color: var(--md-outlined-field-error-trailing-content-color, var(--md-sys-color-error, #b3261e));--_focus-content-color: var(--md-outlined-field-focus-content-color, var(--md-sys-color-on-surface, #1d1b20));--_focus-label-text-color: var(--md-outlined-field-focus-label-text-color, var(--md-sys-color-primary, #6750a4));--_focus-leading-content-color: var(--md-outlined-field-focus-leading-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_focus-outline-color: var(--md-outlined-field-focus-outline-color, var(--md-sys-color-primary, #6750a4));--_focus-outline-width: var(--md-outlined-field-focus-outline-width, 3px);--_focus-supporting-text-color: var(--md-outlined-field-focus-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_focus-trailing-content-color: var(--md-outlined-field-focus-trailing-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_hover-content-color: var(--md-outlined-field-hover-content-color, var(--md-sys-color-on-surface, #1d1b20));--_hover-label-text-color: var(--md-outlined-field-hover-label-text-color, var(--md-sys-color-on-surface, #1d1b20));--_hover-leading-content-color: var(--md-outlined-field-hover-leading-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_hover-outline-color: var(--md-outlined-field-hover-outline-color, var(--md-sys-color-on-surface, #1d1b20));--_hover-outline-width: var(--md-outlined-field-hover-outline-width, 1px);--_hover-supporting-text-color: var(--md-outlined-field-hover-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_hover-trailing-content-color: var(--md-outlined-field-hover-trailing-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_label-text-color: var(--md-outlined-field-label-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_label-text-font: var(--md-outlined-field-label-text-font, var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto)));--_label-text-line-height: var(--md-outlined-field-label-text-line-height, var(--md-sys-typescale-body-large-line-height, 1.5rem));--_label-text-padding-bottom: var(--md-outlined-field-label-text-padding-bottom, 8px);--_label-text-populated-line-height: var(--md-outlined-field-label-text-populated-line-height, var(--md-sys-typescale-body-small-line-height, 1rem));--_label-text-populated-size: var(--md-outlined-field-label-text-populated-size, var(--md-sys-typescale-body-small-size, 0.75rem));--_label-text-size: var(--md-outlined-field-label-text-size, var(--md-sys-typescale-body-large-size, 1rem));--_label-text-weight: var(--md-outlined-field-label-text-weight, var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400)));--_leading-content-color: var(--md-outlined-field-leading-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_leading-space: var(--md-outlined-field-leading-space, 16px);--_outline-color: var(--md-outlined-field-outline-color, var(--md-sys-color-outline, #79747e));--_outline-label-padding: var(--md-outlined-field-outline-label-padding, 4px);--_outline-width: var(--md-outlined-field-outline-width, 1px);--_supporting-text-color: var(--md-outlined-field-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_supporting-text-font: var(--md-outlined-field-supporting-text-font, var(--md-sys-typescale-body-small-font, var(--md-ref-typeface-plain, Roboto)));--_supporting-text-leading-space: var(--md-outlined-field-supporting-text-leading-space, 16px);--_supporting-text-line-height: var(--md-outlined-field-supporting-text-line-height, var(--md-sys-typescale-body-small-line-height, 1rem));--_supporting-text-size: var(--md-outlined-field-supporting-text-size, var(--md-sys-typescale-body-small-size, 0.75rem));--_supporting-text-top-space: var(--md-outlined-field-supporting-text-top-space, 4px);--_supporting-text-trailing-space: var(--md-outlined-field-supporting-text-trailing-space, 16px);--_supporting-text-weight: var(--md-outlined-field-supporting-text-weight, var(--md-sys-typescale-body-small-weight, var(--md-ref-typeface-weight-regular, 400)));--_top-space: var(--md-outlined-field-top-space, 16px);--_trailing-content-color: var(--md-outlined-field-trailing-content-color, var(--md-sys-color-on-surface-variant, #49454f));--_trailing-space: var(--md-outlined-field-trailing-space, 16px);--_container-shape-start-start: var(--md-outlined-field-container-shape-start-start, var(--md-outlined-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_container-shape-start-end: var(--md-outlined-field-container-shape-start-end, var(--md-outlined-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_container-shape-end-end: var(--md-outlined-field-container-shape-end-end, var(--md-outlined-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_container-shape-end-start: var(--md-outlined-field-container-shape-end-start, var(--md-outlined-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)))}.outline{border-color:var(--_outline-color);border-radius:inherit;display:flex;pointer-events:none;height:100%;position:absolute;width:100%;z-index:1}.outline-start::before,.outline-start::after,.outline-panel-inactive::before,.outline-panel-inactive::after,.outline-panel-active::before,.outline-panel-active::after,.outline-end::before,.outline-end::after{border:inherit;content:"";inset:0;position:absolute}.outline-start,.outline-end{border:inherit;border-radius:inherit;box-sizing:border-box;position:relative}.outline-start::before,.outline-start::after,.outline-end::before,.outline-end::after{border-bottom-style:solid;border-top-style:solid}.outline-start::after,.outline-end::after{opacity:0;transition:opacity 150ms cubic-bezier(0.2, 0, 0, 1)}.focused .outline-start::after,.focused .outline-end::after{opacity:1}.outline-start::before,.outline-start::after{border-inline-start-style:solid;border-inline-end-style:none;border-start-start-radius:inherit;border-start-end-radius:0;border-end-start-radius:inherit;border-end-end-radius:0;margin-inline-end:var(--_outline-label-padding)}.outline-end{flex-grow:1;margin-inline-start:calc(-1*var(--_outline-label-padding))}.outline-end::before,.outline-end::after{border-inline-start-style:none;border-inline-end-style:solid;border-start-start-radius:0;border-start-end-radius:inherit;border-end-start-radius:0;border-end-end-radius:inherit}.outline-notch{align-items:flex-start;border:inherit;display:flex;margin-inline-start:calc(-1*var(--_outline-label-padding));margin-inline-end:var(--_outline-label-padding);max-width:calc(100% - var(--_leading-space) - var(--_trailing-space));padding:0 var(--_outline-label-padding);position:relative}.no-label .outline-notch{display:none}.outline-panel-inactive,.outline-panel-active{border:inherit;border-bottom-style:solid;inset:0;position:absolute}.outline-panel-inactive::before,.outline-panel-inactive::after,.outline-panel-active::before,.outline-panel-active::after{border-top-style:solid;border-bottom:none;bottom:auto;transform:scaleX(1);transition:transform 150ms cubic-bezier(0.2, 0, 0, 1)}.outline-panel-inactive::before,.outline-panel-active::before{right:50%;transform-origin:top left}.outline-panel-inactive::after,.outline-panel-active::after{left:50%;transform-origin:top right}.populated .outline-panel-inactive::before,.populated .outline-panel-inactive::after,.populated .outline-panel-active::before,.populated .outline-panel-active::after,.focused .outline-panel-inactive::before,.focused .outline-panel-inactive::after,.focused .outline-panel-active::before,.focused .outline-panel-active::after{transform:scaleX(0)}.outline-panel-active{opacity:0;transition:opacity 150ms cubic-bezier(0.2, 0, 0, 1)}.focused .outline-panel-active{opacity:1}.outline-label{display:flex;max-width:100%;transform:translateY(calc(-100% + var(--_label-text-padding-bottom)))}.outline-start,.field:not(.with-start) .content ::slotted(*){padding-inline-start:max(var(--_leading-space),max(var(--_container-shape-start-start),var(--_container-shape-end-start)) + var(--_outline-label-padding))}.field:not(.with-start) .label-wrapper{margin-inline-start:max(var(--_leading-space),max(var(--_container-shape-start-start),var(--_container-shape-end-start)) + var(--_outline-label-padding))}.field:not(.with-end) .content ::slotted(*){padding-inline-end:max(var(--_trailing-space),max(var(--_container-shape-start-end),var(--_container-shape-end-end)))}.field:not(.with-end) .label-wrapper{margin-inline-end:max(var(--_trailing-space),max(var(--_container-shape-start-end),var(--_container-shape-end-end)))}.outline-start::before,.outline-end::before,.outline-panel-inactive,.outline-panel-inactive::before,.outline-panel-inactive::after{border-width:var(--_outline-width)}:hover .outline{border-color:var(--_hover-outline-color);color:var(--_hover-outline-color)}:hover .outline-start::before,:hover .outline-end::before,:hover .outline-panel-inactive,:hover .outline-panel-inactive::before,:hover .outline-panel-inactive::after{border-width:var(--_hover-outline-width)}.focused .outline{border-color:var(--_focus-outline-color);color:var(--_focus-outline-color)}.outline-start::after,.outline-end::after,.outline-panel-active,.outline-panel-active::before,.outline-panel-active::after{border-width:var(--_focus-outline-width)}.disabled .outline{border-color:var(--_disabled-outline-color);color:var(--_disabled-outline-color)}.disabled .outline-start,.disabled .outline-end,.disabled .outline-panel-inactive{opacity:var(--_disabled-outline-opacity)}.disabled .outline-start::before,.disabled .outline-end::before,.disabled .outline-panel-inactive,.disabled .outline-panel-inactive::before,.disabled .outline-panel-inactive::after{border-width:var(--_disabled-outline-width)}.error .outline{border-color:var(--_error-outline-color);color:var(--_error-outline-color)}.error:hover .outline{border-color:var(--_error-hover-outline-color);color:var(--_error-hover-outline-color)}.error.focused .outline{border-color:var(--_error-focus-outline-color);color:var(--_error-focus-outline-color)}.resizable .container{bottom:var(--_focus-outline-width);inset-inline-end:var(--_focus-outline-width);clip-path:inset(var(--_focus-outline-width) 0 0 var(--_focus-outline-width))}.resizable .container>*{top:var(--_focus-outline-width);inset-inline-start:var(--_focus-outline-width)}.resizable .container:dir(rtl){clip-path:inset(var(--_focus-outline-width) var(--_focus-outline-width) 0 0)}}@layer hcm{@media(forced-colors: active){.disabled .outline{border-color:GrayText;color:GrayText}.disabled :is(.outline-start,.outline-end,.outline-panel-inactive){opacity:1}}}
-`;
-
-  // node_modules/@material/web/field/internal/shared-styles.js
-  var styles5 = i3`:host{display:inline-flex;resize:both}.field{display:flex;flex:1;flex-direction:column;writing-mode:horizontal-tb;max-width:100%}.container-overflow{border-start-start-radius:var(--_container-shape-start-start);border-start-end-radius:var(--_container-shape-start-end);border-end-end-radius:var(--_container-shape-end-end);border-end-start-radius:var(--_container-shape-end-start);display:flex;height:100%;position:relative}.container{align-items:center;border-radius:inherit;display:flex;flex:1;max-height:100%;min-height:100%;min-width:min-content;position:relative}.field,.container-overflow{resize:inherit}.resizable:not(.disabled) .container{resize:inherit;overflow:hidden}.disabled{pointer-events:none}@layer styles{.start,.middle,.end{display:flex;box-sizing:border-box;height:100%;position:relative}.start{color:var(--_leading-content-color)}.end{color:var(--_trailing-content-color)}.start,.end{align-items:center;justify-content:center}.with-start .start,.with-end .end{min-width:48px}.with-start .start{margin-inline-end:4px}.with-end .end{margin-inline-start:4px}.middle{align-items:stretch;align-self:baseline;flex:1}.content{color:var(--_content-color);display:flex;flex:1;opacity:0;transition:opacity 83ms cubic-bezier(0.2, 0, 0, 1)}.no-label .content,.focused .content,.populated .content{opacity:1;transition-delay:67ms}:is(.disabled,.disable-transitions) .content{transition:none}.content ::slotted(*){all:unset;color:currentColor;font-family:var(--_content-font);font-size:var(--_content-size);line-height:var(--_content-line-height);font-weight:var(--_content-weight);width:100%;overflow-wrap:revert;white-space:revert}.content ::slotted(:not(textarea)){padding-top:var(--_top-space);padding-bottom:var(--_bottom-space)}.content ::slotted(textarea){margin-top:var(--_top-space);margin-bottom:var(--_bottom-space)}:hover .content{color:var(--_hover-content-color)}:hover .start{color:var(--_hover-leading-content-color)}:hover .end{color:var(--_hover-trailing-content-color)}.focused .content{color:var(--_focus-content-color)}.focused .start{color:var(--_focus-leading-content-color)}.focused .end{color:var(--_focus-trailing-content-color)}.disabled .content{color:var(--_disabled-content-color)}.disabled.no-label .content,.disabled.focused .content,.disabled.populated .content{opacity:var(--_disabled-content-opacity)}.disabled .start{color:var(--_disabled-leading-content-color);opacity:var(--_disabled-leading-content-opacity)}.disabled .end{color:var(--_disabled-trailing-content-color);opacity:var(--_disabled-trailing-content-opacity)}.error .content{color:var(--_error-content-color)}.error .start{color:var(--_error-leading-content-color)}.error .end{color:var(--_error-trailing-content-color)}.error:hover .content{color:var(--_error-hover-content-color)}.error:hover .start{color:var(--_error-hover-leading-content-color)}.error:hover .end{color:var(--_error-hover-trailing-content-color)}.error.focused .content{color:var(--_error-focus-content-color)}.error.focused .start{color:var(--_error-focus-leading-content-color)}.error.focused .end{color:var(--_error-focus-trailing-content-color)}}@layer hcm{@media(forced-colors: active){.disabled :is(.start,.content,.end){color:GrayText;opacity:1}}}@layer styles{.label{box-sizing:border-box;color:var(--_label-text-color);overflow:hidden;max-width:100%;text-overflow:ellipsis;white-space:nowrap;z-index:1;font-family:var(--_label-text-font);font-size:var(--_label-text-size);line-height:var(--_label-text-line-height);font-weight:var(--_label-text-weight);width:min-content}.label-wrapper{inset:0;pointer-events:none;position:absolute}.label.resting{position:absolute;top:var(--_top-space)}.label.floating{font-size:var(--_label-text-populated-size);line-height:var(--_label-text-populated-line-height);transform-origin:top left}.label.hidden{opacity:0}.no-label .label{display:none}.label-wrapper{inset:0;position:absolute;text-align:initial}:hover .label{color:var(--_hover-label-text-color)}.focused .label{color:var(--_focus-label-text-color)}.disabled .label{color:var(--_disabled-label-text-color)}.disabled .label:not(.hidden){opacity:var(--_disabled-label-text-opacity)}.error .label{color:var(--_error-label-text-color)}.error:hover .label{color:var(--_error-hover-label-text-color)}.error.focused .label{color:var(--_error-focus-label-text-color)}}@layer hcm{@media(forced-colors: active){.disabled .label:not(.hidden){color:GrayText;opacity:1}}}@layer styles{.supporting-text{color:var(--_supporting-text-color);display:flex;font-family:var(--_supporting-text-font);font-size:var(--_supporting-text-size);line-height:var(--_supporting-text-line-height);font-weight:var(--_supporting-text-weight);gap:16px;justify-content:space-between;padding-inline-start:var(--_supporting-text-leading-space);padding-inline-end:var(--_supporting-text-trailing-space);padding-top:var(--_supporting-text-top-space)}.supporting-text :nth-child(2){flex-shrink:0}:hover .supporting-text{color:var(--_hover-supporting-text-color)}.focus .supporting-text{color:var(--_focus-supporting-text-color)}.disabled .supporting-text{color:var(--_disabled-supporting-text-color);opacity:var(--_disabled-supporting-text-opacity)}.error .supporting-text{color:var(--_error-supporting-text-color)}.error:hover .supporting-text{color:var(--_error-hover-supporting-text-color)}.error.focus .supporting-text{color:var(--_error-focus-supporting-text-color)}}@layer hcm{@media(forced-colors: active){.disabled .supporting-text{color:GrayText;opacity:1}}}
-`;
-
-  // node_modules/@material/web/field/outlined-field.js
-  var MdOutlinedField = class MdOutlinedField2 extends OutlinedField {
-  };
-  MdOutlinedField.styles = [styles5, styles4];
-  MdOutlinedField = __decorate2([
-    t4("md-outlined-field")
-  ], MdOutlinedField);
-
-  // node_modules/lit-html/static.js
-  var a4 = Symbol.for("");
-  var o12 = (t7) => {
-    if (t7?.r === a4)
-      return t7?._$litStatic$;
-  };
-  var i8 = (t7, ...r10) => ({ _$litStatic$: r10.reduce((r11, e11, a5) => r11 + ((t8) => {
-    if (void 0 !== t8._$litStatic$)
-      return t8._$litStatic$;
-    throw Error(`Value passed to 'literal' function must be a 'literal' result: ${t8}. Use 'unsafeStatic' to pass non-literal values, but
-            take care to ensure page security.`);
-  })(e11) + t7[a5 + 1], t7[0]), r: a4 });
-  var l4 = /* @__PURE__ */ new Map();
-  var n9 = (t7) => (r10, ...e11) => {
-    const a5 = e11.length;
-    let s6, i10;
-    const n12 = [], u6 = [];
-    let c7, $4 = 0, f6 = false;
-    for (; $4 < a5; ) {
-      for (c7 = r10[$4]; $4 < a5 && void 0 !== (i10 = e11[$4], s6 = o12(i10)); )
-        c7 += s6 + r10[++$4], f6 = true;
-      $4 !== a5 && u6.push(i10), n12.push(c7), $4++;
-    }
-    if ($4 === a5 && n12.push(r10[a5]), f6) {
-      const t8 = n12.join("$$lit$$");
-      void 0 === (r10 = l4.get(t8)) && (n12.raw = n12, l4.set(t8, r10 = n12)), e11 = u6;
-    }
-    return t7(r10, ...e11);
-  };
-  var u5 = n9(x);
-  var c6 = n9(b3);
-  var $3 = n9(w);
-
-  // node_modules/@material/web/textfield/internal/outlined-styles.js
-  var styles6 = i3`:host{--_caret-color: var(--md-outlined-text-field-caret-color, var(--md-sys-color-primary, #6750a4));--_disabled-input-text-color: var(--md-outlined-text-field-disabled-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-input-text-opacity: var(--md-outlined-text-field-disabled-input-text-opacity, 0.38);--_disabled-label-text-color: var(--md-outlined-text-field-disabled-label-text-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-label-text-opacity: var(--md-outlined-text-field-disabled-label-text-opacity, 0.38);--_disabled-leading-icon-color: var(--md-outlined-text-field-disabled-leading-icon-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-leading-icon-opacity: var(--md-outlined-text-field-disabled-leading-icon-opacity, 0.38);--_disabled-outline-color: var(--md-outlined-text-field-disabled-outline-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-outline-opacity: var(--md-outlined-text-field-disabled-outline-opacity, 0.12);--_disabled-outline-width: var(--md-outlined-text-field-disabled-outline-width, 1px);--_disabled-supporting-text-color: var(--md-outlined-text-field-disabled-supporting-text-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-supporting-text-opacity: var(--md-outlined-text-field-disabled-supporting-text-opacity, 0.38);--_disabled-trailing-icon-color: var(--md-outlined-text-field-disabled-trailing-icon-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-trailing-icon-opacity: var(--md-outlined-text-field-disabled-trailing-icon-opacity, 0.38);--_error-focus-caret-color: var(--md-outlined-text-field-error-focus-caret-color, var(--md-sys-color-error, #b3261e));--_error-focus-input-text-color: var(--md-outlined-text-field-error-focus-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_error-focus-label-text-color: var(--md-outlined-text-field-error-focus-label-text-color, var(--md-sys-color-error, #b3261e));--_error-focus-leading-icon-color: var(--md-outlined-text-field-error-focus-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_error-focus-outline-color: var(--md-outlined-text-field-error-focus-outline-color, var(--md-sys-color-error, #b3261e));--_error-focus-supporting-text-color: var(--md-outlined-text-field-error-focus-supporting-text-color, var(--md-sys-color-error, #b3261e));--_error-focus-trailing-icon-color: var(--md-outlined-text-field-error-focus-trailing-icon-color, var(--md-sys-color-error, #b3261e));--_error-hover-input-text-color: var(--md-outlined-text-field-error-hover-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_error-hover-label-text-color: var(--md-outlined-text-field-error-hover-label-text-color, var(--md-sys-color-on-error-container, #410e0b));--_error-hover-leading-icon-color: var(--md-outlined-text-field-error-hover-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_error-hover-outline-color: var(--md-outlined-text-field-error-hover-outline-color, var(--md-sys-color-on-error-container, #410e0b));--_error-hover-supporting-text-color: var(--md-outlined-text-field-error-hover-supporting-text-color, var(--md-sys-color-error, #b3261e));--_error-hover-trailing-icon-color: var(--md-outlined-text-field-error-hover-trailing-icon-color, var(--md-sys-color-on-error-container, #410e0b));--_error-input-text-color: var(--md-outlined-text-field-error-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_error-label-text-color: var(--md-outlined-text-field-error-label-text-color, var(--md-sys-color-error, #b3261e));--_error-leading-icon-color: var(--md-outlined-text-field-error-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_error-outline-color: var(--md-outlined-text-field-error-outline-color, var(--md-sys-color-error, #b3261e));--_error-supporting-text-color: var(--md-outlined-text-field-error-supporting-text-color, var(--md-sys-color-error, #b3261e));--_error-trailing-icon-color: var(--md-outlined-text-field-error-trailing-icon-color, var(--md-sys-color-error, #b3261e));--_focus-input-text-color: var(--md-outlined-text-field-focus-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_focus-label-text-color: var(--md-outlined-text-field-focus-label-text-color, var(--md-sys-color-primary, #6750a4));--_focus-leading-icon-color: var(--md-outlined-text-field-focus-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_focus-outline-color: var(--md-outlined-text-field-focus-outline-color, var(--md-sys-color-primary, #6750a4));--_focus-outline-width: var(--md-outlined-text-field-focus-outline-width, 3px);--_focus-supporting-text-color: var(--md-outlined-text-field-focus-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_focus-trailing-icon-color: var(--md-outlined-text-field-focus-trailing-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_hover-input-text-color: var(--md-outlined-text-field-hover-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_hover-label-text-color: var(--md-outlined-text-field-hover-label-text-color, var(--md-sys-color-on-surface, #1d1b20));--_hover-leading-icon-color: var(--md-outlined-text-field-hover-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_hover-outline-color: var(--md-outlined-text-field-hover-outline-color, var(--md-sys-color-on-surface, #1d1b20));--_hover-outline-width: var(--md-outlined-text-field-hover-outline-width, 1px);--_hover-supporting-text-color: var(--md-outlined-text-field-hover-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_hover-trailing-icon-color: var(--md-outlined-text-field-hover-trailing-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_input-text-color: var(--md-outlined-text-field-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_input-text-font: var(--md-outlined-text-field-input-text-font, var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto)));--_input-text-line-height: var(--md-outlined-text-field-input-text-line-height, var(--md-sys-typescale-body-large-line-height, 1.5rem));--_input-text-placeholder-color: var(--md-outlined-text-field-input-text-placeholder-color, var(--md-sys-color-on-surface-variant, #49454f));--_input-text-prefix-color: var(--md-outlined-text-field-input-text-prefix-color, var(--md-sys-color-on-surface-variant, #49454f));--_input-text-size: var(--md-outlined-text-field-input-text-size, var(--md-sys-typescale-body-large-size, 1rem));--_input-text-suffix-color: var(--md-outlined-text-field-input-text-suffix-color, var(--md-sys-color-on-surface-variant, #49454f));--_input-text-weight: var(--md-outlined-text-field-input-text-weight, var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400)));--_label-text-color: var(--md-outlined-text-field-label-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_label-text-font: var(--md-outlined-text-field-label-text-font, var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto)));--_label-text-line-height: var(--md-outlined-text-field-label-text-line-height, var(--md-sys-typescale-body-large-line-height, 1.5rem));--_label-text-populated-line-height: var(--md-outlined-text-field-label-text-populated-line-height, var(--md-sys-typescale-body-small-line-height, 1rem));--_label-text-populated-size: var(--md-outlined-text-field-label-text-populated-size, var(--md-sys-typescale-body-small-size, 0.75rem));--_label-text-size: var(--md-outlined-text-field-label-text-size, var(--md-sys-typescale-body-large-size, 1rem));--_label-text-weight: var(--md-outlined-text-field-label-text-weight, var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400)));--_leading-icon-color: var(--md-outlined-text-field-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_leading-icon-size: var(--md-outlined-text-field-leading-icon-size, 24px);--_outline-color: var(--md-outlined-text-field-outline-color, var(--md-sys-color-outline, #79747e));--_outline-width: var(--md-outlined-text-field-outline-width, 1px);--_supporting-text-color: var(--md-outlined-text-field-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_supporting-text-font: var(--md-outlined-text-field-supporting-text-font, var(--md-sys-typescale-body-small-font, var(--md-ref-typeface-plain, Roboto)));--_supporting-text-line-height: var(--md-outlined-text-field-supporting-text-line-height, var(--md-sys-typescale-body-small-line-height, 1rem));--_supporting-text-size: var(--md-outlined-text-field-supporting-text-size, var(--md-sys-typescale-body-small-size, 0.75rem));--_supporting-text-weight: var(--md-outlined-text-field-supporting-text-weight, var(--md-sys-typescale-body-small-weight, var(--md-ref-typeface-weight-regular, 400)));--_trailing-icon-color: var(--md-outlined-text-field-trailing-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_trailing-icon-size: var(--md-outlined-text-field-trailing-icon-size, 24px);--_container-shape-start-start: var(--md-outlined-text-field-container-shape-start-start, var(--md-outlined-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_container-shape-start-end: var(--md-outlined-text-field-container-shape-start-end, var(--md-outlined-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_container-shape-end-end: var(--md-outlined-text-field-container-shape-end-end, var(--md-outlined-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_container-shape-end-start: var(--md-outlined-text-field-container-shape-end-start, var(--md-outlined-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_leading-space: var(--md-outlined-text-field-leading-space, 16px);--_trailing-space: var(--md-outlined-text-field-trailing-space, 16px);--_top-space: var(--md-outlined-text-field-top-space, 16px);--_bottom-space: var(--md-outlined-text-field-bottom-space, 16px);--_input-text-prefix-trailing-space: var(--md-outlined-text-field-input-text-prefix-trailing-space, 2px);--_input-text-suffix-leading-space: var(--md-outlined-text-field-input-text-suffix-leading-space, 2px);--_focus-caret-color: var(--md-outlined-text-field-focus-caret-color, var(--md-sys-color-primary, #6750a4));--md-outlined-field-bottom-space: var(--_bottom-space);--md-outlined-field-container-shape-end-end: var(--_container-shape-end-end);--md-outlined-field-container-shape-end-start: var(--_container-shape-end-start);--md-outlined-field-container-shape-start-end: var(--_container-shape-start-end);--md-outlined-field-container-shape-start-start: var(--_container-shape-start-start);--md-outlined-field-content-color: var(--_input-text-color);--md-outlined-field-content-font: var(--_input-text-font);--md-outlined-field-content-line-height: var(--_input-text-line-height);--md-outlined-field-content-size: var(--_input-text-size);--md-outlined-field-content-weight: var(--_input-text-weight);--md-outlined-field-disabled-content-color: var(--_disabled-input-text-color);--md-outlined-field-disabled-content-opacity: var(--_disabled-input-text-opacity);--md-outlined-field-disabled-label-text-color: var(--_disabled-label-text-color);--md-outlined-field-disabled-label-text-opacity: var(--_disabled-label-text-opacity);--md-outlined-field-disabled-leading-content-color: var(--_disabled-leading-icon-color);--md-outlined-field-disabled-leading-content-opacity: var(--_disabled-leading-icon-opacity);--md-outlined-field-disabled-outline-color: var(--_disabled-outline-color);--md-outlined-field-disabled-outline-opacity: var(--_disabled-outline-opacity);--md-outlined-field-disabled-outline-width: var(--_disabled-outline-width);--md-outlined-field-disabled-supporting-text-color: var(--_disabled-supporting-text-color);--md-outlined-field-disabled-supporting-text-opacity: var(--_disabled-supporting-text-opacity);--md-outlined-field-disabled-trailing-content-color: var(--_disabled-trailing-icon-color);--md-outlined-field-disabled-trailing-content-opacity: var(--_disabled-trailing-icon-opacity);--md-outlined-field-error-content-color: var(--_error-input-text-color);--md-outlined-field-error-focus-content-color: var(--_error-focus-input-text-color);--md-outlined-field-error-focus-label-text-color: var(--_error-focus-label-text-color);--md-outlined-field-error-focus-leading-content-color: var(--_error-focus-leading-icon-color);--md-outlined-field-error-focus-outline-color: var(--_error-focus-outline-color);--md-outlined-field-error-focus-supporting-text-color: var(--_error-focus-supporting-text-color);--md-outlined-field-error-focus-trailing-content-color: var(--_error-focus-trailing-icon-color);--md-outlined-field-error-hover-content-color: var(--_error-hover-input-text-color);--md-outlined-field-error-hover-label-text-color: var(--_error-hover-label-text-color);--md-outlined-field-error-hover-leading-content-color: var(--_error-hover-leading-icon-color);--md-outlined-field-error-hover-outline-color: var(--_error-hover-outline-color);--md-outlined-field-error-hover-supporting-text-color: var(--_error-hover-supporting-text-color);--md-outlined-field-error-hover-trailing-content-color: var(--_error-hover-trailing-icon-color);--md-outlined-field-error-label-text-color: var(--_error-label-text-color);--md-outlined-field-error-leading-content-color: var(--_error-leading-icon-color);--md-outlined-field-error-outline-color: var(--_error-outline-color);--md-outlined-field-error-supporting-text-color: var(--_error-supporting-text-color);--md-outlined-field-error-trailing-content-color: var(--_error-trailing-icon-color);--md-outlined-field-focus-content-color: var(--_focus-input-text-color);--md-outlined-field-focus-label-text-color: var(--_focus-label-text-color);--md-outlined-field-focus-leading-content-color: var(--_focus-leading-icon-color);--md-outlined-field-focus-outline-color: var(--_focus-outline-color);--md-outlined-field-focus-outline-width: var(--_focus-outline-width);--md-outlined-field-focus-supporting-text-color: var(--_focus-supporting-text-color);--md-outlined-field-focus-trailing-content-color: var(--_focus-trailing-icon-color);--md-outlined-field-hover-content-color: var(--_hover-input-text-color);--md-outlined-field-hover-label-text-color: var(--_hover-label-text-color);--md-outlined-field-hover-leading-content-color: var(--_hover-leading-icon-color);--md-outlined-field-hover-outline-color: var(--_hover-outline-color);--md-outlined-field-hover-outline-width: var(--_hover-outline-width);--md-outlined-field-hover-supporting-text-color: var(--_hover-supporting-text-color);--md-outlined-field-hover-trailing-content-color: var(--_hover-trailing-icon-color);--md-outlined-field-label-text-color: var(--_label-text-color);--md-outlined-field-label-text-font: var(--_label-text-font);--md-outlined-field-label-text-line-height: var(--_label-text-line-height);--md-outlined-field-label-text-populated-line-height: var(--_label-text-populated-line-height);--md-outlined-field-label-text-populated-size: var(--_label-text-populated-size);--md-outlined-field-label-text-size: var(--_label-text-size);--md-outlined-field-label-text-weight: var(--_label-text-weight);--md-outlined-field-leading-content-color: var(--_leading-icon-color);--md-outlined-field-leading-space: var(--_leading-space);--md-outlined-field-outline-color: var(--_outline-color);--md-outlined-field-outline-width: var(--_outline-width);--md-outlined-field-supporting-text-color: var(--_supporting-text-color);--md-outlined-field-supporting-text-font: var(--_supporting-text-font);--md-outlined-field-supporting-text-line-height: var(--_supporting-text-line-height);--md-outlined-field-supporting-text-size: var(--_supporting-text-size);--md-outlined-field-supporting-text-weight: var(--_supporting-text-weight);--md-outlined-field-top-space: var(--_top-space);--md-outlined-field-trailing-content-color: var(--_trailing-icon-color);--md-outlined-field-trailing-space: var(--_trailing-space)}
-`;
 
   // node_modules/lit-html/directives/live.js
   var l5 = e8(class extends i7 {
-    constructor(r10) {
-      if (super(r10), r10.type !== t6.PROPERTY && r10.type !== t6.ATTRIBUTE && r10.type !== t6.BOOLEAN_ATTRIBUTE)
+    constructor(r9) {
+      if (super(r9), r9.type !== t6.PROPERTY && r9.type !== t6.ATTRIBUTE && r9.type !== t6.BOOLEAN_ATTRIBUTE)
         throw Error("The `live` directive is not allowed on child or event bindings");
-      if (!f4(r10))
+      if (!f4(r9))
         throw Error("`live` bindings can only contain a single expression");
     }
-    render(r10) {
-      return r10;
+    render(r9) {
+      return r9;
     }
-    update(i10, [t7]) {
+    update(i11, [t7]) {
       if (t7 === T2 || t7 === E2)
         return t7;
-      const o15 = i10.element, l6 = i10.name;
-      if (i10.type === t6.PROPERTY) {
-        if (t7 === o15[l6])
+      const o14 = i11.element, l6 = i11.name;
+      if (i11.type === t6.PROPERTY) {
+        if (t7 === o14[l6])
           return T2;
-      } else if (i10.type === t6.BOOLEAN_ATTRIBUTE) {
-        if (!!t7 === o15.hasAttribute(l6))
+      } else if (i11.type === t6.BOOLEAN_ATTRIBUTE) {
+        if (!!t7 === o14.hasAttribute(l6))
           return T2;
-      } else if (i10.type === t6.ATTRIBUTE && o15.getAttribute(l6) === t7 + "")
+      } else if (i11.type === t6.ATTRIBUTE && o14.getAttribute(l6) === t7 + "")
         return T2;
-      return m3(i10), t7;
+      return m3(i11), t7;
     }
   });
 
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.VM65NPGC.js
+  var SlInput = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.formControlController = new FormControlController(this, {
+        assumeInteractionOn: ["sl-blur", "sl-input"]
+      });
+      this.hasSlotController = new HasSlotController(this, "help-text", "label");
+      this.localize = new LocalizeController2(this);
+      this.hasFocus = false;
+      this.title = "";
+      this.__numberInput = Object.assign(document.createElement("input"), { type: "number" });
+      this.__dateInput = Object.assign(document.createElement("input"), { type: "date" });
+      this.type = "text";
+      this.name = "";
+      this.value = "";
+      this.defaultValue = "";
+      this.size = "medium";
+      this.filled = false;
+      this.pill = false;
+      this.label = "";
+      this.helpText = "";
+      this.clearable = false;
+      this.disabled = false;
+      this.placeholder = "";
+      this.readonly = false;
+      this.passwordToggle = false;
+      this.passwordVisible = false;
+      this.noSpinButtons = false;
+      this.form = "";
+      this.required = false;
+      this.spellcheck = true;
+    }
+    //
+    // NOTE: We use an in-memory input for these getters/setters instead of the one in the template because the properties
+    // can be set before the component is rendered.
+    //
+    /**
+     * Gets or sets the current value as a `Date` object. Returns `null` if the value can't be converted. This will use the native `<input type="{{type}}">` implementation and may result in an error.
+     */
+    get valueAsDate() {
+      var _a;
+      this.__dateInput.type = this.type;
+      this.__dateInput.value = this.value;
+      return ((_a = this.input) == null ? void 0 : _a.valueAsDate) || this.__dateInput.valueAsDate;
+    }
+    set valueAsDate(newValue) {
+      this.__dateInput.type = this.type;
+      this.__dateInput.valueAsDate = newValue;
+      this.value = this.__dateInput.value;
+    }
+    /** Gets or sets the current value as a number. Returns `NaN` if the value can't be converted. */
+    get valueAsNumber() {
+      var _a;
+      this.__numberInput.value = this.value;
+      return ((_a = this.input) == null ? void 0 : _a.valueAsNumber) || this.__numberInput.valueAsNumber;
+    }
+    set valueAsNumber(newValue) {
+      this.__numberInput.valueAsNumber = newValue;
+      this.value = this.__numberInput.value;
+    }
+    /** Gets the validity state object */
+    get validity() {
+      return this.input.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.input.validationMessage;
+    }
+    firstUpdated() {
+      this.formControlController.updateValidity();
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleChange() {
+      this.value = this.input.value;
+      this.emit("sl-change");
+    }
+    handleClearClick(event) {
+      event.preventDefault();
+      if (this.value !== "") {
+        this.value = "";
+        this.emit("sl-clear");
+        this.emit("sl-input");
+        this.emit("sl-change");
+      }
+      this.input.focus();
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+    handleInput() {
+      this.value = this.input.value;
+      this.formControlController.updateValidity();
+      this.emit("sl-input");
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    handleKeyDown(event) {
+      const hasModifier = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+      if (event.key === "Enter" && !hasModifier) {
+        setTimeout(() => {
+          if (!event.defaultPrevented && !event.isComposing) {
+            this.formControlController.submit();
+          }
+        });
+      }
+    }
+    handlePasswordToggle() {
+      this.passwordVisible = !this.passwordVisible;
+    }
+    handleDisabledChange() {
+      this.formControlController.setValidity(this.disabled);
+    }
+    handleStepChange() {
+      this.input.step = String(this.step);
+      this.formControlController.updateValidity();
+    }
+    async handleValueChange() {
+      await this.updateComplete;
+      this.formControlController.updateValidity();
+    }
+    /** Sets focus on the input. */
+    focus(options) {
+      this.input.focus(options);
+    }
+    /** Removes focus from the input. */
+    blur() {
+      this.input.blur();
+    }
+    /** Selects all the text in the input. */
+    select() {
+      this.input.select();
+    }
+    /** Sets the start and end positions of the text selection (0-based). */
+    setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
+      this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+    }
+    /** Replaces a range of text with a new string. */
+    setRangeText(replacement, start, end, selectMode = "preserve") {
+      const selectionStart = start != null ? start : this.input.selectionStart;
+      const selectionEnd = end != null ? end : this.input.selectionEnd;
+      this.input.setRangeText(replacement, selectionStart, selectionEnd, selectMode);
+      if (this.value !== this.input.value) {
+        this.value = this.input.value;
+      }
+    }
+    /** Displays the browser picker for an input element (only works if the browser supports it for the input type). */
+    showPicker() {
+      if ("showPicker" in HTMLInputElement.prototype) {
+        this.input.showPicker();
+      }
+    }
+    /** Increments the value of a numeric input type by the value of the step attribute. */
+    stepUp() {
+      this.input.stepUp();
+      if (this.value !== this.input.value) {
+        this.value = this.input.value;
+      }
+    }
+    /** Decrements the value of a numeric input type by the value of the step attribute. */
+    stepDown() {
+      this.input.stepDown();
+      if (this.value !== this.input.value) {
+        this.value = this.input.value;
+      }
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      return this.input.checkValidity();
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      return this.input.reportValidity();
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message) {
+      this.input.setCustomValidity(message);
+      this.formControlController.updateValidity();
+    }
+    render() {
+      const hasLabelSlot = this.hasSlotController.test("label");
+      const hasHelpTextSlot = this.hasSlotController.test("help-text");
+      const hasLabel = this.label ? true : !!hasLabelSlot;
+      const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+      const hasClearIcon = this.clearable && !this.disabled && !this.readonly;
+      const isClearIconVisible = hasClearIcon && (typeof this.value === "number" || this.value.length > 0);
+      return x`
+      <div
+        part="form-control"
+        class=${e10({
+        "form-control": true,
+        "form-control--small": this.size === "small",
+        "form-control--medium": this.size === "medium",
+        "form-control--large": this.size === "large",
+        "form-control--has-label": hasLabel,
+        "form-control--has-help-text": hasHelpText
+      })}
+      >
+        <label
+          part="form-control-label"
+          class="form-control__label"
+          for="input"
+          aria-hidden=${hasLabel ? "false" : "true"}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div
+            part="base"
+            class=${e10({
+        input: true,
+        // Sizes
+        "input--small": this.size === "small",
+        "input--medium": this.size === "medium",
+        "input--large": this.size === "large",
+        // States
+        "input--pill": this.pill,
+        "input--standard": !this.filled,
+        "input--filled": this.filled,
+        "input--disabled": this.disabled,
+        "input--focused": this.hasFocus,
+        "input--empty": !this.value,
+        "input--no-spin-buttons": this.noSpinButtons
+      })}
+          >
+            <span part="prefix" class="input__prefix">
+              <slot name="prefix"></slot>
+            </span>
+
+            <input
+              part="input"
+              id="input"
+              class="input__control"
+              type=${this.type === "password" && this.passwordVisible ? "text" : this.type}
+              title=${this.title}
+              name=${o11(this.name)}
+              ?disabled=${this.disabled}
+              ?readonly=${this.readonly}
+              ?required=${this.required}
+              placeholder=${o11(this.placeholder)}
+              minlength=${o11(this.minlength)}
+              maxlength=${o11(this.maxlength)}
+              min=${o11(this.min)}
+              max=${o11(this.max)}
+              step=${o11(this.step)}
+              .value=${l5(this.value)}
+              autocapitalize=${o11(this.autocapitalize)}
+              autocomplete=${o11(this.autocomplete)}
+              autocorrect=${o11(this.autocorrect)}
+              ?autofocus=${this.autofocus}
+              spellcheck=${this.spellcheck}
+              pattern=${o11(this.pattern)}
+              enterkeyhint=${o11(this.enterkeyhint)}
+              inputmode=${o11(this.inputmode)}
+              aria-describedby="help-text"
+              @change=${this.handleChange}
+              @input=${this.handleInput}
+              @invalid=${this.handleInvalid}
+              @keydown=${this.handleKeyDown}
+              @focus=${this.handleFocus}
+              @blur=${this.handleBlur}
+            />
+
+            ${isClearIconVisible ? x`
+                  <button
+                    part="clear-button"
+                    class="input__clear"
+                    type="button"
+                    aria-label=${this.localize.term("clearEntry")}
+                    @click=${this.handleClearClick}
+                    tabindex="-1"
+                  >
+                    <slot name="clear-icon">
+                      <sl-icon name="x-circle-fill" library="system"></sl-icon>
+                    </slot>
+                  </button>
+                ` : ""}
+            ${this.passwordToggle && !this.disabled ? x`
+                  <button
+                    part="password-toggle-button"
+                    class="input__password-toggle"
+                    type="button"
+                    aria-label=${this.localize.term(this.passwordVisible ? "hidePassword" : "showPassword")}
+                    @click=${this.handlePasswordToggle}
+                    tabindex="-1"
+                  >
+                    ${this.passwordVisible ? x`
+                          <slot name="show-password-icon">
+                            <sl-icon name="eye-slash" library="system"></sl-icon>
+                          </slot>
+                        ` : x`
+                          <slot name="hide-password-icon">
+                            <sl-icon name="eye" library="system"></sl-icon>
+                          </slot>
+                        `}
+                  </button>
+                ` : ""}
+
+            <span part="suffix" class="input__suffix">
+              <slot name="suffix"></slot>
+            </span>
+          </div>
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </div>
+    `;
+    }
+  };
+  SlInput.styles = [component_styles_default, form_control_styles_default, input_styles_default];
+  SlInput.dependencies = { "sl-icon": SlIcon };
+  __decorateClass2([
+    e6(".input__control")
+  ], SlInput.prototype, "input", 2);
+  __decorateClass2([
+    r6()
+  ], SlInput.prototype, "hasFocus", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "title", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlInput.prototype, "type", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "name", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "value", 2);
+  __decorateClass2([
+    defaultValue()
+  ], SlInput.prototype, "defaultValue", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlInput.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlInput.prototype, "filled", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlInput.prototype, "pill", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "label", 2);
+  __decorateClass2([
+    n5({ attribute: "help-text" })
+  ], SlInput.prototype, "helpText", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlInput.prototype, "clearable", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlInput.prototype, "disabled", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "placeholder", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlInput.prototype, "readonly", 2);
+  __decorateClass2([
+    n5({ attribute: "password-toggle", type: Boolean })
+  ], SlInput.prototype, "passwordToggle", 2);
+  __decorateClass2([
+    n5({ attribute: "password-visible", type: Boolean })
+  ], SlInput.prototype, "passwordVisible", 2);
+  __decorateClass2([
+    n5({ attribute: "no-spin-buttons", type: Boolean })
+  ], SlInput.prototype, "noSpinButtons", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlInput.prototype, "form", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlInput.prototype, "required", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "pattern", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlInput.prototype, "minlength", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlInput.prototype, "maxlength", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "min", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "max", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "step", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "autocapitalize", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "autocorrect", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "autocomplete", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlInput.prototype, "autofocus", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "enterkeyhint", 2);
+  __decorateClass2([
+    n5({
+      type: Boolean,
+      converter: {
+        // Allow "true|false" attribute values but keep the property boolean
+        fromAttribute: (value2) => !value2 || value2 === "false" ? false : true,
+        toAttribute: (value2) => value2 ? "true" : "false"
+      }
+    })
+  ], SlInput.prototype, "spellcheck", 2);
+  __decorateClass2([
+    n5()
+  ], SlInput.prototype, "inputmode", 2);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlInput.prototype, "handleDisabledChange", 1);
+  __decorateClass2([
+    watch("step", { waitUntilFirstUpdate: true })
+  ], SlInput.prototype, "handleStepChange", 1);
+  __decorateClass2([
+    watch("value", { waitUntilFirstUpdate: true })
+  ], SlInput.prototype, "handleValueChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.XA43ZQPC.js
+  SlInput.define("sl-input");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/checkbox.js
+  var checkbox = (options) => x`
+	<div class="theme-shoelace widget-checkbox">
+		<sl-checkbox
+			type="text"
+			.checked="${options.value}"
+			.name=${options.id}
+			.id=${options.id}
+			.required=${options.required ?? true}
+			@sl-input=${(event) => {
+    const { checked: newValue } = event.target;
+    options.valueChangedCallback?.(newValue);
+  }}
+			.disabled=${options.disabled}
+		>
+			<label class="widget-checkbox__label">${options.label}</label>
+		</sl-checkbox>
+
+		${options.helpText ? x`<div class="widget-checkbox__description">
+					${options.helpText}
+			  </div>` : E2}
+	</div>
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.R3NF57O3.js
+  var checkbox_styles_default = i3`
+  :host {
+    display: inline-block;
+  }
+
+  .checkbox {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    color: var(--sl-input-label-color);
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .checkbox--small {
+    --toggle-size: var(--sl-toggle-size-small);
+    font-size: var(--sl-input-font-size-small);
+  }
+
+  .checkbox--medium {
+    --toggle-size: var(--sl-toggle-size-medium);
+    font-size: var(--sl-input-font-size-medium);
+  }
+
+  .checkbox--large {
+    --toggle-size: var(--sl-toggle-size-large);
+    font-size: var(--sl-input-font-size-large);
+  }
+
+  .checkbox__control {
+    flex: 0 0 auto;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+    border-radius: 2px;
+    background-color: var(--sl-input-background-color);
+    color: var(--sl-color-neutral-0);
+    transition:
+      var(--sl-transition-fast) border-color,
+      var(--sl-transition-fast) background-color,
+      var(--sl-transition-fast) color,
+      var(--sl-transition-fast) box-shadow;
+  }
+
+  .checkbox__input {
+    position: absolute;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  .checkbox__checked-icon,
+  .checkbox__indeterminate-icon {
+    display: inline-flex;
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+  }
+
+  /* Hover */
+  .checkbox:not(.checkbox--checked):not(.checkbox--disabled) .checkbox__control:hover {
+    border-color: var(--sl-input-border-color-hover);
+    background-color: var(--sl-input-background-color-hover);
+  }
+
+  /* Focus */
+  .checkbox:not(.checkbox--checked):not(.checkbox--disabled) .checkbox__input:focus-visible ~ .checkbox__control {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  /* Checked/indeterminate */
+  .checkbox--checked .checkbox__control,
+  .checkbox--indeterminate .checkbox__control {
+    border-color: var(--sl-color-primary-600);
+    background-color: var(--sl-color-primary-600);
+  }
+
+  /* Checked/indeterminate + hover */
+  .checkbox.checkbox--checked:not(.checkbox--disabled) .checkbox__control:hover,
+  .checkbox.checkbox--indeterminate:not(.checkbox--disabled) .checkbox__control:hover {
+    border-color: var(--sl-color-primary-500);
+    background-color: var(--sl-color-primary-500);
+  }
+
+  /* Checked/indeterminate + focus */
+  .checkbox.checkbox--checked:not(.checkbox--disabled) .checkbox__input:focus-visible ~ .checkbox__control,
+  .checkbox.checkbox--indeterminate:not(.checkbox--disabled) .checkbox__input:focus-visible ~ .checkbox__control {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  /* Disabled */
+  .checkbox--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .checkbox__label {
+    display: inline-block;
+    color: var(--sl-input-label-color);
+    line-height: var(--toggle-size);
+    margin-inline-start: 0.5em;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  :host([required]) .checkbox__label::after {
+    content: var(--sl-input-required-content);
+    color: var(--sl-input-required-content-color);
+    margin-inline-start: var(--sl-input-required-content-offset);
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.XSFJLY2D.js
+  var SlCheckbox = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.formControlController = new FormControlController(this, {
+        value: (control) => control.checked ? control.value || "on" : void 0,
+        defaultValue: (control) => control.defaultChecked,
+        setValue: (control, checked) => control.checked = checked
+      });
+      this.hasSlotController = new HasSlotController(this, "help-text");
+      this.hasFocus = false;
+      this.title = "";
+      this.name = "";
+      this.size = "medium";
+      this.disabled = false;
+      this.checked = false;
+      this.indeterminate = false;
+      this.defaultChecked = false;
+      this.form = "";
+      this.required = false;
+      this.helpText = "";
+    }
+    /** Gets the validity state object */
+    get validity() {
+      return this.input.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.input.validationMessage;
+    }
+    firstUpdated() {
+      this.formControlController.updateValidity();
+    }
+    handleClick() {
+      this.checked = !this.checked;
+      this.indeterminate = false;
+      this.emit("sl-change");
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleInput() {
+      this.emit("sl-input");
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+    handleDisabledChange() {
+      this.formControlController.setValidity(this.disabled);
+    }
+    handleStateChange() {
+      this.input.checked = this.checked;
+      this.input.indeterminate = this.indeterminate;
+      this.formControlController.updateValidity();
+    }
+    /** Simulates a click on the checkbox. */
+    click() {
+      this.input.click();
+    }
+    /** Sets focus on the checkbox. */
+    focus(options) {
+      this.input.focus(options);
+    }
+    /** Removes focus from the checkbox. */
+    blur() {
+      this.input.blur();
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      return this.input.checkValidity();
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      return this.input.reportValidity();
+    }
+    /**
+     * Sets a custom validation message. The value provided will be shown to the user when the form is submitted. To clear
+     * the custom validation message, call this method with an empty string.
+     */
+    setCustomValidity(message) {
+      this.input.setCustomValidity(message);
+      this.formControlController.updateValidity();
+    }
+    render() {
+      const hasHelpTextSlot = this.hasSlotController.test("help-text");
+      const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+      return x`
+      <div
+        class=${e10({
+        "form-control": true,
+        "form-control--small": this.size === "small",
+        "form-control--medium": this.size === "medium",
+        "form-control--large": this.size === "large",
+        "form-control--has-help-text": hasHelpText
+      })}
+      >
+        <label
+          part="base"
+          class=${e10({
+        checkbox: true,
+        "checkbox--checked": this.checked,
+        "checkbox--disabled": this.disabled,
+        "checkbox--focused": this.hasFocus,
+        "checkbox--indeterminate": this.indeterminate,
+        "checkbox--small": this.size === "small",
+        "checkbox--medium": this.size === "medium",
+        "checkbox--large": this.size === "large"
+      })}
+        >
+          <input
+            class="checkbox__input"
+            type="checkbox"
+            title=${this.title}
+            name=${this.name}
+            value=${o11(this.value)}
+            .indeterminate=${l5(this.indeterminate)}
+            .checked=${l5(this.checked)}
+            .disabled=${this.disabled}
+            .required=${this.required}
+            aria-checked=${this.checked ? "true" : "false"}
+            aria-describedby="help-text"
+            @click=${this.handleClick}
+            @input=${this.handleInput}
+            @invalid=${this.handleInvalid}
+            @blur=${this.handleBlur}
+            @focus=${this.handleFocus}
+          />
+
+          <span
+            part="control${this.checked ? " control--checked" : ""}${this.indeterminate ? " control--indeterminate" : ""}"
+            class="checkbox__control"
+          >
+            ${this.checked ? x`
+                  <sl-icon part="checked-icon" class="checkbox__checked-icon" library="system" name="check"></sl-icon>
+                ` : ""}
+            ${!this.checked && this.indeterminate ? x`
+                  <sl-icon
+                    part="indeterminate-icon"
+                    class="checkbox__indeterminate-icon"
+                    library="system"
+                    name="indeterminate"
+                  ></sl-icon>
+                ` : ""}
+          </span>
+
+          <div part="label" class="checkbox__label">
+            <slot></slot>
+          </div>
+        </label>
+
+        <div
+          aria-hidden=${hasHelpText ? "false" : "true"}
+          class="form-control__help-text"
+          id="help-text"
+          part="form-control-help-text"
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </div>
+    `;
+    }
+  };
+  SlCheckbox.styles = [component_styles_default, form_control_styles_default, checkbox_styles_default];
+  SlCheckbox.dependencies = { "sl-icon": SlIcon };
+  __decorateClass2([
+    e6('input[type="checkbox"]')
+  ], SlCheckbox.prototype, "input", 2);
+  __decorateClass2([
+    r6()
+  ], SlCheckbox.prototype, "hasFocus", 2);
+  __decorateClass2([
+    n5()
+  ], SlCheckbox.prototype, "title", 2);
+  __decorateClass2([
+    n5()
+  ], SlCheckbox.prototype, "name", 2);
+  __decorateClass2([
+    n5()
+  ], SlCheckbox.prototype, "value", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlCheckbox.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlCheckbox.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlCheckbox.prototype, "checked", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlCheckbox.prototype, "indeterminate", 2);
+  __decorateClass2([
+    defaultValue("checked")
+  ], SlCheckbox.prototype, "defaultChecked", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlCheckbox.prototype, "form", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlCheckbox.prototype, "required", 2);
+  __decorateClass2([
+    n5({ attribute: "help-text" })
+  ], SlCheckbox.prototype, "helpText", 2);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlCheckbox.prototype, "handleDisabledChange", 1);
+  __decorateClass2([
+    watch(["checked", "indeterminate"], { waitUntilFirstUpdate: true })
+  ], SlCheckbox.prototype, "handleStateChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.D5YQDJ7X.js
+  SlCheckbox.define("sl-checkbox");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/checkbox-group.js
+  var checkboxGroup = (options) => x`
+	<fieldset
+		.id=${options.id}
+		class="theme-shoelace widget-checkbox-group widget-fieldset level-${options.level}"
+		part="widget-checkbox-group"
+	>
+		<legend>${options.label}</legend>
+		${options.helpText ? x`<div class="help-text">${options.helpText}</div>` : E2}
+
+		<!-- NOTE: Unused for now. Too noisy? -->
+		<!-- <div class="help-text">${options.itemsLabel}</div> -->
+
+		<div class="widget-checkbox-group__list">
+			${options?.enum?.map((enumValue) => {
+    return x`<sl-checkbox
+					.checked=${options.value?.some((v3) => v3 === enumValue) ?? false}
+					@sl-change=${(event) => {
+      const { checked } = event.target;
+      const newData = [];
+      options?.enum?.forEach((eVal) => {
+        if (eVal === enumValue && checked) {
+          newData.push(eVal);
+        }
+      });
+      options.value?.forEach((dVal) => {
+        if (dVal !== enumValue) {
+          newData.push(dVal);
+        }
+      });
+      options.valueChangedCallback?.(newData);
+    }}
+					.disabled=${options.disabled}
+					>${enumValue}</sl-checkbox
+				>`;
+  })}
+		</div>
+	</fieldset>
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.YKKSQ2FG.js
+  var visually_hidden_styles_default = i3`
+  :host(:not(:focus-within)) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    border: none !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    padding: 0 !important;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.J33OE77I.js
+  var SlVisuallyHidden = class extends ShoelaceElement {
+    render() {
+      return x` <slot></slot> `;
+    }
+  };
+  SlVisuallyHidden.styles = [component_styles_default, visually_hidden_styles_default];
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.ESELY2US.js
+  function drag(container, options) {
+    function move(pointerEvent) {
+      const dims = container.getBoundingClientRect();
+      const defaultView = container.ownerDocument.defaultView;
+      const offsetX = dims.left + defaultView.scrollX;
+      const offsetY = dims.top + defaultView.scrollY;
+      const x2 = pointerEvent.pageX - offsetX;
+      const y4 = pointerEvent.pageY - offsetY;
+      if (options == null ? void 0 : options.onMove) {
+        options.onMove(x2, y4);
+      }
+    }
+    function stop() {
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerup", stop);
+      if (options == null ? void 0 : options.onStop) {
+        options.onStop();
+      }
+    }
+    document.addEventListener("pointermove", move, { passive: true });
+    document.addEventListener("pointerup", stop);
+    if ((options == null ? void 0 : options.initialEvent) instanceof PointerEvent) {
+      move(options.initialEvent);
+    }
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.LXP7GVU3.js
+  var dropdown_styles_default = i3`
+  :host {
+    display: inline-block;
+  }
+
+  .dropdown::part(popup) {
+    z-index: var(--sl-z-index-dropdown);
+  }
+
+  .dropdown[data-current-placement^='top']::part(popup) {
+    transform-origin: bottom;
+  }
+
+  .dropdown[data-current-placement^='bottom']::part(popup) {
+    transform-origin: top;
+  }
+
+  .dropdown[data-current-placement^='left']::part(popup) {
+    transform-origin: right;
+  }
+
+  .dropdown[data-current-placement^='right']::part(popup) {
+    transform-origin: left;
+  }
+
+  .dropdown__trigger {
+    display: block;
+  }
+
+  .dropdown__panel {
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    box-shadow: var(--sl-shadow-large);
+    border-radius: var(--sl-border-radius-medium);
+    pointer-events: none;
+  }
+
+  .dropdown--open .dropdown__panel {
+    display: block;
+    pointer-events: all;
+  }
+
+  /* When users slot a menu, make sure it conforms to the popup's auto-size */
+  ::slotted(sl-menu) {
+    max-width: var(--auto-size-available-width) !important;
+    max-height: var(--auto-size-available-height) !important;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.VESXC477.js
+  function* activeElements(activeElement = document.activeElement) {
+    if (activeElement === null || activeElement === void 0)
+      return;
+    yield activeElement;
+    if ("shadowRoot" in activeElement && activeElement.shadowRoot && activeElement.shadowRoot.mode !== "closed") {
+      yield* __yieldStar(activeElements(activeElement.shadowRoot.activeElement));
+    }
+  }
+  function getDeepestActiveElement() {
+    return [...activeElements()].pop();
+  }
+  var computedStyleMap = /* @__PURE__ */ new WeakMap();
+  function getCachedComputedStyle(el) {
+    let computedStyle = computedStyleMap.get(el);
+    if (!computedStyle) {
+      computedStyle = window.getComputedStyle(el, null);
+      computedStyleMap.set(el, computedStyle);
+    }
+    return computedStyle;
+  }
+  function isVisible(el) {
+    if (typeof el.checkVisibility === "function") {
+      return el.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true });
+    }
+    const computedStyle = getCachedComputedStyle(el);
+    return computedStyle.visibility !== "hidden" && computedStyle.display !== "none";
+  }
+  function isOverflowingAndTabbable(el) {
+    const computedStyle = getCachedComputedStyle(el);
+    const { overflowY, overflowX } = computedStyle;
+    if (overflowY === "scroll" || overflowX === "scroll") {
+      return true;
+    }
+    if (overflowY !== "auto" || overflowX !== "auto") {
+      return false;
+    }
+    const isOverflowingY = el.scrollHeight > el.clientHeight;
+    if (isOverflowingY && overflowY === "auto") {
+      return true;
+    }
+    const isOverflowingX = el.scrollWidth > el.clientWidth;
+    if (isOverflowingX && overflowX === "auto") {
+      return true;
+    }
+    return false;
+  }
+  function isTabbable(el) {
+    const tag = el.tagName.toLowerCase();
+    const tabindex = Number(el.getAttribute("tabindex"));
+    const hasTabindex = el.hasAttribute("tabindex");
+    if (hasTabindex && (isNaN(tabindex) || tabindex <= -1)) {
+      return false;
+    }
+    if (el.hasAttribute("disabled")) {
+      return false;
+    }
+    if (el.closest("[inert]")) {
+      return false;
+    }
+    if (tag === "input" && el.getAttribute("type") === "radio") {
+      const rootNode = el.getRootNode();
+      const findRadios = `input[type='radio'][name="${el.getAttribute("name")}"]`;
+      const firstChecked = rootNode.querySelector(`${findRadios}:checked`);
+      if (firstChecked) {
+        return firstChecked === el;
+      }
+      const firstRadio = rootNode.querySelector(findRadios);
+      return firstRadio === el;
+    }
+    if (!isVisible(el)) {
+      return false;
+    }
+    if ((tag === "audio" || tag === "video") && el.hasAttribute("controls")) {
+      return true;
+    }
+    if (el.hasAttribute("tabindex")) {
+      return true;
+    }
+    if (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false") {
+      return true;
+    }
+    const isNativelyTabbable = [
+      "button",
+      "input",
+      "select",
+      "textarea",
+      "a",
+      "audio",
+      "video",
+      "summary",
+      "iframe"
+    ].includes(tag);
+    if (isNativelyTabbable) {
+      return true;
+    }
+    return isOverflowingAndTabbable(el);
+  }
+  function getTabbableBoundary(root2) {
+    var _a, _b;
+    const tabbableElements = getTabbableElements(root2);
+    const start = (_a = tabbableElements[0]) != null ? _a : null;
+    const end = (_b = tabbableElements[tabbableElements.length - 1]) != null ? _b : null;
+    return { start, end };
+  }
+  function getSlottedChildrenOutsideRootElement(slotElement, root2) {
+    var _a;
+    return ((_a = slotElement.getRootNode({ composed: true })) == null ? void 0 : _a.host) !== root2;
+  }
+  function getTabbableElements(root2) {
+    const walkedEls = /* @__PURE__ */ new WeakMap();
+    const tabbableElements = [];
+    function walk(el) {
+      if (el instanceof Element) {
+        if (el.hasAttribute("inert") || el.closest("[inert]")) {
+          return;
+        }
+        if (walkedEls.has(el)) {
+          return;
+        }
+        walkedEls.set(el, true);
+        if (!tabbableElements.includes(el) && isTabbable(el)) {
+          tabbableElements.push(el);
+        }
+        if (el instanceof HTMLSlotElement && getSlottedChildrenOutsideRootElement(el, root2)) {
+          el.assignedElements({ flatten: true }).forEach((assignedEl) => {
+            walk(assignedEl);
+          });
+        }
+        if (el.shadowRoot !== null && el.shadowRoot.mode === "open") {
+          walk(el.shadowRoot);
+        }
+      }
+      for (const e13 of el.children) {
+        walk(e13);
+      }
+    }
+    walk(root2);
+    return tabbableElements.sort((a5, b4) => {
+      const aTabindex = Number(a5.getAttribute("tabindex")) || 0;
+      const bTabindex = Number(b4.getAttribute("tabindex")) || 0;
+      return bTabindex - aTabindex;
+    });
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.3KSWVBQ5.js
+  var popup_styles_default = i3`
+  :host {
+    --arrow-color: var(--sl-color-neutral-1000);
+    --arrow-size: 6px;
+
+    /*
+     * These properties are computed to account for the arrow's dimensions after being rotated 45º. The constant
+     * 0.7071 is derived from sin(45), which is the diagonal size of the arrow's container after rotating.
+     */
+    --arrow-size-diagonal: calc(var(--arrow-size) * 0.7071);
+    --arrow-padding-offset: calc(var(--arrow-size-diagonal) - var(--arrow-size));
+
+    display: contents;
+  }
+
+  .popup {
+    position: absolute;
+    isolation: isolate;
+    max-width: var(--auto-size-available-width, none);
+    max-height: var(--auto-size-available-height, none);
+  }
+
+  .popup--fixed {
+    position: fixed;
+  }
+
+  .popup:not(.popup--active) {
+    display: none;
+  }
+
+  .popup__arrow {
+    position: absolute;
+    width: calc(var(--arrow-size-diagonal) * 2);
+    height: calc(var(--arrow-size-diagonal) * 2);
+    rotate: 45deg;
+    background: var(--arrow-color);
+    z-index: -1;
+  }
+
+  /* Hover bridge */
+  .popup-hover-bridge:not(.popup-hover-bridge--visible) {
+    display: none;
+  }
+
+  .popup-hover-bridge {
+    position: fixed;
+    z-index: calc(var(--sl-z-index-dropdown) - 1);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    clip-path: polygon(
+      var(--hover-bridge-top-left-x, 0) var(--hover-bridge-top-left-y, 0),
+      var(--hover-bridge-top-right-x, 0) var(--hover-bridge-top-right-y, 0),
+      var(--hover-bridge-bottom-right-x, 0) var(--hover-bridge-bottom-right-y, 0),
+      var(--hover-bridge-bottom-left-x, 0) var(--hover-bridge-bottom-left-y, 0)
+    );
+  }
+`;
+
+  // node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
+  var min = Math.min;
+  var max = Math.max;
+  var round = Math.round;
+  var floor = Math.floor;
+  var createCoords = (v3) => ({
+    x: v3,
+    y: v3
+  });
+  var oppositeSideMap = {
+    left: "right",
+    right: "left",
+    bottom: "top",
+    top: "bottom"
+  };
+  var oppositeAlignmentMap = {
+    start: "end",
+    end: "start"
+  };
+  function clamp(start, value2, end) {
+    return max(start, min(value2, end));
+  }
+  function evaluate(value2, param) {
+    return typeof value2 === "function" ? value2(param) : value2;
+  }
+  function getSide(placement) {
+    return placement.split("-")[0];
+  }
+  function getAlignment(placement) {
+    return placement.split("-")[1];
+  }
+  function getOppositeAxis(axis) {
+    return axis === "x" ? "y" : "x";
+  }
+  function getAxisLength(axis) {
+    return axis === "y" ? "height" : "width";
+  }
+  var yAxisSides = /* @__PURE__ */ new Set(["top", "bottom"]);
+  function getSideAxis(placement) {
+    return yAxisSides.has(getSide(placement)) ? "y" : "x";
+  }
+  function getAlignmentAxis(placement) {
+    return getOppositeAxis(getSideAxis(placement));
+  }
+  function getAlignmentSides(placement, rects, rtl) {
+    if (rtl === void 0) {
+      rtl = false;
+    }
+    const alignment = getAlignment(placement);
+    const alignmentAxis = getAlignmentAxis(placement);
+    const length = getAxisLength(alignmentAxis);
+    let mainAlignmentSide = alignmentAxis === "x" ? alignment === (rtl ? "end" : "start") ? "right" : "left" : alignment === "start" ? "bottom" : "top";
+    if (rects.reference[length] > rects.floating[length]) {
+      mainAlignmentSide = getOppositePlacement(mainAlignmentSide);
+    }
+    return [mainAlignmentSide, getOppositePlacement(mainAlignmentSide)];
+  }
+  function getExpandedPlacements(placement) {
+    const oppositePlacement = getOppositePlacement(placement);
+    return [getOppositeAlignmentPlacement(placement), oppositePlacement, getOppositeAlignmentPlacement(oppositePlacement)];
+  }
+  function getOppositeAlignmentPlacement(placement) {
+    return placement.replace(/start|end/g, (alignment) => oppositeAlignmentMap[alignment]);
+  }
+  var lrPlacement = ["left", "right"];
+  var rlPlacement = ["right", "left"];
+  var tbPlacement = ["top", "bottom"];
+  var btPlacement = ["bottom", "top"];
+  function getSideList(side, isStart, rtl) {
+    switch (side) {
+      case "top":
+      case "bottom":
+        if (rtl)
+          return isStart ? rlPlacement : lrPlacement;
+        return isStart ? lrPlacement : rlPlacement;
+      case "left":
+      case "right":
+        return isStart ? tbPlacement : btPlacement;
+      default:
+        return [];
+    }
+  }
+  function getOppositeAxisPlacements(placement, flipAlignment, direction, rtl) {
+    const alignment = getAlignment(placement);
+    let list = getSideList(getSide(placement), direction === "start", rtl);
+    if (alignment) {
+      list = list.map((side) => side + "-" + alignment);
+      if (flipAlignment) {
+        list = list.concat(list.map(getOppositeAlignmentPlacement));
+      }
+    }
+    return list;
+  }
+  function getOppositePlacement(placement) {
+    return placement.replace(/left|right|bottom|top/g, (side) => oppositeSideMap[side]);
+  }
+  function expandPaddingObject(padding) {
+    return {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      ...padding
+    };
+  }
+  function getPaddingObject(padding) {
+    return typeof padding !== "number" ? expandPaddingObject(padding) : {
+      top: padding,
+      right: padding,
+      bottom: padding,
+      left: padding
+    };
+  }
+  function rectToClientRect(rect) {
+    const {
+      x: x2,
+      y: y4,
+      width,
+      height
+    } = rect;
+    return {
+      width,
+      height,
+      top: y4,
+      left: x2,
+      right: x2 + width,
+      bottom: y4 + height,
+      x: x2,
+      y: y4
+    };
+  }
+
+  // node_modules/@floating-ui/core/dist/floating-ui.core.mjs
+  function computeCoordsFromPlacement(_ref, placement, rtl) {
+    let {
+      reference,
+      floating
+    } = _ref;
+    const sideAxis = getSideAxis(placement);
+    const alignmentAxis = getAlignmentAxis(placement);
+    const alignLength = getAxisLength(alignmentAxis);
+    const side = getSide(placement);
+    const isVertical = sideAxis === "y";
+    const commonX = reference.x + reference.width / 2 - floating.width / 2;
+    const commonY = reference.y + reference.height / 2 - floating.height / 2;
+    const commonAlign = reference[alignLength] / 2 - floating[alignLength] / 2;
+    let coords;
+    switch (side) {
+      case "top":
+        coords = {
+          x: commonX,
+          y: reference.y - floating.height
+        };
+        break;
+      case "bottom":
+        coords = {
+          x: commonX,
+          y: reference.y + reference.height
+        };
+        break;
+      case "right":
+        coords = {
+          x: reference.x + reference.width,
+          y: commonY
+        };
+        break;
+      case "left":
+        coords = {
+          x: reference.x - floating.width,
+          y: commonY
+        };
+        break;
+      default:
+        coords = {
+          x: reference.x,
+          y: reference.y
+        };
+    }
+    switch (getAlignment(placement)) {
+      case "start":
+        coords[alignmentAxis] -= commonAlign * (rtl && isVertical ? -1 : 1);
+        break;
+      case "end":
+        coords[alignmentAxis] += commonAlign * (rtl && isVertical ? -1 : 1);
+        break;
+    }
+    return coords;
+  }
+  var computePosition = async (reference, floating, config) => {
+    const {
+      placement = "bottom",
+      strategy = "absolute",
+      middleware = [],
+      platform: platform2
+    } = config;
+    const validMiddleware = middleware.filter(Boolean);
+    const rtl = await (platform2.isRTL == null ? void 0 : platform2.isRTL(floating));
+    let rects = await platform2.getElementRects({
+      reference,
+      floating,
+      strategy
+    });
+    let {
+      x: x2,
+      y: y4
+    } = computeCoordsFromPlacement(rects, placement, rtl);
+    let statefulPlacement = placement;
+    let middlewareData = {};
+    let resetCount = 0;
+    for (let i11 = 0; i11 < validMiddleware.length; i11++) {
+      const {
+        name,
+        fn
+      } = validMiddleware[i11];
+      const {
+        x: nextX,
+        y: nextY,
+        data,
+        reset
+      } = await fn({
+        x: x2,
+        y: y4,
+        initialPlacement: placement,
+        placement: statefulPlacement,
+        strategy,
+        middlewareData,
+        rects,
+        platform: platform2,
+        elements: {
+          reference,
+          floating
+        }
+      });
+      x2 = nextX != null ? nextX : x2;
+      y4 = nextY != null ? nextY : y4;
+      middlewareData = {
+        ...middlewareData,
+        [name]: {
+          ...middlewareData[name],
+          ...data
+        }
+      };
+      if (reset && resetCount <= 50) {
+        resetCount++;
+        if (typeof reset === "object") {
+          if (reset.placement) {
+            statefulPlacement = reset.placement;
+          }
+          if (reset.rects) {
+            rects = reset.rects === true ? await platform2.getElementRects({
+              reference,
+              floating,
+              strategy
+            }) : reset.rects;
+          }
+          ({
+            x: x2,
+            y: y4
+          } = computeCoordsFromPlacement(rects, statefulPlacement, rtl));
+        }
+        i11 = -1;
+      }
+    }
+    return {
+      x: x2,
+      y: y4,
+      placement: statefulPlacement,
+      strategy,
+      middlewareData
+    };
+  };
+  async function detectOverflow(state, options) {
+    var _await$platform$isEle;
+    if (options === void 0) {
+      options = {};
+    }
+    const {
+      x: x2,
+      y: y4,
+      platform: platform2,
+      rects,
+      elements,
+      strategy
+    } = state;
+    const {
+      boundary = "clippingAncestors",
+      rootBoundary = "viewport",
+      elementContext = "floating",
+      altBoundary = false,
+      padding = 0
+    } = evaluate(options, state);
+    const paddingObject = getPaddingObject(padding);
+    const altContext = elementContext === "floating" ? "reference" : "floating";
+    const element = elements[altBoundary ? altContext : elementContext];
+    const clippingClientRect = rectToClientRect(await platform2.getClippingRect({
+      element: ((_await$platform$isEle = await (platform2.isElement == null ? void 0 : platform2.isElement(element))) != null ? _await$platform$isEle : true) ? element : element.contextElement || await (platform2.getDocumentElement == null ? void 0 : platform2.getDocumentElement(elements.floating)),
+      boundary,
+      rootBoundary,
+      strategy
+    }));
+    const rect = elementContext === "floating" ? {
+      x: x2,
+      y: y4,
+      width: rects.floating.width,
+      height: rects.floating.height
+    } : rects.reference;
+    const offsetParent = await (platform2.getOffsetParent == null ? void 0 : platform2.getOffsetParent(elements.floating));
+    const offsetScale = await (platform2.isElement == null ? void 0 : platform2.isElement(offsetParent)) ? await (platform2.getScale == null ? void 0 : platform2.getScale(offsetParent)) || {
+      x: 1,
+      y: 1
+    } : {
+      x: 1,
+      y: 1
+    };
+    const elementClientRect = rectToClientRect(platform2.convertOffsetParentRelativeRectToViewportRelativeRect ? await platform2.convertOffsetParentRelativeRectToViewportRelativeRect({
+      elements,
+      rect,
+      offsetParent,
+      strategy
+    }) : rect);
+    return {
+      top: (clippingClientRect.top - elementClientRect.top + paddingObject.top) / offsetScale.y,
+      bottom: (elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom) / offsetScale.y,
+      left: (clippingClientRect.left - elementClientRect.left + paddingObject.left) / offsetScale.x,
+      right: (elementClientRect.right - clippingClientRect.right + paddingObject.right) / offsetScale.x
+    };
+  }
+  var arrow = (options) => ({
+    name: "arrow",
+    options,
+    async fn(state) {
+      const {
+        x: x2,
+        y: y4,
+        placement,
+        rects,
+        platform: platform2,
+        elements,
+        middlewareData
+      } = state;
+      const {
+        element,
+        padding = 0
+      } = evaluate(options, state) || {};
+      if (element == null) {
+        return {};
+      }
+      const paddingObject = getPaddingObject(padding);
+      const coords = {
+        x: x2,
+        y: y4
+      };
+      const axis = getAlignmentAxis(placement);
+      const length = getAxisLength(axis);
+      const arrowDimensions = await platform2.getDimensions(element);
+      const isYAxis = axis === "y";
+      const minProp = isYAxis ? "top" : "left";
+      const maxProp = isYAxis ? "bottom" : "right";
+      const clientProp = isYAxis ? "clientHeight" : "clientWidth";
+      const endDiff = rects.reference[length] + rects.reference[axis] - coords[axis] - rects.floating[length];
+      const startDiff = coords[axis] - rects.reference[axis];
+      const arrowOffsetParent = await (platform2.getOffsetParent == null ? void 0 : platform2.getOffsetParent(element));
+      let clientSize = arrowOffsetParent ? arrowOffsetParent[clientProp] : 0;
+      if (!clientSize || !await (platform2.isElement == null ? void 0 : platform2.isElement(arrowOffsetParent))) {
+        clientSize = elements.floating[clientProp] || rects.floating[length];
+      }
+      const centerToReference = endDiff / 2 - startDiff / 2;
+      const largestPossiblePadding = clientSize / 2 - arrowDimensions[length] / 2 - 1;
+      const minPadding = min(paddingObject[minProp], largestPossiblePadding);
+      const maxPadding = min(paddingObject[maxProp], largestPossiblePadding);
+      const min$1 = minPadding;
+      const max2 = clientSize - arrowDimensions[length] - maxPadding;
+      const center = clientSize / 2 - arrowDimensions[length] / 2 + centerToReference;
+      const offset3 = clamp(min$1, center, max2);
+      const shouldAddOffset = !middlewareData.arrow && getAlignment(placement) != null && center !== offset3 && rects.reference[length] / 2 - (center < min$1 ? minPadding : maxPadding) - arrowDimensions[length] / 2 < 0;
+      const alignmentOffset = shouldAddOffset ? center < min$1 ? center - min$1 : center - max2 : 0;
+      return {
+        [axis]: coords[axis] + alignmentOffset,
+        data: {
+          [axis]: offset3,
+          centerOffset: center - offset3 - alignmentOffset,
+          ...shouldAddOffset && {
+            alignmentOffset
+          }
+        },
+        reset: shouldAddOffset
+      };
+    }
+  });
+  var flip = function(options) {
+    if (options === void 0) {
+      options = {};
+    }
+    return {
+      name: "flip",
+      options,
+      async fn(state) {
+        var _middlewareData$arrow, _middlewareData$flip;
+        const {
+          placement,
+          middlewareData,
+          rects,
+          initialPlacement,
+          platform: platform2,
+          elements
+        } = state;
+        const {
+          mainAxis: checkMainAxis = true,
+          crossAxis: checkCrossAxis = true,
+          fallbackPlacements: specifiedFallbackPlacements,
+          fallbackStrategy = "bestFit",
+          fallbackAxisSideDirection = "none",
+          flipAlignment = true,
+          ...detectOverflowOptions
+        } = evaluate(options, state);
+        if ((_middlewareData$arrow = middlewareData.arrow) != null && _middlewareData$arrow.alignmentOffset) {
+          return {};
+        }
+        const side = getSide(placement);
+        const initialSideAxis = getSideAxis(initialPlacement);
+        const isBasePlacement = getSide(initialPlacement) === initialPlacement;
+        const rtl = await (platform2.isRTL == null ? void 0 : platform2.isRTL(elements.floating));
+        const fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipAlignment ? [getOppositePlacement(initialPlacement)] : getExpandedPlacements(initialPlacement));
+        const hasFallbackAxisSideDirection = fallbackAxisSideDirection !== "none";
+        if (!specifiedFallbackPlacements && hasFallbackAxisSideDirection) {
+          fallbackPlacements.push(...getOppositeAxisPlacements(initialPlacement, flipAlignment, fallbackAxisSideDirection, rtl));
+        }
+        const placements2 = [initialPlacement, ...fallbackPlacements];
+        const overflow = await detectOverflow(state, detectOverflowOptions);
+        const overflows = [];
+        let overflowsData = ((_middlewareData$flip = middlewareData.flip) == null ? void 0 : _middlewareData$flip.overflows) || [];
+        if (checkMainAxis) {
+          overflows.push(overflow[side]);
+        }
+        if (checkCrossAxis) {
+          const sides2 = getAlignmentSides(placement, rects, rtl);
+          overflows.push(overflow[sides2[0]], overflow[sides2[1]]);
+        }
+        overflowsData = [...overflowsData, {
+          placement,
+          overflows
+        }];
+        if (!overflows.every((side2) => side2 <= 0)) {
+          var _middlewareData$flip2, _overflowsData$filter;
+          const nextIndex = (((_middlewareData$flip2 = middlewareData.flip) == null ? void 0 : _middlewareData$flip2.index) || 0) + 1;
+          const nextPlacement = placements2[nextIndex];
+          if (nextPlacement) {
+            const ignoreCrossAxisOverflow = checkCrossAxis === "alignment" ? initialSideAxis !== getSideAxis(nextPlacement) : false;
+            if (!ignoreCrossAxisOverflow || // We leave the current main axis only if every placement on that axis
+            // overflows the main axis.
+            overflowsData.every((d4) => getSideAxis(d4.placement) === initialSideAxis ? d4.overflows[0] > 0 : true)) {
+              return {
+                data: {
+                  index: nextIndex,
+                  overflows: overflowsData
+                },
+                reset: {
+                  placement: nextPlacement
+                }
+              };
+            }
+          }
+          let resetPlacement = (_overflowsData$filter = overflowsData.filter((d4) => d4.overflows[0] <= 0).sort((a5, b4) => a5.overflows[1] - b4.overflows[1])[0]) == null ? void 0 : _overflowsData$filter.placement;
+          if (!resetPlacement) {
+            switch (fallbackStrategy) {
+              case "bestFit": {
+                var _overflowsData$filter2;
+                const placement2 = (_overflowsData$filter2 = overflowsData.filter((d4) => {
+                  if (hasFallbackAxisSideDirection) {
+                    const currentSideAxis = getSideAxis(d4.placement);
+                    return currentSideAxis === initialSideAxis || // Create a bias to the `y` side axis due to horizontal
+                    // reading directions favoring greater width.
+                    currentSideAxis === "y";
+                  }
+                  return true;
+                }).map((d4) => [d4.placement, d4.overflows.filter((overflow2) => overflow2 > 0).reduce((acc, overflow2) => acc + overflow2, 0)]).sort((a5, b4) => a5[1] - b4[1])[0]) == null ? void 0 : _overflowsData$filter2[0];
+                if (placement2) {
+                  resetPlacement = placement2;
+                }
+                break;
+              }
+              case "initialPlacement":
+                resetPlacement = initialPlacement;
+                break;
+            }
+          }
+          if (placement !== resetPlacement) {
+            return {
+              reset: {
+                placement: resetPlacement
+              }
+            };
+          }
+        }
+        return {};
+      }
+    };
+  };
+  var originSides = /* @__PURE__ */ new Set(["left", "top"]);
+  async function convertValueToCoords(state, options) {
+    const {
+      placement,
+      platform: platform2,
+      elements
+    } = state;
+    const rtl = await (platform2.isRTL == null ? void 0 : platform2.isRTL(elements.floating));
+    const side = getSide(placement);
+    const alignment = getAlignment(placement);
+    const isVertical = getSideAxis(placement) === "y";
+    const mainAxisMulti = originSides.has(side) ? -1 : 1;
+    const crossAxisMulti = rtl && isVertical ? -1 : 1;
+    const rawValue = evaluate(options, state);
+    let {
+      mainAxis,
+      crossAxis,
+      alignmentAxis
+    } = typeof rawValue === "number" ? {
+      mainAxis: rawValue,
+      crossAxis: 0,
+      alignmentAxis: null
+    } : {
+      mainAxis: rawValue.mainAxis || 0,
+      crossAxis: rawValue.crossAxis || 0,
+      alignmentAxis: rawValue.alignmentAxis
+    };
+    if (alignment && typeof alignmentAxis === "number") {
+      crossAxis = alignment === "end" ? alignmentAxis * -1 : alignmentAxis;
+    }
+    return isVertical ? {
+      x: crossAxis * crossAxisMulti,
+      y: mainAxis * mainAxisMulti
+    } : {
+      x: mainAxis * mainAxisMulti,
+      y: crossAxis * crossAxisMulti
+    };
+  }
+  var offset = function(options) {
+    if (options === void 0) {
+      options = 0;
+    }
+    return {
+      name: "offset",
+      options,
+      async fn(state) {
+        var _middlewareData$offse, _middlewareData$arrow;
+        const {
+          x: x2,
+          y: y4,
+          placement,
+          middlewareData
+        } = state;
+        const diffCoords = await convertValueToCoords(state, options);
+        if (placement === ((_middlewareData$offse = middlewareData.offset) == null ? void 0 : _middlewareData$offse.placement) && (_middlewareData$arrow = middlewareData.arrow) != null && _middlewareData$arrow.alignmentOffset) {
+          return {};
+        }
+        return {
+          x: x2 + diffCoords.x,
+          y: y4 + diffCoords.y,
+          data: {
+            ...diffCoords,
+            placement
+          }
+        };
+      }
+    };
+  };
+  var shift = function(options) {
+    if (options === void 0) {
+      options = {};
+    }
+    return {
+      name: "shift",
+      options,
+      async fn(state) {
+        const {
+          x: x2,
+          y: y4,
+          placement
+        } = state;
+        const {
+          mainAxis: checkMainAxis = true,
+          crossAxis: checkCrossAxis = false,
+          limiter = {
+            fn: (_ref) => {
+              let {
+                x: x3,
+                y: y5
+              } = _ref;
+              return {
+                x: x3,
+                y: y5
+              };
+            }
+          },
+          ...detectOverflowOptions
+        } = evaluate(options, state);
+        const coords = {
+          x: x2,
+          y: y4
+        };
+        const overflow = await detectOverflow(state, detectOverflowOptions);
+        const crossAxis = getSideAxis(getSide(placement));
+        const mainAxis = getOppositeAxis(crossAxis);
+        let mainAxisCoord = coords[mainAxis];
+        let crossAxisCoord = coords[crossAxis];
+        if (checkMainAxis) {
+          const minSide = mainAxis === "y" ? "top" : "left";
+          const maxSide = mainAxis === "y" ? "bottom" : "right";
+          const min2 = mainAxisCoord + overflow[minSide];
+          const max2 = mainAxisCoord - overflow[maxSide];
+          mainAxisCoord = clamp(min2, mainAxisCoord, max2);
+        }
+        if (checkCrossAxis) {
+          const minSide = crossAxis === "y" ? "top" : "left";
+          const maxSide = crossAxis === "y" ? "bottom" : "right";
+          const min2 = crossAxisCoord + overflow[minSide];
+          const max2 = crossAxisCoord - overflow[maxSide];
+          crossAxisCoord = clamp(min2, crossAxisCoord, max2);
+        }
+        const limitedCoords = limiter.fn({
+          ...state,
+          [mainAxis]: mainAxisCoord,
+          [crossAxis]: crossAxisCoord
+        });
+        return {
+          ...limitedCoords,
+          data: {
+            x: limitedCoords.x - x2,
+            y: limitedCoords.y - y4,
+            enabled: {
+              [mainAxis]: checkMainAxis,
+              [crossAxis]: checkCrossAxis
+            }
+          }
+        };
+      }
+    };
+  };
+  var size = function(options) {
+    if (options === void 0) {
+      options = {};
+    }
+    return {
+      name: "size",
+      options,
+      async fn(state) {
+        var _state$middlewareData, _state$middlewareData2;
+        const {
+          placement,
+          rects,
+          platform: platform2,
+          elements
+        } = state;
+        const {
+          apply = () => {
+          },
+          ...detectOverflowOptions
+        } = evaluate(options, state);
+        const overflow = await detectOverflow(state, detectOverflowOptions);
+        const side = getSide(placement);
+        const alignment = getAlignment(placement);
+        const isYAxis = getSideAxis(placement) === "y";
+        const {
+          width,
+          height
+        } = rects.floating;
+        let heightSide;
+        let widthSide;
+        if (side === "top" || side === "bottom") {
+          heightSide = side;
+          widthSide = alignment === (await (platform2.isRTL == null ? void 0 : platform2.isRTL(elements.floating)) ? "start" : "end") ? "left" : "right";
+        } else {
+          widthSide = side;
+          heightSide = alignment === "end" ? "top" : "bottom";
+        }
+        const maximumClippingHeight = height - overflow.top - overflow.bottom;
+        const maximumClippingWidth = width - overflow.left - overflow.right;
+        const overflowAvailableHeight = min(height - overflow[heightSide], maximumClippingHeight);
+        const overflowAvailableWidth = min(width - overflow[widthSide], maximumClippingWidth);
+        const noShift = !state.middlewareData.shift;
+        let availableHeight = overflowAvailableHeight;
+        let availableWidth = overflowAvailableWidth;
+        if ((_state$middlewareData = state.middlewareData.shift) != null && _state$middlewareData.enabled.x) {
+          availableWidth = maximumClippingWidth;
+        }
+        if ((_state$middlewareData2 = state.middlewareData.shift) != null && _state$middlewareData2.enabled.y) {
+          availableHeight = maximumClippingHeight;
+        }
+        if (noShift && !alignment) {
+          const xMin = max(overflow.left, 0);
+          const xMax = max(overflow.right, 0);
+          const yMin = max(overflow.top, 0);
+          const yMax = max(overflow.bottom, 0);
+          if (isYAxis) {
+            availableWidth = width - 2 * (xMin !== 0 || xMax !== 0 ? xMin + xMax : max(overflow.left, overflow.right));
+          } else {
+            availableHeight = height - 2 * (yMin !== 0 || yMax !== 0 ? yMin + yMax : max(overflow.top, overflow.bottom));
+          }
+        }
+        await apply({
+          ...state,
+          availableWidth,
+          availableHeight
+        });
+        const nextDimensions = await platform2.getDimensions(elements.floating);
+        if (width !== nextDimensions.width || height !== nextDimensions.height) {
+          return {
+            reset: {
+              rects: true
+            }
+          };
+        }
+        return {};
+      }
+    };
+  };
+
+  // node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.mjs
+  function hasWindow() {
+    return typeof window !== "undefined";
+  }
+  function getNodeName(node) {
+    if (isNode(node)) {
+      return (node.nodeName || "").toLowerCase();
+    }
+    return "#document";
+  }
+  function getWindow(node) {
+    var _node$ownerDocument;
+    return (node == null || (_node$ownerDocument = node.ownerDocument) == null ? void 0 : _node$ownerDocument.defaultView) || window;
+  }
+  function getDocumentElement(node) {
+    var _ref;
+    return (_ref = (isNode(node) ? node.ownerDocument : node.document) || window.document) == null ? void 0 : _ref.documentElement;
+  }
+  function isNode(value2) {
+    if (!hasWindow()) {
+      return false;
+    }
+    return value2 instanceof Node || value2 instanceof getWindow(value2).Node;
+  }
+  function isElement(value2) {
+    if (!hasWindow()) {
+      return false;
+    }
+    return value2 instanceof Element || value2 instanceof getWindow(value2).Element;
+  }
+  function isHTMLElement(value2) {
+    if (!hasWindow()) {
+      return false;
+    }
+    return value2 instanceof HTMLElement || value2 instanceof getWindow(value2).HTMLElement;
+  }
+  function isShadowRoot(value2) {
+    if (!hasWindow() || typeof ShadowRoot === "undefined") {
+      return false;
+    }
+    return value2 instanceof ShadowRoot || value2 instanceof getWindow(value2).ShadowRoot;
+  }
+  var invalidOverflowDisplayValues = /* @__PURE__ */ new Set(["inline", "contents"]);
+  function isOverflowElement(element) {
+    const {
+      overflow,
+      overflowX,
+      overflowY,
+      display
+    } = getComputedStyle2(element);
+    return /auto|scroll|overlay|hidden|clip/.test(overflow + overflowY + overflowX) && !invalidOverflowDisplayValues.has(display);
+  }
+  var tableElements = /* @__PURE__ */ new Set(["table", "td", "th"]);
+  function isTableElement(element) {
+    return tableElements.has(getNodeName(element));
+  }
+  var topLayerSelectors = [":popover-open", ":modal"];
+  function isTopLayer(element) {
+    return topLayerSelectors.some((selector) => {
+      try {
+        return element.matches(selector);
+      } catch (_e2) {
+        return false;
+      }
+    });
+  }
+  var transformProperties = ["transform", "translate", "scale", "rotate", "perspective"];
+  var willChangeValues = ["transform", "translate", "scale", "rotate", "perspective", "filter"];
+  var containValues = ["paint", "layout", "strict", "content"];
+  function isContainingBlock(elementOrCss) {
+    const webkit = isWebKit();
+    const css = isElement(elementOrCss) ? getComputedStyle2(elementOrCss) : elementOrCss;
+    return transformProperties.some((value2) => css[value2] ? css[value2] !== "none" : false) || (css.containerType ? css.containerType !== "normal" : false) || !webkit && (css.backdropFilter ? css.backdropFilter !== "none" : false) || !webkit && (css.filter ? css.filter !== "none" : false) || willChangeValues.some((value2) => (css.willChange || "").includes(value2)) || containValues.some((value2) => (css.contain || "").includes(value2));
+  }
+  function getContainingBlock(element) {
+    let currentNode = getParentNode(element);
+    while (isHTMLElement(currentNode) && !isLastTraversableNode(currentNode)) {
+      if (isContainingBlock(currentNode)) {
+        return currentNode;
+      } else if (isTopLayer(currentNode)) {
+        return null;
+      }
+      currentNode = getParentNode(currentNode);
+    }
+    return null;
+  }
+  function isWebKit() {
+    if (typeof CSS === "undefined" || !CSS.supports)
+      return false;
+    return CSS.supports("-webkit-backdrop-filter", "none");
+  }
+  var lastTraversableNodeNames = /* @__PURE__ */ new Set(["html", "body", "#document"]);
+  function isLastTraversableNode(node) {
+    return lastTraversableNodeNames.has(getNodeName(node));
+  }
+  function getComputedStyle2(element) {
+    return getWindow(element).getComputedStyle(element);
+  }
+  function getNodeScroll(element) {
+    if (isElement(element)) {
+      return {
+        scrollLeft: element.scrollLeft,
+        scrollTop: element.scrollTop
+      };
+    }
+    return {
+      scrollLeft: element.scrollX,
+      scrollTop: element.scrollY
+    };
+  }
+  function getParentNode(node) {
+    if (getNodeName(node) === "html") {
+      return node;
+    }
+    const result = (
+      // Step into the shadow DOM of the parent of a slotted node.
+      node.assignedSlot || // DOM Element detected.
+      node.parentNode || // ShadowRoot detected.
+      isShadowRoot(node) && node.host || // Fallback.
+      getDocumentElement(node)
+    );
+    return isShadowRoot(result) ? result.host : result;
+  }
+  function getNearestOverflowAncestor(node) {
+    const parentNode = getParentNode(node);
+    if (isLastTraversableNode(parentNode)) {
+      return node.ownerDocument ? node.ownerDocument.body : node.body;
+    }
+    if (isHTMLElement(parentNode) && isOverflowElement(parentNode)) {
+      return parentNode;
+    }
+    return getNearestOverflowAncestor(parentNode);
+  }
+  function getOverflowAncestors(node, list, traverseIframes) {
+    var _node$ownerDocument2;
+    if (list === void 0) {
+      list = [];
+    }
+    if (traverseIframes === void 0) {
+      traverseIframes = true;
+    }
+    const scrollableAncestor = getNearestOverflowAncestor(node);
+    const isBody = scrollableAncestor === ((_node$ownerDocument2 = node.ownerDocument) == null ? void 0 : _node$ownerDocument2.body);
+    const win = getWindow(scrollableAncestor);
+    if (isBody) {
+      const frameElement = getFrameElement(win);
+      return list.concat(win, win.visualViewport || [], isOverflowElement(scrollableAncestor) ? scrollableAncestor : [], frameElement && traverseIframes ? getOverflowAncestors(frameElement) : []);
+    }
+    return list.concat(scrollableAncestor, getOverflowAncestors(scrollableAncestor, [], traverseIframes));
+  }
+  function getFrameElement(win) {
+    return win.parent && Object.getPrototypeOf(win.parent) ? win.frameElement : null;
+  }
+
+  // node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs
+  function getCssDimensions(element) {
+    const css = getComputedStyle2(element);
+    let width = parseFloat(css.width) || 0;
+    let height = parseFloat(css.height) || 0;
+    const hasOffset = isHTMLElement(element);
+    const offsetWidth = hasOffset ? element.offsetWidth : width;
+    const offsetHeight = hasOffset ? element.offsetHeight : height;
+    const shouldFallback = round(width) !== offsetWidth || round(height) !== offsetHeight;
+    if (shouldFallback) {
+      width = offsetWidth;
+      height = offsetHeight;
+    }
+    return {
+      width,
+      height,
+      $: shouldFallback
+    };
+  }
+  function unwrapElement(element) {
+    return !isElement(element) ? element.contextElement : element;
+  }
+  function getScale(element) {
+    const domElement = unwrapElement(element);
+    if (!isHTMLElement(domElement)) {
+      return createCoords(1);
+    }
+    const rect = domElement.getBoundingClientRect();
+    const {
+      width,
+      height,
+      $: $4
+    } = getCssDimensions(domElement);
+    let x2 = ($4 ? round(rect.width) : rect.width) / width;
+    let y4 = ($4 ? round(rect.height) : rect.height) / height;
+    if (!x2 || !Number.isFinite(x2)) {
+      x2 = 1;
+    }
+    if (!y4 || !Number.isFinite(y4)) {
+      y4 = 1;
+    }
+    return {
+      x: x2,
+      y: y4
+    };
+  }
+  var noOffsets = /* @__PURE__ */ createCoords(0);
+  function getVisualOffsets(element) {
+    const win = getWindow(element);
+    if (!isWebKit() || !win.visualViewport) {
+      return noOffsets;
+    }
+    return {
+      x: win.visualViewport.offsetLeft,
+      y: win.visualViewport.offsetTop
+    };
+  }
+  function shouldAddVisualOffsets(element, isFixed, floatingOffsetParent) {
+    if (isFixed === void 0) {
+      isFixed = false;
+    }
+    if (!floatingOffsetParent || isFixed && floatingOffsetParent !== getWindow(element)) {
+      return false;
+    }
+    return isFixed;
+  }
+  function getBoundingClientRect(element, includeScale, isFixedStrategy, offsetParent) {
+    if (includeScale === void 0) {
+      includeScale = false;
+    }
+    if (isFixedStrategy === void 0) {
+      isFixedStrategy = false;
+    }
+    const clientRect = element.getBoundingClientRect();
+    const domElement = unwrapElement(element);
+    let scale = createCoords(1);
+    if (includeScale) {
+      if (offsetParent) {
+        if (isElement(offsetParent)) {
+          scale = getScale(offsetParent);
+        }
+      } else {
+        scale = getScale(element);
+      }
+    }
+    const visualOffsets = shouldAddVisualOffsets(domElement, isFixedStrategy, offsetParent) ? getVisualOffsets(domElement) : createCoords(0);
+    let x2 = (clientRect.left + visualOffsets.x) / scale.x;
+    let y4 = (clientRect.top + visualOffsets.y) / scale.y;
+    let width = clientRect.width / scale.x;
+    let height = clientRect.height / scale.y;
+    if (domElement) {
+      const win = getWindow(domElement);
+      const offsetWin = offsetParent && isElement(offsetParent) ? getWindow(offsetParent) : offsetParent;
+      let currentWin = win;
+      let currentIFrame = getFrameElement(currentWin);
+      while (currentIFrame && offsetParent && offsetWin !== currentWin) {
+        const iframeScale = getScale(currentIFrame);
+        const iframeRect = currentIFrame.getBoundingClientRect();
+        const css = getComputedStyle2(currentIFrame);
+        const left = iframeRect.left + (currentIFrame.clientLeft + parseFloat(css.paddingLeft)) * iframeScale.x;
+        const top = iframeRect.top + (currentIFrame.clientTop + parseFloat(css.paddingTop)) * iframeScale.y;
+        x2 *= iframeScale.x;
+        y4 *= iframeScale.y;
+        width *= iframeScale.x;
+        height *= iframeScale.y;
+        x2 += left;
+        y4 += top;
+        currentWin = getWindow(currentIFrame);
+        currentIFrame = getFrameElement(currentWin);
+      }
+    }
+    return rectToClientRect({
+      width,
+      height,
+      x: x2,
+      y: y4
+    });
+  }
+  function getWindowScrollBarX(element, rect) {
+    const leftScroll = getNodeScroll(element).scrollLeft;
+    if (!rect) {
+      return getBoundingClientRect(getDocumentElement(element)).left + leftScroll;
+    }
+    return rect.left + leftScroll;
+  }
+  function getHTMLOffset(documentElement, scroll) {
+    const htmlRect = documentElement.getBoundingClientRect();
+    const x2 = htmlRect.left + scroll.scrollLeft - getWindowScrollBarX(documentElement, htmlRect);
+    const y4 = htmlRect.top + scroll.scrollTop;
+    return {
+      x: x2,
+      y: y4
+    };
+  }
+  function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
+    let {
+      elements,
+      rect,
+      offsetParent,
+      strategy
+    } = _ref;
+    const isFixed = strategy === "fixed";
+    const documentElement = getDocumentElement(offsetParent);
+    const topLayer = elements ? isTopLayer(elements.floating) : false;
+    if (offsetParent === documentElement || topLayer && isFixed) {
+      return rect;
+    }
+    let scroll = {
+      scrollLeft: 0,
+      scrollTop: 0
+    };
+    let scale = createCoords(1);
+    const offsets = createCoords(0);
+    const isOffsetParentAnElement = isHTMLElement(offsetParent);
+    if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
+      if (getNodeName(offsetParent) !== "body" || isOverflowElement(documentElement)) {
+        scroll = getNodeScroll(offsetParent);
+      }
+      if (isHTMLElement(offsetParent)) {
+        const offsetRect = getBoundingClientRect(offsetParent);
+        scale = getScale(offsetParent);
+        offsets.x = offsetRect.x + offsetParent.clientLeft;
+        offsets.y = offsetRect.y + offsetParent.clientTop;
+      }
+    }
+    const htmlOffset = documentElement && !isOffsetParentAnElement && !isFixed ? getHTMLOffset(documentElement, scroll) : createCoords(0);
+    return {
+      width: rect.width * scale.x,
+      height: rect.height * scale.y,
+      x: rect.x * scale.x - scroll.scrollLeft * scale.x + offsets.x + htmlOffset.x,
+      y: rect.y * scale.y - scroll.scrollTop * scale.y + offsets.y + htmlOffset.y
+    };
+  }
+  function getClientRects(element) {
+    return Array.from(element.getClientRects());
+  }
+  function getDocumentRect(element) {
+    const html = getDocumentElement(element);
+    const scroll = getNodeScroll(element);
+    const body = element.ownerDocument.body;
+    const width = max(html.scrollWidth, html.clientWidth, body.scrollWidth, body.clientWidth);
+    const height = max(html.scrollHeight, html.clientHeight, body.scrollHeight, body.clientHeight);
+    let x2 = -scroll.scrollLeft + getWindowScrollBarX(element);
+    const y4 = -scroll.scrollTop;
+    if (getComputedStyle2(body).direction === "rtl") {
+      x2 += max(html.clientWidth, body.clientWidth) - width;
+    }
+    return {
+      width,
+      height,
+      x: x2,
+      y: y4
+    };
+  }
+  var SCROLLBAR_MAX = 25;
+  function getViewportRect(element, strategy) {
+    const win = getWindow(element);
+    const html = getDocumentElement(element);
+    const visualViewport = win.visualViewport;
+    let width = html.clientWidth;
+    let height = html.clientHeight;
+    let x2 = 0;
+    let y4 = 0;
+    if (visualViewport) {
+      width = visualViewport.width;
+      height = visualViewport.height;
+      const visualViewportBased = isWebKit();
+      if (!visualViewportBased || visualViewportBased && strategy === "fixed") {
+        x2 = visualViewport.offsetLeft;
+        y4 = visualViewport.offsetTop;
+      }
+    }
+    const windowScrollbarX = getWindowScrollBarX(html);
+    if (windowScrollbarX <= 0) {
+      const doc = html.ownerDocument;
+      const body = doc.body;
+      const bodyStyles = getComputedStyle(body);
+      const bodyMarginInline = doc.compatMode === "CSS1Compat" ? parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight) || 0 : 0;
+      const clippingStableScrollbarWidth = Math.abs(html.clientWidth - body.clientWidth - bodyMarginInline);
+      if (clippingStableScrollbarWidth <= SCROLLBAR_MAX) {
+        width -= clippingStableScrollbarWidth;
+      }
+    } else if (windowScrollbarX <= SCROLLBAR_MAX) {
+      width += windowScrollbarX;
+    }
+    return {
+      width,
+      height,
+      x: x2,
+      y: y4
+    };
+  }
+  var absoluteOrFixed = /* @__PURE__ */ new Set(["absolute", "fixed"]);
+  function getInnerBoundingClientRect(element, strategy) {
+    const clientRect = getBoundingClientRect(element, true, strategy === "fixed");
+    const top = clientRect.top + element.clientTop;
+    const left = clientRect.left + element.clientLeft;
+    const scale = isHTMLElement(element) ? getScale(element) : createCoords(1);
+    const width = element.clientWidth * scale.x;
+    const height = element.clientHeight * scale.y;
+    const x2 = left * scale.x;
+    const y4 = top * scale.y;
+    return {
+      width,
+      height,
+      x: x2,
+      y: y4
+    };
+  }
+  function getClientRectFromClippingAncestor(element, clippingAncestor, strategy) {
+    let rect;
+    if (clippingAncestor === "viewport") {
+      rect = getViewportRect(element, strategy);
+    } else if (clippingAncestor === "document") {
+      rect = getDocumentRect(getDocumentElement(element));
+    } else if (isElement(clippingAncestor)) {
+      rect = getInnerBoundingClientRect(clippingAncestor, strategy);
+    } else {
+      const visualOffsets = getVisualOffsets(element);
+      rect = {
+        x: clippingAncestor.x - visualOffsets.x,
+        y: clippingAncestor.y - visualOffsets.y,
+        width: clippingAncestor.width,
+        height: clippingAncestor.height
+      };
+    }
+    return rectToClientRect(rect);
+  }
+  function hasFixedPositionAncestor(element, stopNode) {
+    const parentNode = getParentNode(element);
+    if (parentNode === stopNode || !isElement(parentNode) || isLastTraversableNode(parentNode)) {
+      return false;
+    }
+    return getComputedStyle2(parentNode).position === "fixed" || hasFixedPositionAncestor(parentNode, stopNode);
+  }
+  function getClippingElementAncestors(element, cache) {
+    const cachedResult = cache.get(element);
+    if (cachedResult) {
+      return cachedResult;
+    }
+    let result = getOverflowAncestors(element, [], false).filter((el) => isElement(el) && getNodeName(el) !== "body");
+    let currentContainingBlockComputedStyle = null;
+    const elementIsFixed = getComputedStyle2(element).position === "fixed";
+    let currentNode = elementIsFixed ? getParentNode(element) : element;
+    while (isElement(currentNode) && !isLastTraversableNode(currentNode)) {
+      const computedStyle = getComputedStyle2(currentNode);
+      const currentNodeIsContaining = isContainingBlock(currentNode);
+      if (!currentNodeIsContaining && computedStyle.position === "fixed") {
+        currentContainingBlockComputedStyle = null;
+      }
+      const shouldDropCurrentNode = elementIsFixed ? !currentNodeIsContaining && !currentContainingBlockComputedStyle : !currentNodeIsContaining && computedStyle.position === "static" && !!currentContainingBlockComputedStyle && absoluteOrFixed.has(currentContainingBlockComputedStyle.position) || isOverflowElement(currentNode) && !currentNodeIsContaining && hasFixedPositionAncestor(element, currentNode);
+      if (shouldDropCurrentNode) {
+        result = result.filter((ancestor) => ancestor !== currentNode);
+      } else {
+        currentContainingBlockComputedStyle = computedStyle;
+      }
+      currentNode = getParentNode(currentNode);
+    }
+    cache.set(element, result);
+    return result;
+  }
+  function getClippingRect(_ref) {
+    let {
+      element,
+      boundary,
+      rootBoundary,
+      strategy
+    } = _ref;
+    const elementClippingAncestors = boundary === "clippingAncestors" ? isTopLayer(element) ? [] : getClippingElementAncestors(element, this._c) : [].concat(boundary);
+    const clippingAncestors = [...elementClippingAncestors, rootBoundary];
+    const firstClippingAncestor = clippingAncestors[0];
+    const clippingRect = clippingAncestors.reduce((accRect, clippingAncestor) => {
+      const rect = getClientRectFromClippingAncestor(element, clippingAncestor, strategy);
+      accRect.top = max(rect.top, accRect.top);
+      accRect.right = min(rect.right, accRect.right);
+      accRect.bottom = min(rect.bottom, accRect.bottom);
+      accRect.left = max(rect.left, accRect.left);
+      return accRect;
+    }, getClientRectFromClippingAncestor(element, firstClippingAncestor, strategy));
+    return {
+      width: clippingRect.right - clippingRect.left,
+      height: clippingRect.bottom - clippingRect.top,
+      x: clippingRect.left,
+      y: clippingRect.top
+    };
+  }
+  function getDimensions(element) {
+    const {
+      width,
+      height
+    } = getCssDimensions(element);
+    return {
+      width,
+      height
+    };
+  }
+  function getRectRelativeToOffsetParent(element, offsetParent, strategy) {
+    const isOffsetParentAnElement = isHTMLElement(offsetParent);
+    const documentElement = getDocumentElement(offsetParent);
+    const isFixed = strategy === "fixed";
+    const rect = getBoundingClientRect(element, true, isFixed, offsetParent);
+    let scroll = {
+      scrollLeft: 0,
+      scrollTop: 0
+    };
+    const offsets = createCoords(0);
+    function setLeftRTLScrollbarOffset() {
+      offsets.x = getWindowScrollBarX(documentElement);
+    }
+    if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
+      if (getNodeName(offsetParent) !== "body" || isOverflowElement(documentElement)) {
+        scroll = getNodeScroll(offsetParent);
+      }
+      if (isOffsetParentAnElement) {
+        const offsetRect = getBoundingClientRect(offsetParent, true, isFixed, offsetParent);
+        offsets.x = offsetRect.x + offsetParent.clientLeft;
+        offsets.y = offsetRect.y + offsetParent.clientTop;
+      } else if (documentElement) {
+        setLeftRTLScrollbarOffset();
+      }
+    }
+    if (isFixed && !isOffsetParentAnElement && documentElement) {
+      setLeftRTLScrollbarOffset();
+    }
+    const htmlOffset = documentElement && !isOffsetParentAnElement && !isFixed ? getHTMLOffset(documentElement, scroll) : createCoords(0);
+    const x2 = rect.left + scroll.scrollLeft - offsets.x - htmlOffset.x;
+    const y4 = rect.top + scroll.scrollTop - offsets.y - htmlOffset.y;
+    return {
+      x: x2,
+      y: y4,
+      width: rect.width,
+      height: rect.height
+    };
+  }
+  function isStaticPositioned(element) {
+    return getComputedStyle2(element).position === "static";
+  }
+  function getTrueOffsetParent(element, polyfill) {
+    if (!isHTMLElement(element) || getComputedStyle2(element).position === "fixed") {
+      return null;
+    }
+    if (polyfill) {
+      return polyfill(element);
+    }
+    let rawOffsetParent = element.offsetParent;
+    if (getDocumentElement(element) === rawOffsetParent) {
+      rawOffsetParent = rawOffsetParent.ownerDocument.body;
+    }
+    return rawOffsetParent;
+  }
+  function getOffsetParent(element, polyfill) {
+    const win = getWindow(element);
+    if (isTopLayer(element)) {
+      return win;
+    }
+    if (!isHTMLElement(element)) {
+      let svgOffsetParent = getParentNode(element);
+      while (svgOffsetParent && !isLastTraversableNode(svgOffsetParent)) {
+        if (isElement(svgOffsetParent) && !isStaticPositioned(svgOffsetParent)) {
+          return svgOffsetParent;
+        }
+        svgOffsetParent = getParentNode(svgOffsetParent);
+      }
+      return win;
+    }
+    let offsetParent = getTrueOffsetParent(element, polyfill);
+    while (offsetParent && isTableElement(offsetParent) && isStaticPositioned(offsetParent)) {
+      offsetParent = getTrueOffsetParent(offsetParent, polyfill);
+    }
+    if (offsetParent && isLastTraversableNode(offsetParent) && isStaticPositioned(offsetParent) && !isContainingBlock(offsetParent)) {
+      return win;
+    }
+    return offsetParent || getContainingBlock(element) || win;
+  }
+  var getElementRects = async function(data) {
+    const getOffsetParentFn = this.getOffsetParent || getOffsetParent;
+    const getDimensionsFn = this.getDimensions;
+    const floatingDimensions = await getDimensionsFn(data.floating);
+    return {
+      reference: getRectRelativeToOffsetParent(data.reference, await getOffsetParentFn(data.floating), data.strategy),
+      floating: {
+        x: 0,
+        y: 0,
+        width: floatingDimensions.width,
+        height: floatingDimensions.height
+      }
+    };
+  };
+  function isRTL(element) {
+    return getComputedStyle2(element).direction === "rtl";
+  }
+  var platform = {
+    convertOffsetParentRelativeRectToViewportRelativeRect,
+    getDocumentElement,
+    getClippingRect,
+    getOffsetParent,
+    getElementRects,
+    getClientRects,
+    getDimensions,
+    getScale,
+    isElement,
+    isRTL
+  };
+  function rectsAreEqual(a5, b4) {
+    return a5.x === b4.x && a5.y === b4.y && a5.width === b4.width && a5.height === b4.height;
+  }
+  function observeMove(element, onMove) {
+    let io = null;
+    let timeoutId;
+    const root2 = getDocumentElement(element);
+    function cleanup() {
+      var _io;
+      clearTimeout(timeoutId);
+      (_io = io) == null || _io.disconnect();
+      io = null;
+    }
+    function refresh(skip, threshold) {
+      if (skip === void 0) {
+        skip = false;
+      }
+      if (threshold === void 0) {
+        threshold = 1;
+      }
+      cleanup();
+      const elementRectForRootMargin = element.getBoundingClientRect();
+      const {
+        left,
+        top,
+        width,
+        height
+      } = elementRectForRootMargin;
+      if (!skip) {
+        onMove();
+      }
+      if (!width || !height) {
+        return;
+      }
+      const insetTop = floor(top);
+      const insetRight = floor(root2.clientWidth - (left + width));
+      const insetBottom = floor(root2.clientHeight - (top + height));
+      const insetLeft = floor(left);
+      const rootMargin = -insetTop + "px " + -insetRight + "px " + -insetBottom + "px " + -insetLeft + "px";
+      const options = {
+        rootMargin,
+        threshold: max(0, min(1, threshold)) || 1
+      };
+      let isFirstUpdate = true;
+      function handleObserve(entries) {
+        const ratio = entries[0].intersectionRatio;
+        if (ratio !== threshold) {
+          if (!isFirstUpdate) {
+            return refresh();
+          }
+          if (!ratio) {
+            timeoutId = setTimeout(() => {
+              refresh(false, 1e-7);
+            }, 1e3);
+          } else {
+            refresh(false, ratio);
+          }
+        }
+        if (ratio === 1 && !rectsAreEqual(elementRectForRootMargin, element.getBoundingClientRect())) {
+          refresh();
+        }
+        isFirstUpdate = false;
+      }
+      try {
+        io = new IntersectionObserver(handleObserve, {
+          ...options,
+          // Handle <iframe>s
+          root: root2.ownerDocument
+        });
+      } catch (_e2) {
+        io = new IntersectionObserver(handleObserve, options);
+      }
+      io.observe(element);
+    }
+    refresh(true);
+    return cleanup;
+  }
+  function autoUpdate(reference, floating, update2, options) {
+    if (options === void 0) {
+      options = {};
+    }
+    const {
+      ancestorScroll = true,
+      ancestorResize = true,
+      elementResize = typeof ResizeObserver === "function",
+      layoutShift = typeof IntersectionObserver === "function",
+      animationFrame = false
+    } = options;
+    const referenceEl = unwrapElement(reference);
+    const ancestors = ancestorScroll || ancestorResize ? [...referenceEl ? getOverflowAncestors(referenceEl) : [], ...getOverflowAncestors(floating)] : [];
+    ancestors.forEach((ancestor) => {
+      ancestorScroll && ancestor.addEventListener("scroll", update2, {
+        passive: true
+      });
+      ancestorResize && ancestor.addEventListener("resize", update2);
+    });
+    const cleanupIo = referenceEl && layoutShift ? observeMove(referenceEl, update2) : null;
+    let reobserveFrame = -1;
+    let resizeObserver = null;
+    if (elementResize) {
+      resizeObserver = new ResizeObserver((_ref) => {
+        let [firstEntry] = _ref;
+        if (firstEntry && firstEntry.target === referenceEl && resizeObserver) {
+          resizeObserver.unobserve(floating);
+          cancelAnimationFrame(reobserveFrame);
+          reobserveFrame = requestAnimationFrame(() => {
+            var _resizeObserver;
+            (_resizeObserver = resizeObserver) == null || _resizeObserver.observe(floating);
+          });
+        }
+        update2();
+      });
+      if (referenceEl && !animationFrame) {
+        resizeObserver.observe(referenceEl);
+      }
+      resizeObserver.observe(floating);
+    }
+    let frameId;
+    let prevRefRect = animationFrame ? getBoundingClientRect(reference) : null;
+    if (animationFrame) {
+      frameLoop();
+    }
+    function frameLoop() {
+      const nextRefRect = getBoundingClientRect(reference);
+      if (prevRefRect && !rectsAreEqual(prevRefRect, nextRefRect)) {
+        update2();
+      }
+      prevRefRect = nextRefRect;
+      frameId = requestAnimationFrame(frameLoop);
+    }
+    update2();
+    return () => {
+      var _resizeObserver2;
+      ancestors.forEach((ancestor) => {
+        ancestorScroll && ancestor.removeEventListener("scroll", update2);
+        ancestorResize && ancestor.removeEventListener("resize", update2);
+      });
+      cleanupIo == null || cleanupIo();
+      (_resizeObserver2 = resizeObserver) == null || _resizeObserver2.disconnect();
+      resizeObserver = null;
+      if (animationFrame) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }
+  var offset2 = offset;
+  var shift2 = shift;
+  var flip2 = flip;
+  var size2 = size;
+  var arrow2 = arrow;
+  var computePosition2 = (reference, floating, options) => {
+    const cache = /* @__PURE__ */ new Map();
+    const mergedOptions = {
+      platform,
+      ...options
+    };
+    const platformWithCache = {
+      ...mergedOptions.platform,
+      _c: cache
+    };
+    return computePosition(reference, floating, {
+      ...mergedOptions,
+      platform: platformWithCache
+    });
+  };
+
+  // node_modules/composed-offset-position/dist/composed-offset-position.browser.min.mjs
+  function e11(t7) {
+    return i9(t7);
+  }
+  function r8(t7) {
+    return t7.assignedSlot ? t7.assignedSlot : t7.parentNode instanceof ShadowRoot ? t7.parentNode.host : t7.parentNode;
+  }
+  function i9(e13) {
+    for (let t7 = e13; t7; t7 = r8(t7))
+      if (t7 instanceof Element && "none" === getComputedStyle(t7).display)
+        return null;
+    for (let n10 = r8(e13); n10; n10 = r8(n10)) {
+      if (!(n10 instanceof Element))
+        continue;
+      const e14 = getComputedStyle(n10);
+      if ("contents" !== e14.display) {
+        if ("static" !== e14.position || isContainingBlock(e14))
+          return n10;
+        if ("BODY" === n10.tagName)
+          return n10;
+      }
+    }
+    return null;
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.5JY5FUCG.js
+  function isVirtualElement(e13) {
+    return e13 !== null && typeof e13 === "object" && "getBoundingClientRect" in e13 && ("contextElement" in e13 ? e13.contextElement instanceof Element : true);
+  }
+  var SlPopup = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.localize = new LocalizeController2(this);
+      this.active = false;
+      this.placement = "top";
+      this.strategy = "absolute";
+      this.distance = 0;
+      this.skidding = 0;
+      this.arrow = false;
+      this.arrowPlacement = "anchor";
+      this.arrowPadding = 10;
+      this.flip = false;
+      this.flipFallbackPlacements = "";
+      this.flipFallbackStrategy = "best-fit";
+      this.flipPadding = 0;
+      this.shift = false;
+      this.shiftPadding = 0;
+      this.autoSizePadding = 0;
+      this.hoverBridge = false;
+      this.updateHoverBridge = () => {
+        if (this.hoverBridge && this.anchorEl) {
+          const anchorRect = this.anchorEl.getBoundingClientRect();
+          const popupRect = this.popup.getBoundingClientRect();
+          const isVertical = this.placement.includes("top") || this.placement.includes("bottom");
+          let topLeftX = 0;
+          let topLeftY = 0;
+          let topRightX = 0;
+          let topRightY = 0;
+          let bottomLeftX = 0;
+          let bottomLeftY = 0;
+          let bottomRightX = 0;
+          let bottomRightY = 0;
+          if (isVertical) {
+            if (anchorRect.top < popupRect.top) {
+              topLeftX = anchorRect.left;
+              topLeftY = anchorRect.bottom;
+              topRightX = anchorRect.right;
+              topRightY = anchorRect.bottom;
+              bottomLeftX = popupRect.left;
+              bottomLeftY = popupRect.top;
+              bottomRightX = popupRect.right;
+              bottomRightY = popupRect.top;
+            } else {
+              topLeftX = popupRect.left;
+              topLeftY = popupRect.bottom;
+              topRightX = popupRect.right;
+              topRightY = popupRect.bottom;
+              bottomLeftX = anchorRect.left;
+              bottomLeftY = anchorRect.top;
+              bottomRightX = anchorRect.right;
+              bottomRightY = anchorRect.top;
+            }
+          } else {
+            if (anchorRect.left < popupRect.left) {
+              topLeftX = anchorRect.right;
+              topLeftY = anchorRect.top;
+              topRightX = popupRect.left;
+              topRightY = popupRect.top;
+              bottomLeftX = anchorRect.right;
+              bottomLeftY = anchorRect.bottom;
+              bottomRightX = popupRect.left;
+              bottomRightY = popupRect.bottom;
+            } else {
+              topLeftX = popupRect.right;
+              topLeftY = popupRect.top;
+              topRightX = anchorRect.left;
+              topRightY = anchorRect.top;
+              bottomLeftX = popupRect.right;
+              bottomLeftY = popupRect.bottom;
+              bottomRightX = anchorRect.left;
+              bottomRightY = anchorRect.bottom;
+            }
+          }
+          this.style.setProperty("--hover-bridge-top-left-x", `${topLeftX}px`);
+          this.style.setProperty("--hover-bridge-top-left-y", `${topLeftY}px`);
+          this.style.setProperty("--hover-bridge-top-right-x", `${topRightX}px`);
+          this.style.setProperty("--hover-bridge-top-right-y", `${topRightY}px`);
+          this.style.setProperty("--hover-bridge-bottom-left-x", `${bottomLeftX}px`);
+          this.style.setProperty("--hover-bridge-bottom-left-y", `${bottomLeftY}px`);
+          this.style.setProperty("--hover-bridge-bottom-right-x", `${bottomRightX}px`);
+          this.style.setProperty("--hover-bridge-bottom-right-y", `${bottomRightY}px`);
+        }
+      };
+    }
+    async connectedCallback() {
+      super.connectedCallback();
+      await this.updateComplete;
+      this.start();
+    }
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      this.stop();
+    }
+    async updated(changedProps) {
+      super.updated(changedProps);
+      if (changedProps.has("active")) {
+        if (this.active) {
+          this.start();
+        } else {
+          this.stop();
+        }
+      }
+      if (changedProps.has("anchor")) {
+        this.handleAnchorChange();
+      }
+      if (this.active) {
+        await this.updateComplete;
+        this.reposition();
+      }
+    }
+    async handleAnchorChange() {
+      await this.stop();
+      if (this.anchor && typeof this.anchor === "string") {
+        const root2 = this.getRootNode();
+        this.anchorEl = root2.getElementById(this.anchor);
+      } else if (this.anchor instanceof Element || isVirtualElement(this.anchor)) {
+        this.anchorEl = this.anchor;
+      } else {
+        this.anchorEl = this.querySelector('[slot="anchor"]');
+      }
+      if (this.anchorEl instanceof HTMLSlotElement) {
+        this.anchorEl = this.anchorEl.assignedElements({ flatten: true })[0];
+      }
+      if (this.anchorEl && this.active) {
+        this.start();
+      }
+    }
+    start() {
+      if (!this.anchorEl || !this.active) {
+        return;
+      }
+      this.cleanup = autoUpdate(this.anchorEl, this.popup, () => {
+        this.reposition();
+      });
+    }
+    async stop() {
+      return new Promise((resolve) => {
+        if (this.cleanup) {
+          this.cleanup();
+          this.cleanup = void 0;
+          this.removeAttribute("data-current-placement");
+          this.style.removeProperty("--auto-size-available-width");
+          this.style.removeProperty("--auto-size-available-height");
+          requestAnimationFrame(() => resolve());
+        } else {
+          resolve();
+        }
+      });
+    }
+    /** Forces the popup to recalculate and reposition itself. */
+    reposition() {
+      if (!this.active || !this.anchorEl) {
+        return;
+      }
+      const middleware = [
+        // The offset middleware goes first
+        offset2({ mainAxis: this.distance, crossAxis: this.skidding })
+      ];
+      if (this.sync) {
+        middleware.push(
+          size2({
+            apply: ({ rects }) => {
+              const syncWidth = this.sync === "width" || this.sync === "both";
+              const syncHeight = this.sync === "height" || this.sync === "both";
+              this.popup.style.width = syncWidth ? `${rects.reference.width}px` : "";
+              this.popup.style.height = syncHeight ? `${rects.reference.height}px` : "";
+            }
+          })
+        );
+      } else {
+        this.popup.style.width = "";
+        this.popup.style.height = "";
+      }
+      if (this.flip) {
+        middleware.push(
+          flip2({
+            boundary: this.flipBoundary,
+            // @ts-expect-error - We're converting a string attribute to an array here
+            fallbackPlacements: this.flipFallbackPlacements,
+            fallbackStrategy: this.flipFallbackStrategy === "best-fit" ? "bestFit" : "initialPlacement",
+            padding: this.flipPadding
+          })
+        );
+      }
+      if (this.shift) {
+        middleware.push(
+          shift2({
+            boundary: this.shiftBoundary,
+            padding: this.shiftPadding
+          })
+        );
+      }
+      if (this.autoSize) {
+        middleware.push(
+          size2({
+            boundary: this.autoSizeBoundary,
+            padding: this.autoSizePadding,
+            apply: ({ availableWidth, availableHeight }) => {
+              if (this.autoSize === "vertical" || this.autoSize === "both") {
+                this.style.setProperty("--auto-size-available-height", `${availableHeight}px`);
+              } else {
+                this.style.removeProperty("--auto-size-available-height");
+              }
+              if (this.autoSize === "horizontal" || this.autoSize === "both") {
+                this.style.setProperty("--auto-size-available-width", `${availableWidth}px`);
+              } else {
+                this.style.removeProperty("--auto-size-available-width");
+              }
+            }
+          })
+        );
+      } else {
+        this.style.removeProperty("--auto-size-available-width");
+        this.style.removeProperty("--auto-size-available-height");
+      }
+      if (this.arrow) {
+        middleware.push(
+          arrow2({
+            element: this.arrowEl,
+            padding: this.arrowPadding
+          })
+        );
+      }
+      const getOffsetParent2 = this.strategy === "absolute" ? (element) => platform.getOffsetParent(element, e11) : platform.getOffsetParent;
+      computePosition2(this.anchorEl, this.popup, {
+        placement: this.placement,
+        middleware,
+        strategy: this.strategy,
+        platform: __spreadProps(__spreadValues({}, platform), {
+          getOffsetParent: getOffsetParent2
+        })
+      }).then(({ x: x2, y: y4, middlewareData, placement }) => {
+        const isRtl = this.localize.dir() === "rtl";
+        const staticSide = { top: "bottom", right: "left", bottom: "top", left: "right" }[placement.split("-")[0]];
+        this.setAttribute("data-current-placement", placement);
+        Object.assign(this.popup.style, {
+          left: `${x2}px`,
+          top: `${y4}px`
+        });
+        if (this.arrow) {
+          const arrowX = middlewareData.arrow.x;
+          const arrowY = middlewareData.arrow.y;
+          let top = "";
+          let right = "";
+          let bottom = "";
+          let left = "";
+          if (this.arrowPlacement === "start") {
+            const value2 = typeof arrowX === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+            top = typeof arrowY === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+            right = isRtl ? value2 : "";
+            left = isRtl ? "" : value2;
+          } else if (this.arrowPlacement === "end") {
+            const value2 = typeof arrowX === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+            right = isRtl ? "" : value2;
+            left = isRtl ? value2 : "";
+            bottom = typeof arrowY === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+          } else if (this.arrowPlacement === "center") {
+            left = typeof arrowX === "number" ? `calc(50% - var(--arrow-size-diagonal))` : "";
+            top = typeof arrowY === "number" ? `calc(50% - var(--arrow-size-diagonal))` : "";
+          } else {
+            left = typeof arrowX === "number" ? `${arrowX}px` : "";
+            top = typeof arrowY === "number" ? `${arrowY}px` : "";
+          }
+          Object.assign(this.arrowEl.style, {
+            top,
+            right,
+            bottom,
+            left,
+            [staticSide]: "calc(var(--arrow-size-diagonal) * -1)"
+          });
+        }
+      });
+      requestAnimationFrame(() => this.updateHoverBridge());
+      this.emit("sl-reposition");
+    }
+    render() {
+      return x`
+      <slot name="anchor" @slotchange=${this.handleAnchorChange}></slot>
+
+      <span
+        part="hover-bridge"
+        class=${e10({
+        "popup-hover-bridge": true,
+        "popup-hover-bridge--visible": this.hoverBridge && this.active
+      })}
+      ></span>
+
+      <div
+        part="popup"
+        class=${e10({
+        popup: true,
+        "popup--active": this.active,
+        "popup--fixed": this.strategy === "fixed",
+        "popup--has-arrow": this.arrow
+      })}
+      >
+        <slot></slot>
+        ${this.arrow ? x`<div part="arrow" class="popup__arrow" role="presentation"></div>` : ""}
+      </div>
+    `;
+    }
+  };
+  SlPopup.styles = [component_styles_default, popup_styles_default];
+  __decorateClass2([
+    e6(".popup")
+  ], SlPopup.prototype, "popup", 2);
+  __decorateClass2([
+    e6(".popup__arrow")
+  ], SlPopup.prototype, "arrowEl", 2);
+  __decorateClass2([
+    n5()
+  ], SlPopup.prototype, "anchor", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlPopup.prototype, "active", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlPopup.prototype, "placement", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlPopup.prototype, "strategy", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlPopup.prototype, "distance", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlPopup.prototype, "skidding", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlPopup.prototype, "arrow", 2);
+  __decorateClass2([
+    n5({ attribute: "arrow-placement" })
+  ], SlPopup.prototype, "arrowPlacement", 2);
+  __decorateClass2([
+    n5({ attribute: "arrow-padding", type: Number })
+  ], SlPopup.prototype, "arrowPadding", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlPopup.prototype, "flip", 2);
+  __decorateClass2([
+    n5({
+      attribute: "flip-fallback-placements",
+      converter: {
+        fromAttribute: (value2) => {
+          return value2.split(" ").map((p4) => p4.trim()).filter((p4) => p4 !== "");
+        },
+        toAttribute: (value2) => {
+          return value2.join(" ");
+        }
+      }
+    })
+  ], SlPopup.prototype, "flipFallbackPlacements", 2);
+  __decorateClass2([
+    n5({ attribute: "flip-fallback-strategy" })
+  ], SlPopup.prototype, "flipFallbackStrategy", 2);
+  __decorateClass2([
+    n5({ type: Object })
+  ], SlPopup.prototype, "flipBoundary", 2);
+  __decorateClass2([
+    n5({ attribute: "flip-padding", type: Number })
+  ], SlPopup.prototype, "flipPadding", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlPopup.prototype, "shift", 2);
+  __decorateClass2([
+    n5({ type: Object })
+  ], SlPopup.prototype, "shiftBoundary", 2);
+  __decorateClass2([
+    n5({ attribute: "shift-padding", type: Number })
+  ], SlPopup.prototype, "shiftPadding", 2);
+  __decorateClass2([
+    n5({ attribute: "auto-size" })
+  ], SlPopup.prototype, "autoSize", 2);
+  __decorateClass2([
+    n5()
+  ], SlPopup.prototype, "sync", 2);
+  __decorateClass2([
+    n5({ type: Object })
+  ], SlPopup.prototype, "autoSizeBoundary", 2);
+  __decorateClass2([
+    n5({ attribute: "auto-size-padding", type: Number })
+  ], SlPopup.prototype, "autoSizePadding", 2);
+  __decorateClass2([
+    n5({ attribute: "hover-bridge", type: Boolean })
+  ], SlPopup.prototype, "hoverBridge", 2);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.K7JGTRV7.js
+  var defaultAnimationRegistry = /* @__PURE__ */ new Map();
+  var customAnimationRegistry = /* @__PURE__ */ new WeakMap();
+  function ensureAnimation(animation) {
+    return animation != null ? animation : { keyframes: [], options: { duration: 0 } };
+  }
+  function getLogicalAnimation(animation, dir) {
+    if (dir.toLowerCase() === "rtl") {
+      return {
+        keyframes: animation.rtlKeyframes || animation.keyframes,
+        options: animation.options
+      };
+    }
+    return animation;
+  }
+  function setDefaultAnimation(animationName, animation) {
+    defaultAnimationRegistry.set(animationName, ensureAnimation(animation));
+  }
+  function getAnimation(el, animationName, options) {
+    const customAnimation = customAnimationRegistry.get(el);
+    if (customAnimation == null ? void 0 : customAnimation[animationName]) {
+      return getLogicalAnimation(customAnimation[animationName], options.dir);
+    }
+    const defaultAnimation = defaultAnimationRegistry.get(animationName);
+    if (defaultAnimation) {
+      return getLogicalAnimation(defaultAnimation, options.dir);
+    }
+    return {
+      keyframes: [],
+      options: { duration: 0 }
+    };
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.B4BZKR24.js
+  function waitForEvent(el, eventName) {
+    return new Promise((resolve) => {
+      function done(event) {
+        if (event.target === el) {
+          el.removeEventListener(eventName, done);
+          resolve();
+        }
+      }
+      el.addEventListener(eventName, done);
+    });
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.AJ3ENQ5C.js
+  function animateTo(el, keyframes, options) {
+    return new Promise((resolve) => {
+      if ((options == null ? void 0 : options.duration) === Infinity) {
+        throw new Error("Promise-based animations must be finite.");
+      }
+      const animation = el.animate(keyframes, __spreadProps(__spreadValues({}, options), {
+        duration: prefersReducedMotion() ? 0 : options.duration
+      }));
+      animation.addEventListener("cancel", resolve, { once: true });
+      animation.addEventListener("finish", resolve, { once: true });
+    });
+  }
+  function prefersReducedMotion() {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    return query.matches;
+  }
+  function stopAnimations(el) {
+    return Promise.all(
+      el.getAnimations().map((animation) => {
+        return new Promise((resolve) => {
+          animation.cancel();
+          requestAnimationFrame(resolve);
+        });
+      })
+    );
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.C56A5M6T.js
+  var SlDropdown = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.localize = new LocalizeController2(this);
+      this.open = false;
+      this.placement = "bottom-start";
+      this.disabled = false;
+      this.stayOpenOnSelect = false;
+      this.distance = 0;
+      this.skidding = 0;
+      this.hoist = false;
+      this.sync = void 0;
+      this.handleKeyDown = (event) => {
+        if (this.open && event.key === "Escape") {
+          event.stopPropagation();
+          this.hide();
+          this.focusOnTrigger();
+        }
+      };
+      this.handleDocumentKeyDown = (event) => {
+        var _a;
+        if (event.key === "Escape" && this.open && !this.closeWatcher) {
+          event.stopPropagation();
+          this.focusOnTrigger();
+          this.hide();
+          return;
+        }
+        if (event.key === "Tab") {
+          if (this.open && ((_a = document.activeElement) == null ? void 0 : _a.tagName.toLowerCase()) === "sl-menu-item") {
+            event.preventDefault();
+            this.hide();
+            this.focusOnTrigger();
+            return;
+          }
+          const computeClosestContaining = (element, tagName) => {
+            if (!element)
+              return null;
+            const closest = element.closest(tagName);
+            if (closest)
+              return closest;
+            const rootNode = element.getRootNode();
+            if (rootNode instanceof ShadowRoot) {
+              return computeClosestContaining(rootNode.host, tagName);
+            }
+            return null;
+          };
+          setTimeout(() => {
+            var _a2;
+            const activeElement = ((_a2 = this.containingElement) == null ? void 0 : _a2.getRootNode()) instanceof ShadowRoot ? getDeepestActiveElement() : document.activeElement;
+            if (!this.containingElement || computeClosestContaining(activeElement, this.containingElement.tagName.toLowerCase()) !== this.containingElement) {
+              this.hide();
+            }
+          });
+        }
+      };
+      this.handleDocumentMouseDown = (event) => {
+        const path = event.composedPath();
+        if (this.containingElement && !path.includes(this.containingElement)) {
+          this.hide();
+        }
+      };
+      this.handlePanelSelect = (event) => {
+        const target = event.target;
+        if (!this.stayOpenOnSelect && target.tagName.toLowerCase() === "sl-menu") {
+          this.hide();
+          this.focusOnTrigger();
+        }
+      };
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      if (!this.containingElement) {
+        this.containingElement = this;
+      }
+    }
+    firstUpdated() {
+      this.panel.hidden = !this.open;
+      if (this.open) {
+        this.addOpenListeners();
+        this.popup.active = true;
+      }
+    }
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      this.removeOpenListeners();
+      this.hide();
+    }
+    focusOnTrigger() {
+      const trigger = this.trigger.assignedElements({ flatten: true })[0];
+      if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
+        trigger.focus();
+      }
+    }
+    getMenu() {
+      return this.panel.assignedElements({ flatten: true }).find((el) => el.tagName.toLowerCase() === "sl-menu");
+    }
+    handleTriggerClick() {
+      if (this.open) {
+        this.hide();
+      } else {
+        this.show();
+        this.focusOnTrigger();
+      }
+    }
+    async handleTriggerKeyDown(event) {
+      if ([" ", "Enter"].includes(event.key)) {
+        event.preventDefault();
+        this.handleTriggerClick();
+        return;
+      }
+      const menu = this.getMenu();
+      if (menu) {
+        const menuItems = menu.getAllItems();
+        const firstMenuItem = menuItems[0];
+        const lastMenuItem = menuItems[menuItems.length - 1];
+        if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+          event.preventDefault();
+          if (!this.open) {
+            this.show();
+            await this.updateComplete;
+          }
+          if (menuItems.length > 0) {
+            this.updateComplete.then(() => {
+              if (event.key === "ArrowDown" || event.key === "Home") {
+                menu.setCurrentItem(firstMenuItem);
+                firstMenuItem.focus();
+              }
+              if (event.key === "ArrowUp" || event.key === "End") {
+                menu.setCurrentItem(lastMenuItem);
+                lastMenuItem.focus();
+              }
+            });
+          }
+        }
+      }
+    }
+    handleTriggerKeyUp(event) {
+      if (event.key === " ") {
+        event.preventDefault();
+      }
+    }
+    handleTriggerSlotChange() {
+      this.updateAccessibleTrigger();
+    }
+    //
+    // Slotted triggers can be arbitrary content, but we need to link them to the dropdown panel with `aria-haspopup` and
+    // `aria-expanded`. These must be applied to the "accessible trigger" (the tabbable portion of the trigger element
+    // that gets slotted in) so screen readers will understand them. The accessible trigger could be the slotted element,
+    // a child of the slotted element, or an element in the slotted element's shadow root.
+    //
+    // For example, the accessible trigger of an <sl-button> is a <button> located inside its shadow root.
+    //
+    // To determine this, we assume the first tabbable element in the trigger slot is the "accessible trigger."
+    //
+    updateAccessibleTrigger() {
+      const assignedElements = this.trigger.assignedElements({ flatten: true });
+      const accessibleTrigger = assignedElements.find((el) => getTabbableBoundary(el).start);
+      let target;
+      if (accessibleTrigger) {
+        switch (accessibleTrigger.tagName.toLowerCase()) {
+          case "sl-button":
+          case "sl-icon-button":
+            target = accessibleTrigger.button;
+            break;
+          default:
+            target = accessibleTrigger;
+        }
+        target.setAttribute("aria-haspopup", "true");
+        target.setAttribute("aria-expanded", this.open ? "true" : "false");
+      }
+    }
+    /** Shows the dropdown panel. */
+    async show() {
+      if (this.open) {
+        return void 0;
+      }
+      this.open = true;
+      return waitForEvent(this, "sl-after-show");
+    }
+    /** Hides the dropdown panel */
+    async hide() {
+      if (!this.open) {
+        return void 0;
+      }
+      this.open = false;
+      return waitForEvent(this, "sl-after-hide");
+    }
+    /**
+     * Instructs the dropdown menu to reposition. Useful when the position or size of the trigger changes when the menu
+     * is activated.
+     */
+    reposition() {
+      this.popup.reposition();
+    }
+    addOpenListeners() {
+      var _a;
+      this.panel.addEventListener("sl-select", this.handlePanelSelect);
+      if ("CloseWatcher" in window) {
+        (_a = this.closeWatcher) == null ? void 0 : _a.destroy();
+        this.closeWatcher = new CloseWatcher();
+        this.closeWatcher.onclose = () => {
+          this.hide();
+          this.focusOnTrigger();
+        };
+      } else {
+        this.panel.addEventListener("keydown", this.handleKeyDown);
+      }
+      document.addEventListener("keydown", this.handleDocumentKeyDown);
+      document.addEventListener("mousedown", this.handleDocumentMouseDown);
+    }
+    removeOpenListeners() {
+      var _a;
+      if (this.panel) {
+        this.panel.removeEventListener("sl-select", this.handlePanelSelect);
+        this.panel.removeEventListener("keydown", this.handleKeyDown);
+      }
+      document.removeEventListener("keydown", this.handleDocumentKeyDown);
+      document.removeEventListener("mousedown", this.handleDocumentMouseDown);
+      (_a = this.closeWatcher) == null ? void 0 : _a.destroy();
+    }
+    async handleOpenChange() {
+      if (this.disabled) {
+        this.open = false;
+        return;
+      }
+      this.updateAccessibleTrigger();
+      if (this.open) {
+        this.emit("sl-show");
+        this.addOpenListeners();
+        await stopAnimations(this);
+        this.panel.hidden = false;
+        this.popup.active = true;
+        const { keyframes, options } = getAnimation(this, "dropdown.show", { dir: this.localize.dir() });
+        await animateTo(this.popup.popup, keyframes, options);
+        this.emit("sl-after-show");
+      } else {
+        this.emit("sl-hide");
+        this.removeOpenListeners();
+        await stopAnimations(this);
+        const { keyframes, options } = getAnimation(this, "dropdown.hide", { dir: this.localize.dir() });
+        await animateTo(this.popup.popup, keyframes, options);
+        this.panel.hidden = true;
+        this.popup.active = false;
+        this.emit("sl-after-hide");
+      }
+    }
+    render() {
+      return x`
+      <sl-popup
+        part="base"
+        exportparts="popup:base__popup"
+        id="dropdown"
+        placement=${this.placement}
+        distance=${this.distance}
+        skidding=${this.skidding}
+        strategy=${this.hoist ? "fixed" : "absolute"}
+        flip
+        shift
+        auto-size="vertical"
+        auto-size-padding="10"
+        sync=${o11(this.sync ? this.sync : void 0)}
+        class=${e10({
+        dropdown: true,
+        "dropdown--open": this.open
+      })}
+      >
+        <slot
+          name="trigger"
+          slot="anchor"
+          part="trigger"
+          class="dropdown__trigger"
+          @click=${this.handleTriggerClick}
+          @keydown=${this.handleTriggerKeyDown}
+          @keyup=${this.handleTriggerKeyUp}
+          @slotchange=${this.handleTriggerSlotChange}
+        ></slot>
+
+        <div aria-hidden=${this.open ? "false" : "true"} aria-labelledby="dropdown">
+          <slot part="panel" class="dropdown__panel"></slot>
+        </div>
+      </sl-popup>
+    `;
+    }
+  };
+  SlDropdown.styles = [component_styles_default, dropdown_styles_default];
+  SlDropdown.dependencies = { "sl-popup": SlPopup };
+  __decorateClass2([
+    e6(".dropdown")
+  ], SlDropdown.prototype, "popup", 2);
+  __decorateClass2([
+    e6(".dropdown__trigger")
+  ], SlDropdown.prototype, "trigger", 2);
+  __decorateClass2([
+    e6(".dropdown__panel")
+  ], SlDropdown.prototype, "panel", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlDropdown.prototype, "open", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlDropdown.prototype, "placement", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlDropdown.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ attribute: "stay-open-on-select", type: Boolean, reflect: true })
+  ], SlDropdown.prototype, "stayOpenOnSelect", 2);
+  __decorateClass2([
+    n5({ attribute: false })
+  ], SlDropdown.prototype, "containingElement", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlDropdown.prototype, "distance", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlDropdown.prototype, "skidding", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlDropdown.prototype, "hoist", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlDropdown.prototype, "sync", 2);
+  __decorateClass2([
+    watch("open", { waitUntilFirstUpdate: true })
+  ], SlDropdown.prototype, "handleOpenChange", 1);
+  setDefaultAnimation("dropdown.show", {
+    keyframes: [
+      { opacity: 0, scale: 0.9 },
+      { opacity: 1, scale: 1 }
+    ],
+    options: { duration: 100, easing: "ease" }
+  });
+  setDefaultAnimation("dropdown.hide", {
+    keyframes: [
+      { opacity: 1, scale: 1 },
+      { opacity: 0, scale: 0.9 }
+    ],
+    options: { duration: 100, easing: "ease" }
+  });
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.O6CEROC7.js
+  var color_picker_styles_default = i3`
+  :host {
+    --grid-width: 280px;
+    --grid-height: 200px;
+    --grid-handle-size: 16px;
+    --slider-height: 15px;
+    --slider-handle-size: 17px;
+    --swatch-size: 25px;
+
+    display: inline-block;
+  }
+
+  .color-picker {
+    width: var(--grid-width);
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    color: var(--color);
+    background-color: var(--sl-panel-background-color);
+    border-radius: var(--sl-border-radius-medium);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .color-picker--inline {
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+  }
+
+  .color-picker--inline:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .color-picker__grid {
+    position: relative;
+    height: var(--grid-height);
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%),
+      linear-gradient(to right, #fff 0%, rgba(255, 255, 255, 0) 100%);
+    border-top-left-radius: var(--sl-border-radius-medium);
+    border-top-right-radius: var(--sl-border-radius-medium);
+    cursor: crosshair;
+    forced-color-adjust: none;
+  }
+
+  .color-picker__grid-handle {
+    position: absolute;
+    width: var(--grid-handle-size);
+    height: var(--grid-handle-size);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+    border: solid 2px white;
+    margin-top: calc(var(--grid-handle-size) / -2);
+    margin-left: calc(var(--grid-handle-size) / -2);
+    transition: var(--sl-transition-fast) scale;
+  }
+
+  .color-picker__grid-handle--dragging {
+    cursor: none;
+    scale: 1.5;
+  }
+
+  .color-picker__grid-handle:focus-visible {
+    outline: var(--sl-focus-ring);
+  }
+
+  .color-picker__controls {
+    padding: var(--sl-spacing-small);
+    display: flex;
+    align-items: center;
+  }
+
+  .color-picker__sliders {
+    flex: 1 1 auto;
+  }
+
+  .color-picker__slider {
+    position: relative;
+    height: var(--slider-height);
+    border-radius: var(--sl-border-radius-pill);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+    forced-color-adjust: none;
+  }
+
+  .color-picker__slider:not(:last-of-type) {
+    margin-bottom: var(--sl-spacing-small);
+  }
+
+  .color-picker__slider-handle {
+    position: absolute;
+    top: calc(50% - var(--slider-handle-size) / 2);
+    width: var(--slider-handle-size);
+    height: var(--slider-handle-size);
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+    margin-left: calc(var(--slider-handle-size) / -2);
+  }
+
+  .color-picker__slider-handle:focus-visible {
+    outline: var(--sl-focus-ring);
+  }
+
+  .color-picker__hue {
+    background-image: linear-gradient(
+      to right,
+      rgb(255, 0, 0) 0%,
+      rgb(255, 255, 0) 17%,
+      rgb(0, 255, 0) 33%,
+      rgb(0, 255, 255) 50%,
+      rgb(0, 0, 255) 67%,
+      rgb(255, 0, 255) 83%,
+      rgb(255, 0, 0) 100%
+    );
+  }
+
+  .color-picker__alpha .color-picker__alpha-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+  }
+
+  .color-picker__preview {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    border-radius: var(--sl-border-radius-circle);
+    background: none;
+    margin-left: var(--sl-spacing-small);
+    cursor: copy;
+    forced-color-adjust: none;
+  }
+
+  .color-picker__preview:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+
+    /* We use a custom property in lieu of currentColor because of https://bugs.webkit.org/show_bug.cgi?id=216780 */
+    background-color: var(--preview-color);
+  }
+
+  .color-picker__preview:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .color-picker__preview-color {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: solid 1px rgba(0, 0, 0, 0.125);
+  }
+
+  .color-picker__preview-color--copied {
+    animation: pulse 0.75s;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 var(--sl-color-primary-500);
+    }
+    70% {
+      box-shadow: 0 0 0 0.5rem transparent;
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  .color-picker__user-input {
+    display: flex;
+    padding: 0 var(--sl-spacing-small) var(--sl-spacing-small) var(--sl-spacing-small);
+  }
+
+  .color-picker__user-input sl-input {
+    min-width: 0; /* fix input width in Safari */
+    flex: 1 1 auto;
+  }
+
+  .color-picker__user-input sl-button-group {
+    margin-left: var(--sl-spacing-small);
+  }
+
+  .color-picker__user-input sl-button {
+    min-width: 3.25rem;
+    max-width: 3.25rem;
+    font-size: 1rem;
+  }
+
+  .color-picker__swatches {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-gap: 0.5rem;
+    justify-items: center;
+    border-top: solid 1px var(--sl-color-neutral-200);
+    padding: var(--sl-spacing-small);
+    forced-color-adjust: none;
+  }
+
+  .color-picker__swatch {
+    position: relative;
+    width: var(--swatch-size);
+    height: var(--swatch-size);
+    border-radius: var(--sl-border-radius-small);
+  }
+
+  .color-picker__swatch .color-picker__swatch-color {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: solid 1px rgba(0, 0, 0, 0.125);
+    border-radius: inherit;
+    cursor: pointer;
+  }
+
+  .color-picker__swatch:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .color-picker__transparent-bg {
+    background-image: linear-gradient(45deg, var(--sl-color-neutral-300) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--sl-color-neutral-300) 75%),
+      linear-gradient(45deg, transparent 75%, var(--sl-color-neutral-300) 75%),
+      linear-gradient(45deg, var(--sl-color-neutral-300) 25%, transparent 25%);
+    background-size: 10px 10px;
+    background-position:
+      0 0,
+      0 0,
+      -5px -5px,
+      5px 5px;
+  }
+
+  .color-picker--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .color-picker--disabled .color-picker__grid,
+  .color-picker--disabled .color-picker__grid-handle,
+  .color-picker--disabled .color-picker__slider,
+  .color-picker--disabled .color-picker__slider-handle,
+  .color-picker--disabled .color-picker__preview,
+  .color-picker--disabled .color-picker__swatch,
+  .color-picker--disabled .color-picker__swatch-color {
+    pointer-events: none;
+  }
+
+  /*
+   * Color dropdown
+   */
+
+  .color-dropdown::part(panel) {
+    max-height: none;
+    background-color: var(--sl-panel-background-color);
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+    border-radius: var(--sl-border-radius-medium);
+    overflow: visible;
+  }
+
+  .color-dropdown__trigger {
+    display: inline-block;
+    position: relative;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    forced-color-adjust: none;
+  }
+
+  .color-dropdown__trigger.color-dropdown__trigger--small {
+    width: var(--sl-input-height-small);
+    height: var(--sl-input-height-small);
+    border-radius: var(--sl-border-radius-circle);
+  }
+
+  .color-dropdown__trigger.color-dropdown__trigger--medium {
+    width: var(--sl-input-height-medium);
+    height: var(--sl-input-height-medium);
+    border-radius: var(--sl-border-radius-circle);
+  }
+
+  .color-dropdown__trigger.color-dropdown__trigger--large {
+    width: var(--sl-input-height-large);
+    height: var(--sl-input-height-large);
+    border-radius: var(--sl-border-radius-circle);
+  }
+
+  .color-dropdown__trigger:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background-color: currentColor;
+    box-shadow:
+      inset 0 0 0 2px var(--sl-input-border-color),
+      inset 0 0 0 4px var(--sl-color-neutral-0);
+  }
+
+  .color-dropdown__trigger--empty:before {
+    background-color: transparent;
+  }
+
+  .color-dropdown__trigger:focus-visible {
+    outline: none;
+  }
+
+  .color-dropdown__trigger:focus-visible:not(.color-dropdown__trigger--disabled) {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .color-dropdown__trigger.color-dropdown__trigger--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.HF7GESMZ.js
+  function clamp2(value2, min2, max2) {
+    const noNegativeZero = (n10) => Object.is(n10, -0) ? 0 : n10;
+    if (value2 < min2) {
+      return noNegativeZero(min2);
+    }
+    if (value2 > max2) {
+      return noNegativeZero(max2);
+    }
+    return noNegativeZero(value2);
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.7DUCI5S4.js
+  var spinner_styles_default = i3`
+  :host {
+    --track-width: 2px;
+    --track-color: rgb(128 128 128 / 25%);
+    --indicator-color: var(--sl-color-primary-600);
+    --speed: 2s;
+
+    display: inline-flex;
+    width: 1em;
+    height: 1em;
+    flex: none;
+  }
+
+  .spinner {
+    flex: 1 1 auto;
+    height: 100%;
+    width: 100%;
+  }
+
+  .spinner__track,
+  .spinner__indicator {
+    fill: none;
+    stroke-width: var(--track-width);
+    r: calc(0.5em - var(--track-width) / 2);
+    cx: 0.5em;
+    cy: 0.5em;
+    transform-origin: 50% 50%;
+  }
+
+  .spinner__track {
+    stroke: var(--track-color);
+    transform-origin: 0% 0%;
+  }
+
+  .spinner__indicator {
+    stroke: var(--indicator-color);
+    stroke-linecap: round;
+    stroke-dasharray: 150% 75%;
+    animation: spin var(--speed) linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+      stroke-dasharray: 0.05em, 3em;
+    }
+
+    50% {
+      transform: rotate(450deg);
+      stroke-dasharray: 1.375em, 1.375em;
+    }
+
+    100% {
+      transform: rotate(1080deg);
+      stroke-dasharray: 0.05em, 3em;
+    }
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.36O46B5H.js
+  var SlSpinner = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.localize = new LocalizeController2(this);
+    }
+    render() {
+      return x`
+      <svg part="base" class="spinner" role="progressbar" aria-label=${this.localize.term("loading")}>
+        <circle class="spinner__track"></circle>
+        <circle class="spinner__indicator"></circle>
+      </svg>
+    `;
+    }
+  };
+  SlSpinner.styles = [component_styles_default, spinner_styles_default];
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.SBCFYC2S.js
+  var SlButton = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.formControlController = new FormControlController(this, {
+        assumeInteractionOn: ["click"]
+      });
+      this.hasSlotController = new HasSlotController(this, "[default]", "prefix", "suffix");
+      this.localize = new LocalizeController2(this);
+      this.hasFocus = false;
+      this.invalid = false;
+      this.title = "";
+      this.variant = "default";
+      this.size = "medium";
+      this.caret = false;
+      this.disabled = false;
+      this.loading = false;
+      this.outline = false;
+      this.pill = false;
+      this.circle = false;
+      this.type = "button";
+      this.name = "";
+      this.value = "";
+      this.href = "";
+      this.rel = "noreferrer noopener";
+    }
+    /** Gets the validity state object */
+    get validity() {
+      if (this.isButton()) {
+        return this.button.validity;
+      }
+      return validValidityState;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      if (this.isButton()) {
+        return this.button.validationMessage;
+      }
+      return "";
+    }
+    firstUpdated() {
+      if (this.isButton()) {
+        this.formControlController.updateValidity();
+      }
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+    handleClick() {
+      if (this.type === "submit") {
+        this.formControlController.submit(this);
+      }
+      if (this.type === "reset") {
+        this.formControlController.reset(this);
+      }
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    isButton() {
+      return this.href ? false : true;
+    }
+    isLink() {
+      return this.href ? true : false;
+    }
+    handleDisabledChange() {
+      if (this.isButton()) {
+        this.formControlController.setValidity(this.disabled);
+      }
+    }
+    /** Simulates a click on the button. */
+    click() {
+      this.button.click();
+    }
+    /** Sets focus on the button. */
+    focus(options) {
+      this.button.focus(options);
+    }
+    /** Removes focus from the button. */
+    blur() {
+      this.button.blur();
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      if (this.isButton()) {
+        return this.button.checkValidity();
+      }
+      return true;
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      if (this.isButton()) {
+        return this.button.reportValidity();
+      }
+      return true;
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message) {
+      if (this.isButton()) {
+        this.button.setCustomValidity(message);
+        this.formControlController.updateValidity();
+      }
+    }
+    render() {
+      const isLink = this.isLink();
+      const tag = isLink ? i8`a` : i8`button`;
+      return u5`
+      <${tag}
+        part="base"
+        class=${e10({
+        button: true,
+        "button--default": this.variant === "default",
+        "button--primary": this.variant === "primary",
+        "button--success": this.variant === "success",
+        "button--neutral": this.variant === "neutral",
+        "button--warning": this.variant === "warning",
+        "button--danger": this.variant === "danger",
+        "button--text": this.variant === "text",
+        "button--small": this.size === "small",
+        "button--medium": this.size === "medium",
+        "button--large": this.size === "large",
+        "button--caret": this.caret,
+        "button--circle": this.circle,
+        "button--disabled": this.disabled,
+        "button--focused": this.hasFocus,
+        "button--loading": this.loading,
+        "button--standard": !this.outline,
+        "button--outline": this.outline,
+        "button--pill": this.pill,
+        "button--rtl": this.localize.dir() === "rtl",
+        "button--has-label": this.hasSlotController.test("[default]"),
+        "button--has-prefix": this.hasSlotController.test("prefix"),
+        "button--has-suffix": this.hasSlotController.test("suffix")
+      })}
+        ?disabled=${o11(isLink ? void 0 : this.disabled)}
+        type=${o11(isLink ? void 0 : this.type)}
+        title=${this.title}
+        name=${o11(isLink ? void 0 : this.name)}
+        value=${o11(isLink ? void 0 : this.value)}
+        href=${o11(isLink && !this.disabled ? this.href : void 0)}
+        target=${o11(isLink ? this.target : void 0)}
+        download=${o11(isLink ? this.download : void 0)}
+        rel=${o11(isLink ? this.rel : void 0)}
+        role=${o11(isLink ? void 0 : "button")}
+        aria-disabled=${this.disabled ? "true" : "false"}
+        tabindex=${this.disabled ? "-1" : "0"}
+        @blur=${this.handleBlur}
+        @focus=${this.handleFocus}
+        @invalid=${this.isButton() ? this.handleInvalid : null}
+        @click=${this.handleClick}
+      >
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        ${this.caret ? u5` <sl-icon part="caret" class="button__caret" library="system" name="caret"></sl-icon> ` : ""}
+        ${this.loading ? u5`<sl-spinner part="spinner"></sl-spinner>` : ""}
+      </${tag}>
+    `;
+    }
+  };
+  SlButton.styles = [component_styles_default, button_styles_default];
+  SlButton.dependencies = {
+    "sl-icon": SlIcon,
+    "sl-spinner": SlSpinner
+  };
+  __decorateClass2([
+    e6(".button")
+  ], SlButton.prototype, "button", 2);
+  __decorateClass2([
+    r6()
+  ], SlButton.prototype, "hasFocus", 2);
+  __decorateClass2([
+    r6()
+  ], SlButton.prototype, "invalid", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "title", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlButton.prototype, "variant", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlButton.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlButton.prototype, "caret", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlButton.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlButton.prototype, "loading", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlButton.prototype, "outline", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlButton.prototype, "pill", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlButton.prototype, "circle", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "type", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "name", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "value", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "href", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "target", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "rel", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "download", 2);
+  __decorateClass2([
+    n5()
+  ], SlButton.prototype, "form", 2);
+  __decorateClass2([
+    n5({ attribute: "formaction" })
+  ], SlButton.prototype, "formAction", 2);
+  __decorateClass2([
+    n5({ attribute: "formenctype" })
+  ], SlButton.prototype, "formEnctype", 2);
+  __decorateClass2([
+    n5({ attribute: "formmethod" })
+  ], SlButton.prototype, "formMethod", 2);
+  __decorateClass2([
+    n5({ attribute: "formnovalidate", type: Boolean })
+  ], SlButton.prototype, "formNoValidate", 2);
+  __decorateClass2([
+    n5({ attribute: "formtarget" })
+  ], SlButton.prototype, "formTarget", 2);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlButton.prototype, "handleDisabledChange", 1);
+
   // node_modules/lit-html/directives/style-map.js
-  var n10 = "important";
-  var i9 = " !" + n10;
-  var o13 = e8(class extends i7 {
+  var n9 = "important";
+  var i10 = " !" + n9;
+  var o12 = e8(class extends i7 {
     constructor(t7) {
       if (super(t7), t7.type !== t6.ATTRIBUTE || "style" !== t7.name || t7.strings?.length > 2)
         throw Error("The `styleMap` directive must be used in the `style` attribute and must be the only part in the attribute.");
     }
     render(t7) {
-      return Object.keys(t7).reduce((e11, r10) => {
-        const s6 = t7[r10];
-        return null == s6 ? e11 : e11 + `${r10 = r10.includes("-") ? r10 : r10.replace(/(?:^(webkit|moz|ms|o)|)(?=[A-Z])/g, "-$&").toLowerCase()}:${s6};`;
+      return Object.keys(t7).reduce((e13, r9) => {
+        const s6 = t7[r9];
+        return null == s6 ? e13 : e13 + `${r9 = r9.includes("-") ? r9 : r9.replace(/(?:^(webkit|moz|ms|o)|)(?=[A-Z])/g, "-$&").toLowerCase()}:${s6};`;
       }, "");
     }
-    update(e11, [r10]) {
-      const { style: s6 } = e11.element;
+    update(e13, [r9]) {
+      const { style: s6 } = e13.element;
       if (void 0 === this.ft)
-        return this.ft = new Set(Object.keys(r10)), this.render(r10);
+        return this.ft = new Set(Object.keys(r9)), this.render(r9);
       for (const t7 of this.ft)
-        null == r10[t7] && (this.ft.delete(t7), t7.includes("-") ? s6.removeProperty(t7) : s6[t7] = null);
-      for (const t7 in r10) {
-        const e12 = r10[t7];
-        if (null != e12) {
+        null == r9[t7] && (this.ft.delete(t7), t7.includes("-") ? s6.removeProperty(t7) : s6[t7] = null);
+      for (const t7 in r9) {
+        const e14 = r9[t7];
+        if (null != e14) {
           this.ft.add(t7);
-          const r11 = "string" == typeof e12 && e12.endsWith(i9);
-          t7.includes("-") || r11 ? s6.setProperty(t7, r11 ? e12.slice(0, -11) : e12, r11 ? n10 : "") : s6[t7] = e12;
+          const r10 = "string" == typeof e14 && e14.endsWith(i10);
+          t7.includes("-") || r10 ? s6.setProperty(t7, r10 ? e14.slice(0, -11) : e14, r10 ? n9 : "") : s6[t7] = e14;
         }
       }
       return T2;
     }
   });
 
-  // node_modules/@material/web/internal/controller/string-converter.js
-  var stringConverter = {
-    fromAttribute(value2) {
-      return value2 ?? "";
-    },
-    toAttribute(value2) {
-      return value2 || null;
+  // node_modules/@ctrl/tinycolor/dist/module/util.js
+  function bound01(n10, max2) {
+    if (isOnePointZero(n10)) {
+      n10 = "100%";
     }
+    const isPercent = isPercentage(n10);
+    n10 = max2 === 360 ? n10 : Math.min(max2, Math.max(0, parseFloat(n10)));
+    if (isPercent) {
+      n10 = parseInt(String(n10 * max2), 10) / 100;
+    }
+    if (Math.abs(n10 - max2) < 1e-6) {
+      return 1;
+    }
+    if (max2 === 360) {
+      n10 = (n10 < 0 ? n10 % max2 + max2 : n10 % max2) / parseFloat(String(max2));
+    } else {
+      n10 = n10 % max2 / parseFloat(String(max2));
+    }
+    return n10;
+  }
+  function clamp01(val) {
+    return Math.min(1, Math.max(0, val));
+  }
+  function isOnePointZero(n10) {
+    return typeof n10 === "string" && n10.indexOf(".") !== -1 && parseFloat(n10) === 1;
+  }
+  function isPercentage(n10) {
+    return typeof n10 === "string" && n10.indexOf("%") !== -1;
+  }
+  function boundAlpha(a5) {
+    a5 = parseFloat(a5);
+    if (isNaN(a5) || a5 < 0 || a5 > 1) {
+      a5 = 1;
+    }
+    return a5;
+  }
+  function convertToPercentage(n10) {
+    if (Number(n10) <= 1) {
+      return `${Number(n10) * 100}%`;
+    }
+    return n10;
+  }
+  function pad2(c7) {
+    return c7.length === 1 ? "0" + c7 : String(c7);
+  }
+
+  // node_modules/@ctrl/tinycolor/dist/module/conversion.js
+  function rgbToRgb(r9, g3, b4) {
+    return {
+      r: bound01(r9, 255) * 255,
+      g: bound01(g3, 255) * 255,
+      b: bound01(b4, 255) * 255
+    };
+  }
+  function rgbToHsl(r9, g3, b4) {
+    r9 = bound01(r9, 255);
+    g3 = bound01(g3, 255);
+    b4 = bound01(b4, 255);
+    const max2 = Math.max(r9, g3, b4);
+    const min2 = Math.min(r9, g3, b4);
+    let h6 = 0;
+    let s6 = 0;
+    const l6 = (max2 + min2) / 2;
+    if (max2 === min2) {
+      s6 = 0;
+      h6 = 0;
+    } else {
+      const d4 = max2 - min2;
+      s6 = l6 > 0.5 ? d4 / (2 - max2 - min2) : d4 / (max2 + min2);
+      switch (max2) {
+        case r9:
+          h6 = (g3 - b4) / d4 + (g3 < b4 ? 6 : 0);
+          break;
+        case g3:
+          h6 = (b4 - r9) / d4 + 2;
+          break;
+        case b4:
+          h6 = (r9 - g3) / d4 + 4;
+          break;
+        default:
+          break;
+      }
+      h6 /= 6;
+    }
+    return { h: h6, s: s6, l: l6 };
+  }
+  function hue2rgb(p4, q, t7) {
+    if (t7 < 0) {
+      t7 += 1;
+    }
+    if (t7 > 1) {
+      t7 -= 1;
+    }
+    if (t7 < 1 / 6) {
+      return p4 + (q - p4) * (6 * t7);
+    }
+    if (t7 < 1 / 2) {
+      return q;
+    }
+    if (t7 < 2 / 3) {
+      return p4 + (q - p4) * (2 / 3 - t7) * 6;
+    }
+    return p4;
+  }
+  function hslToRgb(h6, s6, l6) {
+    let r9;
+    let g3;
+    let b4;
+    h6 = bound01(h6, 360);
+    s6 = bound01(s6, 100);
+    l6 = bound01(l6, 100);
+    if (s6 === 0) {
+      g3 = l6;
+      b4 = l6;
+      r9 = l6;
+    } else {
+      const q = l6 < 0.5 ? l6 * (1 + s6) : l6 + s6 - l6 * s6;
+      const p4 = 2 * l6 - q;
+      r9 = hue2rgb(p4, q, h6 + 1 / 3);
+      g3 = hue2rgb(p4, q, h6);
+      b4 = hue2rgb(p4, q, h6 - 1 / 3);
+    }
+    return { r: r9 * 255, g: g3 * 255, b: b4 * 255 };
+  }
+  function rgbToHsv(r9, g3, b4) {
+    r9 = bound01(r9, 255);
+    g3 = bound01(g3, 255);
+    b4 = bound01(b4, 255);
+    const max2 = Math.max(r9, g3, b4);
+    const min2 = Math.min(r9, g3, b4);
+    let h6 = 0;
+    const v3 = max2;
+    const d4 = max2 - min2;
+    const s6 = max2 === 0 ? 0 : d4 / max2;
+    if (max2 === min2) {
+      h6 = 0;
+    } else {
+      switch (max2) {
+        case r9:
+          h6 = (g3 - b4) / d4 + (g3 < b4 ? 6 : 0);
+          break;
+        case g3:
+          h6 = (b4 - r9) / d4 + 2;
+          break;
+        case b4:
+          h6 = (r9 - g3) / d4 + 4;
+          break;
+        default:
+          break;
+      }
+      h6 /= 6;
+    }
+    return { h: h6, s: s6, v: v3 };
+  }
+  function hsvToRgb(h6, s6, v3) {
+    h6 = bound01(h6, 360) * 6;
+    s6 = bound01(s6, 100);
+    v3 = bound01(v3, 100);
+    const i11 = Math.floor(h6);
+    const f6 = h6 - i11;
+    const p4 = v3 * (1 - s6);
+    const q = v3 * (1 - f6 * s6);
+    const t7 = v3 * (1 - (1 - f6) * s6);
+    const mod = i11 % 6;
+    const r9 = [v3, q, p4, p4, t7, v3][mod];
+    const g3 = [t7, v3, v3, q, p4, p4][mod];
+    const b4 = [p4, p4, t7, v3, v3, q][mod];
+    return { r: r9 * 255, g: g3 * 255, b: b4 * 255 };
+  }
+  function rgbToHex(r9, g3, b4, allow3Char) {
+    const hex = [
+      pad2(Math.round(r9).toString(16)),
+      pad2(Math.round(g3).toString(16)),
+      pad2(Math.round(b4).toString(16))
+    ];
+    if (allow3Char && hex[0].startsWith(hex[0].charAt(1)) && hex[1].startsWith(hex[1].charAt(1)) && hex[2].startsWith(hex[2].charAt(1))) {
+      return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0);
+    }
+    return hex.join("");
+  }
+  function rgbaToHex(r9, g3, b4, a5, allow4Char) {
+    const hex = [
+      pad2(Math.round(r9).toString(16)),
+      pad2(Math.round(g3).toString(16)),
+      pad2(Math.round(b4).toString(16)),
+      pad2(convertDecimalToHex(a5))
+    ];
+    if (allow4Char && hex[0].startsWith(hex[0].charAt(1)) && hex[1].startsWith(hex[1].charAt(1)) && hex[2].startsWith(hex[2].charAt(1)) && hex[3].startsWith(hex[3].charAt(1))) {
+      return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0) + hex[3].charAt(0);
+    }
+    return hex.join("");
+  }
+  function cmykToRgb(c7, m4, y4, k3) {
+    const cConv = c7 / 100;
+    const mConv = m4 / 100;
+    const yConv = y4 / 100;
+    const kConv = k3 / 100;
+    const r9 = 255 * (1 - cConv) * (1 - kConv);
+    const g3 = 255 * (1 - mConv) * (1 - kConv);
+    const b4 = 255 * (1 - yConv) * (1 - kConv);
+    return { r: r9, g: g3, b: b4 };
+  }
+  function rgbToCmyk(r9, g3, b4) {
+    let c7 = 1 - r9 / 255;
+    let m4 = 1 - g3 / 255;
+    let y4 = 1 - b4 / 255;
+    let k3 = Math.min(c7, m4, y4);
+    if (k3 === 1) {
+      c7 = 0;
+      m4 = 0;
+      y4 = 0;
+    } else {
+      c7 = (c7 - k3) / (1 - k3) * 100;
+      m4 = (m4 - k3) / (1 - k3) * 100;
+      y4 = (y4 - k3) / (1 - k3) * 100;
+    }
+    k3 *= 100;
+    return {
+      c: Math.round(c7),
+      m: Math.round(m4),
+      y: Math.round(y4),
+      k: Math.round(k3)
+    };
+  }
+  function convertDecimalToHex(d4) {
+    return Math.round(parseFloat(d4) * 255).toString(16);
+  }
+  function convertHexToDecimal(h6) {
+    return parseIntFromHex(h6) / 255;
+  }
+  function parseIntFromHex(val) {
+    return parseInt(val, 16);
+  }
+  function numberInputToObject(color) {
+    return {
+      r: color >> 16,
+      g: (color & 65280) >> 8,
+      b: color & 255
+    };
+  }
+
+  // node_modules/@ctrl/tinycolor/dist/module/css-color-names.js
+  var names = {
+    aliceblue: "#f0f8ff",
+    antiquewhite: "#faebd7",
+    aqua: "#00ffff",
+    aquamarine: "#7fffd4",
+    azure: "#f0ffff",
+    beige: "#f5f5dc",
+    bisque: "#ffe4c4",
+    black: "#000000",
+    blanchedalmond: "#ffebcd",
+    blue: "#0000ff",
+    blueviolet: "#8a2be2",
+    brown: "#a52a2a",
+    burlywood: "#deb887",
+    cadetblue: "#5f9ea0",
+    chartreuse: "#7fff00",
+    chocolate: "#d2691e",
+    coral: "#ff7f50",
+    cornflowerblue: "#6495ed",
+    cornsilk: "#fff8dc",
+    crimson: "#dc143c",
+    cyan: "#00ffff",
+    darkblue: "#00008b",
+    darkcyan: "#008b8b",
+    darkgoldenrod: "#b8860b",
+    darkgray: "#a9a9a9",
+    darkgreen: "#006400",
+    darkgrey: "#a9a9a9",
+    darkkhaki: "#bdb76b",
+    darkmagenta: "#8b008b",
+    darkolivegreen: "#556b2f",
+    darkorange: "#ff8c00",
+    darkorchid: "#9932cc",
+    darkred: "#8b0000",
+    darksalmon: "#e9967a",
+    darkseagreen: "#8fbc8f",
+    darkslateblue: "#483d8b",
+    darkslategray: "#2f4f4f",
+    darkslategrey: "#2f4f4f",
+    darkturquoise: "#00ced1",
+    darkviolet: "#9400d3",
+    deeppink: "#ff1493",
+    deepskyblue: "#00bfff",
+    dimgray: "#696969",
+    dimgrey: "#696969",
+    dodgerblue: "#1e90ff",
+    firebrick: "#b22222",
+    floralwhite: "#fffaf0",
+    forestgreen: "#228b22",
+    fuchsia: "#ff00ff",
+    gainsboro: "#dcdcdc",
+    ghostwhite: "#f8f8ff",
+    goldenrod: "#daa520",
+    gold: "#ffd700",
+    gray: "#808080",
+    green: "#008000",
+    greenyellow: "#adff2f",
+    grey: "#808080",
+    honeydew: "#f0fff0",
+    hotpink: "#ff69b4",
+    indianred: "#cd5c5c",
+    indigo: "#4b0082",
+    ivory: "#fffff0",
+    khaki: "#f0e68c",
+    lavenderblush: "#fff0f5",
+    lavender: "#e6e6fa",
+    lawngreen: "#7cfc00",
+    lemonchiffon: "#fffacd",
+    lightblue: "#add8e6",
+    lightcoral: "#f08080",
+    lightcyan: "#e0ffff",
+    lightgoldenrodyellow: "#fafad2",
+    lightgray: "#d3d3d3",
+    lightgreen: "#90ee90",
+    lightgrey: "#d3d3d3",
+    lightpink: "#ffb6c1",
+    lightsalmon: "#ffa07a",
+    lightseagreen: "#20b2aa",
+    lightskyblue: "#87cefa",
+    lightslategray: "#778899",
+    lightslategrey: "#778899",
+    lightsteelblue: "#b0c4de",
+    lightyellow: "#ffffe0",
+    lime: "#00ff00",
+    limegreen: "#32cd32",
+    linen: "#faf0e6",
+    magenta: "#ff00ff",
+    maroon: "#800000",
+    mediumaquamarine: "#66cdaa",
+    mediumblue: "#0000cd",
+    mediumorchid: "#ba55d3",
+    mediumpurple: "#9370db",
+    mediumseagreen: "#3cb371",
+    mediumslateblue: "#7b68ee",
+    mediumspringgreen: "#00fa9a",
+    mediumturquoise: "#48d1cc",
+    mediumvioletred: "#c71585",
+    midnightblue: "#191970",
+    mintcream: "#f5fffa",
+    mistyrose: "#ffe4e1",
+    moccasin: "#ffe4b5",
+    navajowhite: "#ffdead",
+    navy: "#000080",
+    oldlace: "#fdf5e6",
+    olive: "#808000",
+    olivedrab: "#6b8e23",
+    orange: "#ffa500",
+    orangered: "#ff4500",
+    orchid: "#da70d6",
+    palegoldenrod: "#eee8aa",
+    palegreen: "#98fb98",
+    paleturquoise: "#afeeee",
+    palevioletred: "#db7093",
+    papayawhip: "#ffefd5",
+    peachpuff: "#ffdab9",
+    peru: "#cd853f",
+    pink: "#ffc0cb",
+    plum: "#dda0dd",
+    powderblue: "#b0e0e6",
+    purple: "#800080",
+    rebeccapurple: "#663399",
+    red: "#ff0000",
+    rosybrown: "#bc8f8f",
+    royalblue: "#4169e1",
+    saddlebrown: "#8b4513",
+    salmon: "#fa8072",
+    sandybrown: "#f4a460",
+    seagreen: "#2e8b57",
+    seashell: "#fff5ee",
+    sienna: "#a0522d",
+    silver: "#c0c0c0",
+    skyblue: "#87ceeb",
+    slateblue: "#6a5acd",
+    slategray: "#708090",
+    slategrey: "#708090",
+    snow: "#fffafa",
+    springgreen: "#00ff7f",
+    steelblue: "#4682b4",
+    tan: "#d2b48c",
+    teal: "#008080",
+    thistle: "#d8bfd8",
+    tomato: "#ff6347",
+    turquoise: "#40e0d0",
+    violet: "#ee82ee",
+    wheat: "#f5deb3",
+    white: "#ffffff",
+    whitesmoke: "#f5f5f5",
+    yellow: "#ffff00",
+    yellowgreen: "#9acd32"
   };
 
-  // node_modules/@material/web/labs/behaviors/on-report-validity.js
-  var onReportValidity = Symbol("onReportValidity");
-  var privateCleanupFormListeners = Symbol("privateCleanupFormListeners");
-  var privateDoNotReportInvalid = Symbol("privateDoNotReportInvalid");
-  var privateIsSelfReportingValidity = Symbol("privateIsSelfReportingValidity");
-  var privateCallOnReportValidity = Symbol("privateCallOnReportValidity");
-  function mixinOnReportValidity(base) {
-    var _a2, _b, _c;
-    class OnReportValidityElement extends base {
-      // Mixins must have a constructor with `...args: any[]`
-      // tslint:disable-next-line:no-any
-      constructor(...args) {
-        super(...args);
-        this[_a2] = new AbortController();
-        this[_b] = false;
-        this[_c] = false;
-        if (o7) {
-          return;
-        }
-        this.addEventListener("invalid", (invalidEvent) => {
-          if (this[privateDoNotReportInvalid] || !invalidEvent.isTrusted) {
-            return;
-          }
-          this.addEventListener("invalid", () => {
-            this[privateCallOnReportValidity](invalidEvent);
-          }, { once: true });
-        }, {
-          // Listen during the capture phase, which will happen before the
-          // bubbling phase. That way, we can add a final event listener that
-          // will run after other event listeners, and we can check if it was
-          // default prevented. This works because invalid does not bubble.
-          capture: true
-        });
+  // node_modules/@ctrl/tinycolor/dist/module/format-input.js
+  function inputToRGB(color) {
+    let rgb = { r: 0, g: 0, b: 0 };
+    let a5 = 1;
+    let s6 = null;
+    let v3 = null;
+    let l6 = null;
+    let ok = false;
+    let format = false;
+    if (typeof color === "string") {
+      color = stringInputToObject(color);
+    }
+    if (typeof color === "object") {
+      if (isValidCSSUnit(color.r) && isValidCSSUnit(color.g) && isValidCSSUnit(color.b)) {
+        rgb = rgbToRgb(color.r, color.g, color.b);
+        ok = true;
+        format = String(color.r).substr(-1) === "%" ? "prgb" : "rgb";
+      } else if (isValidCSSUnit(color.h) && isValidCSSUnit(color.s) && isValidCSSUnit(color.v)) {
+        s6 = convertToPercentage(color.s);
+        v3 = convertToPercentage(color.v);
+        rgb = hsvToRgb(color.h, s6, v3);
+        ok = true;
+        format = "hsv";
+      } else if (isValidCSSUnit(color.h) && isValidCSSUnit(color.s) && isValidCSSUnit(color.l)) {
+        s6 = convertToPercentage(color.s);
+        l6 = convertToPercentage(color.l);
+        rgb = hslToRgb(color.h, s6, l6);
+        ok = true;
+        format = "hsl";
+      } else if (isValidCSSUnit(color.c) && isValidCSSUnit(color.m) && isValidCSSUnit(color.y) && isValidCSSUnit(color.k)) {
+        rgb = cmykToRgb(color.c, color.m, color.y, color.k);
+        ok = true;
+        format = "cmyk";
       }
-      checkValidity() {
-        this[privateDoNotReportInvalid] = true;
-        const valid = super.checkValidity();
-        this[privateDoNotReportInvalid] = false;
-        return valid;
-      }
-      reportValidity() {
-        this[privateIsSelfReportingValidity] = true;
-        const valid = super.reportValidity();
-        if (valid) {
-          this[privateCallOnReportValidity](null);
-        }
-        this[privateIsSelfReportingValidity] = false;
-        return valid;
-      }
-      [(_a2 = privateCleanupFormListeners, _b = privateDoNotReportInvalid, _c = privateIsSelfReportingValidity, privateCallOnReportValidity)](invalidEvent) {
-        const wasCanceled = invalidEvent?.defaultPrevented;
-        if (wasCanceled) {
-          return;
-        }
-        this[onReportValidity](invalidEvent);
-        const implementationCanceledFocus = !wasCanceled && invalidEvent?.defaultPrevented;
-        if (!implementationCanceledFocus) {
-          return;
-        }
-        if (this[privateIsSelfReportingValidity] || isFirstInvalidControlInForm(this[internals].form, this)) {
-          this.focus();
-        }
-      }
-      [onReportValidity](invalidEvent) {
-        throw new Error("Implement [onReportValidity]");
-      }
-      formAssociatedCallback(form) {
-        if (super.formAssociatedCallback) {
-          super.formAssociatedCallback(form);
-        }
-        this[privateCleanupFormListeners].abort();
-        if (!form) {
-          return;
-        }
-        this[privateCleanupFormListeners] = new AbortController();
-        addFormReportValidListener(this, form, () => {
-          this[privateCallOnReportValidity](null);
-        }, this[privateCleanupFormListeners].signal);
+      if (Object.prototype.hasOwnProperty.call(color, "a")) {
+        a5 = color.a;
       }
     }
-    return OnReportValidityElement;
+    a5 = boundAlpha(a5);
+    return {
+      ok,
+      format: color.format || format,
+      r: Math.min(255, Math.max(rgb.r, 0)),
+      g: Math.min(255, Math.max(rgb.g, 0)),
+      b: Math.min(255, Math.max(rgb.b, 0)),
+      a: a5
+    };
   }
-  function addFormReportValidListener(control, form, onControlValid, cleanup) {
-    const validateHooks = getFormValidateHooks(form);
-    let controlFiredInvalid = false;
-    let cleanupInvalidListener;
-    let isNextSubmitFromHook = false;
-    validateHooks.addEventListener("before", () => {
-      isNextSubmitFromHook = true;
-      cleanupInvalidListener = new AbortController();
-      controlFiredInvalid = false;
-      control.addEventListener("invalid", () => {
-        controlFiredInvalid = true;
-      }, {
-        signal: cleanupInvalidListener.signal
+  var CSS_INTEGER = "[-\\+]?\\d+%?";
+  var CSS_NUMBER = "[-\\+]?\\d*\\.\\d+%?";
+  var CSS_UNIT = "(?:" + CSS_NUMBER + ")|(?:" + CSS_INTEGER + ")";
+  var PERMISSIVE_MATCH3 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+  var PERMISSIVE_MATCH4 = (
+    // eslint-disable-next-line prettier/prettier
+    "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?"
+  );
+  var matchers = {
+    CSS_UNIT: new RegExp(CSS_UNIT),
+    rgb: new RegExp("rgb" + PERMISSIVE_MATCH3),
+    rgba: new RegExp("rgba" + PERMISSIVE_MATCH4),
+    hsl: new RegExp("hsl" + PERMISSIVE_MATCH3),
+    hsla: new RegExp("hsla" + PERMISSIVE_MATCH4),
+    hsv: new RegExp("hsv" + PERMISSIVE_MATCH3),
+    hsva: new RegExp("hsva" + PERMISSIVE_MATCH4),
+    cmyk: new RegExp("cmyk" + PERMISSIVE_MATCH4),
+    hex3: /^#?([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+    hex6: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+    hex4: /^#?([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+    hex8: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/
+  };
+  function stringInputToObject(color) {
+    color = color.trim().toLowerCase();
+    if (color.length === 0) {
+      return false;
+    }
+    let named = false;
+    if (names[color]) {
+      color = names[color];
+      named = true;
+    } else if (color === "transparent") {
+      return { r: 0, g: 0, b: 0, a: 0, format: "name" };
+    }
+    let match = matchers.rgb.exec(color);
+    if (match) {
+      return { r: match[1], g: match[2], b: match[3] };
+    }
+    match = matchers.rgba.exec(color);
+    if (match) {
+      return { r: match[1], g: match[2], b: match[3], a: match[4] };
+    }
+    match = matchers.hsl.exec(color);
+    if (match) {
+      return { h: match[1], s: match[2], l: match[3] };
+    }
+    match = matchers.hsla.exec(color);
+    if (match) {
+      return { h: match[1], s: match[2], l: match[3], a: match[4] };
+    }
+    match = matchers.hsv.exec(color);
+    if (match) {
+      return { h: match[1], s: match[2], v: match[3] };
+    }
+    match = matchers.hsva.exec(color);
+    if (match) {
+      return { h: match[1], s: match[2], v: match[3], a: match[4] };
+    }
+    match = matchers.cmyk.exec(color);
+    if (match) {
+      return {
+        c: match[1],
+        m: match[2],
+        y: match[3],
+        k: match[4]
+      };
+    }
+    match = matchers.hex8.exec(color);
+    if (match) {
+      return {
+        r: parseIntFromHex(match[1]),
+        g: parseIntFromHex(match[2]),
+        b: parseIntFromHex(match[3]),
+        a: convertHexToDecimal(match[4]),
+        format: named ? "name" : "hex8"
+      };
+    }
+    match = matchers.hex6.exec(color);
+    if (match) {
+      return {
+        r: parseIntFromHex(match[1]),
+        g: parseIntFromHex(match[2]),
+        b: parseIntFromHex(match[3]),
+        format: named ? "name" : "hex"
+      };
+    }
+    match = matchers.hex4.exec(color);
+    if (match) {
+      return {
+        r: parseIntFromHex(match[1] + match[1]),
+        g: parseIntFromHex(match[2] + match[2]),
+        b: parseIntFromHex(match[3] + match[3]),
+        a: convertHexToDecimal(match[4] + match[4]),
+        format: named ? "name" : "hex8"
+      };
+    }
+    match = matchers.hex3.exec(color);
+    if (match) {
+      return {
+        r: parseIntFromHex(match[1] + match[1]),
+        g: parseIntFromHex(match[2] + match[2]),
+        b: parseIntFromHex(match[3] + match[3]),
+        format: named ? "name" : "hex"
+      };
+    }
+    return false;
+  }
+  function isValidCSSUnit(color) {
+    if (typeof color === "number") {
+      return !Number.isNaN(color);
+    }
+    return matchers.CSS_UNIT.test(color);
+  }
+
+  // node_modules/@ctrl/tinycolor/dist/module/index.js
+  var TinyColor = class _TinyColor {
+    constructor(color = "", opts = {}) {
+      if (color instanceof _TinyColor) {
+        return color;
+      }
+      if (typeof color === "number") {
+        color = numberInputToObject(color);
+      }
+      this.originalInput = color;
+      const rgb = inputToRGB(color);
+      this.originalInput = color;
+      this.r = rgb.r;
+      this.g = rgb.g;
+      this.b = rgb.b;
+      this.a = rgb.a;
+      this.roundA = Math.round(100 * this.a) / 100;
+      this.format = opts.format ?? rgb.format;
+      this.gradientType = opts.gradientType;
+      if (this.r < 1) {
+        this.r = Math.round(this.r);
+      }
+      if (this.g < 1) {
+        this.g = Math.round(this.g);
+      }
+      if (this.b < 1) {
+        this.b = Math.round(this.b);
+      }
+      this.isValid = rgb.ok;
+    }
+    isDark() {
+      return this.getBrightness() < 128;
+    }
+    isLight() {
+      return !this.isDark();
+    }
+    /**
+     * Returns the perceived brightness of the color, from 0-255.
+     */
+    getBrightness() {
+      const rgb = this.toRgb();
+      return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1e3;
+    }
+    /**
+     * Returns the perceived luminance of a color, from 0-1.
+     */
+    getLuminance() {
+      const rgb = this.toRgb();
+      let R3;
+      let G;
+      let B3;
+      const RsRGB = rgb.r / 255;
+      const GsRGB = rgb.g / 255;
+      const BsRGB = rgb.b / 255;
+      if (RsRGB <= 0.03928) {
+        R3 = RsRGB / 12.92;
+      } else {
+        R3 = Math.pow((RsRGB + 0.055) / 1.055, 2.4);
+      }
+      if (GsRGB <= 0.03928) {
+        G = GsRGB / 12.92;
+      } else {
+        G = Math.pow((GsRGB + 0.055) / 1.055, 2.4);
+      }
+      if (BsRGB <= 0.03928) {
+        B3 = BsRGB / 12.92;
+      } else {
+        B3 = Math.pow((BsRGB + 0.055) / 1.055, 2.4);
+      }
+      return 0.2126 * R3 + 0.7152 * G + 0.0722 * B3;
+    }
+    /**
+     * Returns the alpha value of a color, from 0-1.
+     */
+    getAlpha() {
+      return this.a;
+    }
+    /**
+     * Sets the alpha value on the current color.
+     *
+     * @param alpha - The new alpha value. The accepted range is 0-1.
+     */
+    setAlpha(alpha) {
+      this.a = boundAlpha(alpha);
+      this.roundA = Math.round(100 * this.a) / 100;
+      return this;
+    }
+    /**
+     * Returns whether the color is monochrome.
+     */
+    isMonochrome() {
+      const { s: s6 } = this.toHsl();
+      return s6 === 0;
+    }
+    /**
+     * Returns the object as a HSVA object.
+     */
+    toHsv() {
+      const hsv = rgbToHsv(this.r, this.g, this.b);
+      return { h: hsv.h * 360, s: hsv.s, v: hsv.v, a: this.a };
+    }
+    /**
+     * Returns the hsva values interpolated into a string with the following format:
+     * "hsva(xxx, xxx, xxx, xx)".
+     */
+    toHsvString() {
+      const hsv = rgbToHsv(this.r, this.g, this.b);
+      const h6 = Math.round(hsv.h * 360);
+      const s6 = Math.round(hsv.s * 100);
+      const v3 = Math.round(hsv.v * 100);
+      return this.a === 1 ? `hsv(${h6}, ${s6}%, ${v3}%)` : `hsva(${h6}, ${s6}%, ${v3}%, ${this.roundA})`;
+    }
+    /**
+     * Returns the object as a HSLA object.
+     */
+    toHsl() {
+      const hsl = rgbToHsl(this.r, this.g, this.b);
+      return { h: hsl.h * 360, s: hsl.s, l: hsl.l, a: this.a };
+    }
+    /**
+     * Returns the hsla values interpolated into a string with the following format:
+     * "hsla(xxx, xxx, xxx, xx)".
+     */
+    toHslString() {
+      const hsl = rgbToHsl(this.r, this.g, this.b);
+      const h6 = Math.round(hsl.h * 360);
+      const s6 = Math.round(hsl.s * 100);
+      const l6 = Math.round(hsl.l * 100);
+      return this.a === 1 ? `hsl(${h6}, ${s6}%, ${l6}%)` : `hsla(${h6}, ${s6}%, ${l6}%, ${this.roundA})`;
+    }
+    /**
+     * Returns the hex value of the color.
+     * @param allow3Char will shorten hex value to 3 char if possible
+     */
+    toHex(allow3Char = false) {
+      return rgbToHex(this.r, this.g, this.b, allow3Char);
+    }
+    /**
+     * Returns the hex value of the color -with a # prefixed.
+     * @param allow3Char will shorten hex value to 3 char if possible
+     */
+    toHexString(allow3Char = false) {
+      return "#" + this.toHex(allow3Char);
+    }
+    /**
+     * Returns the hex 8 value of the color.
+     * @param allow4Char will shorten hex value to 4 char if possible
+     */
+    toHex8(allow4Char = false) {
+      return rgbaToHex(this.r, this.g, this.b, this.a, allow4Char);
+    }
+    /**
+     * Returns the hex 8 value of the color -with a # prefixed.
+     * @param allow4Char will shorten hex value to 4 char if possible
+     */
+    toHex8String(allow4Char = false) {
+      return "#" + this.toHex8(allow4Char);
+    }
+    /**
+     * Returns the shorter hex value of the color depends on its alpha -with a # prefixed.
+     * @param allowShortChar will shorten hex value to 3 or 4 char if possible
+     */
+    toHexShortString(allowShortChar = false) {
+      return this.a === 1 ? this.toHexString(allowShortChar) : this.toHex8String(allowShortChar);
+    }
+    /**
+     * Returns the object as a RGBA object.
+     */
+    toRgb() {
+      return {
+        r: Math.round(this.r),
+        g: Math.round(this.g),
+        b: Math.round(this.b),
+        a: this.a
+      };
+    }
+    /**
+     * Returns the RGBA values interpolated into a string with the following format:
+     * "RGBA(xxx, xxx, xxx, xx)".
+     */
+    toRgbString() {
+      const r9 = Math.round(this.r);
+      const g3 = Math.round(this.g);
+      const b4 = Math.round(this.b);
+      return this.a === 1 ? `rgb(${r9}, ${g3}, ${b4})` : `rgba(${r9}, ${g3}, ${b4}, ${this.roundA})`;
+    }
+    /**
+     * Returns the object as a RGBA object.
+     */
+    toPercentageRgb() {
+      const fmt = (x2) => `${Math.round(bound01(x2, 255) * 100)}%`;
+      return {
+        r: fmt(this.r),
+        g: fmt(this.g),
+        b: fmt(this.b),
+        a: this.a
+      };
+    }
+    /**
+     * Returns the RGBA relative values interpolated into a string
+     */
+    toPercentageRgbString() {
+      const rnd = (x2) => Math.round(bound01(x2, 255) * 100);
+      return this.a === 1 ? `rgb(${rnd(this.r)}%, ${rnd(this.g)}%, ${rnd(this.b)}%)` : `rgba(${rnd(this.r)}%, ${rnd(this.g)}%, ${rnd(this.b)}%, ${this.roundA})`;
+    }
+    toCmyk() {
+      return {
+        ...rgbToCmyk(this.r, this.g, this.b)
+      };
+    }
+    toCmykString() {
+      const { c: c7, m: m4, y: y4, k: k3 } = rgbToCmyk(this.r, this.g, this.b);
+      return `cmyk(${c7}, ${m4}, ${y4}, ${k3})`;
+    }
+    /**
+     * The 'real' name of the color -if there is one.
+     */
+    toName() {
+      if (this.a === 0) {
+        return "transparent";
+      }
+      if (this.a < 1) {
+        return false;
+      }
+      const hex = "#" + rgbToHex(this.r, this.g, this.b, false);
+      for (const [key, value2] of Object.entries(names)) {
+        if (hex === value2) {
+          return key;
+        }
+      }
+      return false;
+    }
+    toString(format) {
+      const formatSet = Boolean(format);
+      format = format ?? this.format;
+      let formattedString = false;
+      const hasAlpha = this.a < 1 && this.a >= 0;
+      const needsAlphaFormat = !formatSet && hasAlpha && (format.startsWith("hex") || format === "name");
+      if (needsAlphaFormat) {
+        if (format === "name" && this.a === 0) {
+          return this.toName();
+        }
+        return this.toRgbString();
+      }
+      if (format === "rgb") {
+        formattedString = this.toRgbString();
+      }
+      if (format === "prgb") {
+        formattedString = this.toPercentageRgbString();
+      }
+      if (format === "hex" || format === "hex6") {
+        formattedString = this.toHexString();
+      }
+      if (format === "hex3") {
+        formattedString = this.toHexString(true);
+      }
+      if (format === "hex4") {
+        formattedString = this.toHex8String(true);
+      }
+      if (format === "hex8") {
+        formattedString = this.toHex8String();
+      }
+      if (format === "name") {
+        formattedString = this.toName();
+      }
+      if (format === "hsl") {
+        formattedString = this.toHslString();
+      }
+      if (format === "hsv") {
+        formattedString = this.toHsvString();
+      }
+      if (format === "cmyk") {
+        formattedString = this.toCmykString();
+      }
+      return formattedString || this.toHexString();
+    }
+    toNumber() {
+      return (Math.round(this.r) << 16) + (Math.round(this.g) << 8) + Math.round(this.b);
+    }
+    clone() {
+      return new _TinyColor(this.toString());
+    }
+    /**
+     * Lighten the color a given amount. Providing 100 will always return white.
+     * @param amount - valid between 1-100
+     */
+    lighten(amount = 10) {
+      const hsl = this.toHsl();
+      hsl.l += amount / 100;
+      hsl.l = clamp01(hsl.l);
+      return new _TinyColor(hsl);
+    }
+    /**
+     * Brighten the color a given amount, from 0 to 100.
+     * @param amount - valid between 1-100
+     */
+    brighten(amount = 10) {
+      const rgb = this.toRgb();
+      rgb.r = Math.max(0, Math.min(255, rgb.r - Math.round(255 * -(amount / 100))));
+      rgb.g = Math.max(0, Math.min(255, rgb.g - Math.round(255 * -(amount / 100))));
+      rgb.b = Math.max(0, Math.min(255, rgb.b - Math.round(255 * -(amount / 100))));
+      return new _TinyColor(rgb);
+    }
+    /**
+     * Darken the color a given amount, from 0 to 100.
+     * Providing 100 will always return black.
+     * @param amount - valid between 1-100
+     */
+    darken(amount = 10) {
+      const hsl = this.toHsl();
+      hsl.l -= amount / 100;
+      hsl.l = clamp01(hsl.l);
+      return new _TinyColor(hsl);
+    }
+    /**
+     * Mix the color with pure white, from 0 to 100.
+     * Providing 0 will do nothing, providing 100 will always return white.
+     * @param amount - valid between 1-100
+     */
+    tint(amount = 10) {
+      return this.mix("white", amount);
+    }
+    /**
+     * Mix the color with pure black, from 0 to 100.
+     * Providing 0 will do nothing, providing 100 will always return black.
+     * @param amount - valid between 1-100
+     */
+    shade(amount = 10) {
+      return this.mix("black", amount);
+    }
+    /**
+     * Desaturate the color a given amount, from 0 to 100.
+     * Providing 100 will is the same as calling greyscale
+     * @param amount - valid between 1-100
+     */
+    desaturate(amount = 10) {
+      const hsl = this.toHsl();
+      hsl.s -= amount / 100;
+      hsl.s = clamp01(hsl.s);
+      return new _TinyColor(hsl);
+    }
+    /**
+     * Saturate the color a given amount, from 0 to 100.
+     * @param amount - valid between 1-100
+     */
+    saturate(amount = 10) {
+      const hsl = this.toHsl();
+      hsl.s += amount / 100;
+      hsl.s = clamp01(hsl.s);
+      return new _TinyColor(hsl);
+    }
+    /**
+     * Completely desaturates a color into greyscale.
+     * Same as calling `desaturate(100)`
+     */
+    greyscale() {
+      return this.desaturate(100);
+    }
+    /**
+     * Spin takes a positive or negative amount within [-360, 360] indicating the change of hue.
+     * Values outside of this range will be wrapped into this range.
+     */
+    spin(amount) {
+      const hsl = this.toHsl();
+      const hue = (hsl.h + amount) % 360;
+      hsl.h = hue < 0 ? 360 + hue : hue;
+      return new _TinyColor(hsl);
+    }
+    /**
+     * Mix the current color a given amount with another color, from 0 to 100.
+     * 0 means no mixing (return current color).
+     */
+    mix(color, amount = 50) {
+      const rgb1 = this.toRgb();
+      const rgb2 = new _TinyColor(color).toRgb();
+      const p4 = amount / 100;
+      const rgba = {
+        r: (rgb2.r - rgb1.r) * p4 + rgb1.r,
+        g: (rgb2.g - rgb1.g) * p4 + rgb1.g,
+        b: (rgb2.b - rgb1.b) * p4 + rgb1.b,
+        a: (rgb2.a - rgb1.a) * p4 + rgb1.a
+      };
+      return new _TinyColor(rgba);
+    }
+    analogous(results = 6, slices = 30) {
+      const hsl = this.toHsl();
+      const part = 360 / slices;
+      const ret = [this];
+      for (hsl.h = (hsl.h - (part * results >> 1) + 720) % 360; --results; ) {
+        hsl.h = (hsl.h + part) % 360;
+        ret.push(new _TinyColor(hsl));
+      }
+      return ret;
+    }
+    /**
+     * taken from https://github.com/infusion/jQuery-xcolor/blob/master/jquery.xcolor.js
+     */
+    complement() {
+      const hsl = this.toHsl();
+      hsl.h = (hsl.h + 180) % 360;
+      return new _TinyColor(hsl);
+    }
+    monochromatic(results = 6) {
+      const hsv = this.toHsv();
+      const { h: h6 } = hsv;
+      const { s: s6 } = hsv;
+      let { v: v3 } = hsv;
+      const res = [];
+      const modification = 1 / results;
+      while (results--) {
+        res.push(new _TinyColor({ h: h6, s: s6, v: v3 }));
+        v3 = (v3 + modification) % 1;
+      }
+      return res;
+    }
+    splitcomplement() {
+      const hsl = this.toHsl();
+      const { h: h6 } = hsl;
+      return [
+        this,
+        new _TinyColor({ h: (h6 + 72) % 360, s: hsl.s, l: hsl.l }),
+        new _TinyColor({ h: (h6 + 216) % 360, s: hsl.s, l: hsl.l })
+      ];
+    }
+    /**
+     * Compute how the color would appear on a background
+     */
+    onBackground(background) {
+      const fg = this.toRgb();
+      const bg = new _TinyColor(background).toRgb();
+      const alpha = fg.a + bg.a * (1 - fg.a);
+      return new _TinyColor({
+        r: (fg.r * fg.a + bg.r * bg.a * (1 - fg.a)) / alpha,
+        g: (fg.g * fg.a + bg.g * bg.a * (1 - fg.a)) / alpha,
+        b: (fg.b * fg.a + bg.b * bg.a * (1 - fg.a)) / alpha,
+        a: alpha
       });
-    }, { signal: cleanup });
-    validateHooks.addEventListener("after", () => {
-      isNextSubmitFromHook = false;
-      cleanupInvalidListener?.abort();
-      if (controlFiredInvalid) {
-        return;
-      }
-      onControlValid();
-    }, { signal: cleanup });
-    form.addEventListener("submit", () => {
-      if (isNextSubmitFromHook) {
-        return;
-      }
-      onControlValid();
-    }, {
-      signal: cleanup
-    });
-  }
-  var FORM_VALIDATE_HOOKS = /* @__PURE__ */ new WeakMap();
-  function getFormValidateHooks(form) {
-    if (!FORM_VALIDATE_HOOKS.has(form)) {
-      const hooks = new EventTarget();
-      FORM_VALIDATE_HOOKS.set(form, hooks);
-      for (const methodName of ["reportValidity", "requestSubmit"]) {
-        const superMethod = form[methodName];
-        form[methodName] = function() {
-          hooks.dispatchEvent(new Event("before"));
-          const result = Reflect.apply(superMethod, this, arguments);
-          hooks.dispatchEvent(new Event("after"));
-          return result;
-        };
-      }
-    }
-    return FORM_VALIDATE_HOOKS.get(form);
-  }
-  function isFirstInvalidControlInForm(form, control) {
-    if (!form) {
-      return true;
-    }
-    let firstInvalidControl;
-    for (const element of form.elements) {
-      if (element.matches(":invalid")) {
-        firstInvalidControl = element;
-        break;
-      }
-    }
-    return firstInvalidControl === control;
-  }
-
-  // node_modules/@material/web/labs/behaviors/validators/text-field-validator.js
-  var TextFieldValidator = class extends Validator {
-    computeValidity({ state, renderedControl }) {
-      let inputOrTextArea = renderedControl;
-      if (isInputState(state) && !inputOrTextArea) {
-        inputOrTextArea = this.inputControl || document.createElement("input");
-        this.inputControl = inputOrTextArea;
-      } else if (!inputOrTextArea) {
-        inputOrTextArea = this.textAreaControl || document.createElement("textarea");
-        this.textAreaControl = inputOrTextArea;
-      }
-      const input = isInputState(state) ? inputOrTextArea : null;
-      if (input) {
-        input.type = state.type;
-      }
-      if (inputOrTextArea.value !== state.value) {
-        inputOrTextArea.value = state.value;
-      }
-      inputOrTextArea.required = state.required;
-      if (input) {
-        const inputState = state;
-        if (inputState.pattern) {
-          input.pattern = inputState.pattern;
-        } else {
-          input.removeAttribute("pattern");
-        }
-        if (inputState.min) {
-          input.min = inputState.min;
-        } else {
-          input.removeAttribute("min");
-        }
-        if (inputState.max) {
-          input.max = inputState.max;
-        } else {
-          input.removeAttribute("max");
-        }
-        if (inputState.step) {
-          input.step = inputState.step;
-        } else {
-          input.removeAttribute("step");
-        }
-      }
-      if ((state.minLength ?? -1) > -1) {
-        inputOrTextArea.setAttribute("minlength", String(state.minLength));
-      } else {
-        inputOrTextArea.removeAttribute("minlength");
-      }
-      if ((state.maxLength ?? -1) > -1) {
-        inputOrTextArea.setAttribute("maxlength", String(state.maxLength));
-      } else {
-        inputOrTextArea.removeAttribute("maxlength");
-      }
-      return {
-        validity: inputOrTextArea.validity,
-        validationMessage: inputOrTextArea.validationMessage
-      };
-    }
-    equals({ state: prev }, { state: next }) {
-      const inputOrTextAreaEqual = prev.type === next.type && prev.value === next.value && prev.required === next.required && prev.minLength === next.minLength && prev.maxLength === next.maxLength;
-      if (!isInputState(prev) || !isInputState(next)) {
-        return inputOrTextAreaEqual;
-      }
-      return inputOrTextAreaEqual && prev.pattern === next.pattern && prev.min === next.min && prev.max === next.max && prev.step === next.step;
-    }
-    copy({ state }) {
-      return {
-        state: isInputState(state) ? this.copyInput(state) : this.copyTextArea(state),
-        renderedControl: null
-      };
-    }
-    copyInput(state) {
-      const { type, pattern, min, max, step } = state;
-      return {
-        ...this.copySharedState(state),
-        type,
-        pattern,
-        min,
-        max,
-        step
-      };
-    }
-    copyTextArea(state) {
-      return {
-        ...this.copySharedState(state),
-        type: state.type
-      };
-    }
-    copySharedState({ value: value2, required, minLength, maxLength }) {
-      return { value: value2, required, minLength, maxLength };
-    }
-  };
-  function isInputState(state) {
-    return state.type !== "textarea";
-  }
-
-  // node_modules/@material/web/textfield/internal/text-field.js
-  var textFieldBaseClass = mixinOnReportValidity(mixinConstraintValidation(mixinFormAssociated(mixinElementInternals(i6))));
-  var TextField = class extends textFieldBaseClass {
-    constructor() {
-      super(...arguments);
-      this.error = false;
-      this.errorText = "";
-      this.label = "";
-      this.noAsterisk = false;
-      this.required = false;
-      this.value = "";
-      this.prefixText = "";
-      this.suffixText = "";
-      this.hasLeadingIcon = false;
-      this.hasTrailingIcon = false;
-      this.supportingText = "";
-      this.textDirection = "";
-      this.rows = 2;
-      this.cols = 20;
-      this.inputMode = "";
-      this.max = "";
-      this.maxLength = -1;
-      this.min = "";
-      this.minLength = -1;
-      this.noSpinner = false;
-      this.pattern = "";
-      this.placeholder = "";
-      this.readOnly = false;
-      this.multiple = false;
-      this.step = "";
-      this.type = "text";
-      this.autocomplete = "";
-      this.dirty = false;
-      this.focused = false;
-      this.nativeError = false;
-      this.nativeErrorText = "";
     }
     /**
-     * Gets or sets the direction in which selection occurred.
+     * Alias for `polyad(3)`
      */
-    get selectionDirection() {
-      return this.getInputOrTextarea().selectionDirection;
-    }
-    set selectionDirection(value2) {
-      this.getInputOrTextarea().selectionDirection = value2;
+    triad() {
+      return this.polyad(3);
     }
     /**
-     * Gets or sets the end position or offset of a text selection.
+     * Alias for `polyad(4)`
      */
-    get selectionEnd() {
-      return this.getInputOrTextarea().selectionEnd;
-    }
-    set selectionEnd(value2) {
-      this.getInputOrTextarea().selectionEnd = value2;
+    tetrad() {
+      return this.polyad(4);
     }
     /**
-     * Gets or sets the starting position or offset of a text selection.
+     * Get polyad colors, like (for 1, 2, 3, 4, 5, 6, 7, 8, etc...)
+     * monad, dyad, triad, tetrad, pentad, hexad, heptad, octad, etc...
      */
-    get selectionStart() {
-      return this.getInputOrTextarea().selectionStart;
-    }
-    set selectionStart(value2) {
-      this.getInputOrTextarea().selectionStart = value2;
+    polyad(n10) {
+      const hsl = this.toHsl();
+      const { h: h6 } = hsl;
+      const result = [this];
+      const increment = 360 / n10;
+      for (let i11 = 1; i11 < n10; i11++) {
+        result.push(new _TinyColor({ h: (h6 + i11 * increment) % 360, s: hsl.s, l: hsl.l }));
+      }
+      return result;
     }
     /**
-     * The text field's value as a number.
+     * compare color vs current color
      */
-    get valueAsNumber() {
-      const input = this.getInput();
-      if (!input) {
-        return NaN;
+    equals(color) {
+      const comparedColor = new _TinyColor(color);
+      if (this.format === "cmyk" || comparedColor.format === "cmyk") {
+        return this.toCmykString() === comparedColor.toCmykString();
       }
-      return input.valueAsNumber;
-    }
-    set valueAsNumber(value2) {
-      const input = this.getInput();
-      if (!input) {
-        return;
-      }
-      input.valueAsNumber = value2;
-      this.value = input.value;
-    }
-    /**
-     * The text field's value as a Date.
-     */
-    get valueAsDate() {
-      const input = this.getInput();
-      if (!input) {
-        return null;
-      }
-      return input.valueAsDate;
-    }
-    set valueAsDate(value2) {
-      const input = this.getInput();
-      if (!input) {
-        return;
-      }
-      input.valueAsDate = value2;
-      this.value = input.value;
-    }
-    get hasError() {
-      return this.error || this.nativeError;
-    }
-    /**
-     * Selects all the text in the text field.
-     *
-     * https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/select
-     */
-    select() {
-      this.getInputOrTextarea().select();
-    }
-    setRangeText(...args) {
-      this.getInputOrTextarea().setRangeText(...args);
-      this.value = this.getInputOrTextarea().value;
-    }
-    /**
-     * Sets the start and end positions of a selection in the text field.
-     *
-     * https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/setSelectionRange
-     *
-     * @param start The offset into the text field for the start of the selection.
-     * @param end The offset into the text field for the end of the selection.
-     * @param direction The direction in which the selection is performed.
-     */
-    setSelectionRange(start, end, direction) {
-      this.getInputOrTextarea().setSelectionRange(start, end, direction);
-    }
-    /**
-     * Decrements the value of a numeric type text field by `step` or `n` `step`
-     * number of times.
-     *
-     * https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/stepDown
-     *
-     * @param stepDecrement The number of steps to decrement, defaults to 1.
-     */
-    stepDown(stepDecrement) {
-      const input = this.getInput();
-      if (!input) {
-        return;
-      }
-      input.stepDown(stepDecrement);
-      this.value = input.value;
-    }
-    /**
-     * Increments the value of a numeric type text field by `step` or `n` `step`
-     * number of times.
-     *
-     * https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/stepUp
-     *
-     * @param stepIncrement The number of steps to increment, defaults to 1.
-     */
-    stepUp(stepIncrement) {
-      const input = this.getInput();
-      if (!input) {
-        return;
-      }
-      input.stepUp(stepIncrement);
-      this.value = input.value;
-    }
-    /**
-     * Reset the text field to its default value.
-     */
-    reset() {
-      this.dirty = false;
-      this.value = this.getAttribute("value") ?? "";
-      this.nativeError = false;
-      this.nativeErrorText = "";
-    }
-    attributeChangedCallback(attribute, newValue, oldValue) {
-      if (attribute === "value" && this.dirty) {
-        return;
-      }
-      super.attributeChangedCallback(attribute, newValue, oldValue);
-    }
-    render() {
-      const classes = {
-        "disabled": this.disabled,
-        "error": !this.disabled && this.hasError,
-        "textarea": this.type === "textarea",
-        "no-spinner": this.noSpinner
-      };
-      return x`
-      <span class="text-field ${e10(classes)}">
-        ${this.renderField()}
-      </span>
-    `;
-    }
-    updated(changedProperties) {
-      const value2 = this.getInputOrTextarea().value;
-      if (this.value !== value2) {
-        this.value = value2;
-      }
-    }
-    renderField() {
-      return u5`<${this.fieldTag}
-      class="field"
-      count=${this.value.length}
-      ?disabled=${this.disabled}
-      ?error=${this.hasError}
-      error-text=${this.getErrorText()}
-      ?focused=${this.focused}
-      ?has-end=${this.hasTrailingIcon}
-      ?has-start=${this.hasLeadingIcon}
-      label=${this.label}
-      ?no-asterisk=${this.noAsterisk}
-      max=${this.maxLength}
-      ?populated=${!!this.value}
-      ?required=${this.required}
-      ?resizable=${this.type === "textarea"}
-      supporting-text=${this.supportingText}
-    >
-      ${this.renderLeadingIcon()}
-      ${this.renderInputOrTextarea()}
-      ${this.renderTrailingIcon()}
-      <div id="description" slot="aria-describedby"></div>
-    </${this.fieldTag}>`;
-    }
-    renderLeadingIcon() {
-      return x`
-      <span class="icon leading" slot="start">
-        <slot name="leading-icon" @slotchange=${this.handleIconChange}></slot>
-      </span>
-    `;
-    }
-    renderTrailingIcon() {
-      return x`
-      <span class="icon trailing" slot="end">
-        <slot name="trailing-icon" @slotchange=${this.handleIconChange}></slot>
-      </span>
-    `;
-    }
-    renderInputOrTextarea() {
-      const style = { "direction": this.textDirection };
-      const ariaLabel = this.ariaLabel || this.label || E2;
-      const autocomplete = this.autocomplete;
-      const hasMaxLength = (this.maxLength ?? -1) > -1;
-      const hasMinLength = (this.minLength ?? -1) > -1;
-      if (this.type === "textarea") {
-        return x`
-        <textarea
-          class="input"
-          style=${o13(style)}
-          aria-describedby="description"
-          aria-invalid=${this.hasError}
-          aria-label=${ariaLabel}
-          autocomplete=${autocomplete || E2}
-          name=${this.name || E2}
-          ?disabled=${this.disabled}
-          maxlength=${hasMaxLength ? this.maxLength : E2}
-          minlength=${hasMinLength ? this.minLength : E2}
-          placeholder=${this.placeholder || E2}
-          ?readonly=${this.readOnly}
-          ?required=${this.required}
-          rows=${this.rows}
-          cols=${this.cols}
-          .value=${l5(this.value)}
-          @change=${this.redispatchEvent}
-          @focus=${this.handleFocusChange}
-          @blur=${this.handleFocusChange}
-          @input=${this.handleInput}
-          @select=${this.redispatchEvent}></textarea>
-      `;
-      }
-      const prefix = this.renderPrefix();
-      const suffix = this.renderSuffix();
-      const inputMode = this.inputMode;
-      return x`
-      <div class="input-wrapper">
-        ${prefix}
-        <input
-          class="input"
-          style=${o13(style)}
-          aria-describedby="description"
-          aria-invalid=${this.hasError}
-          aria-label=${ariaLabel}
-          autocomplete=${autocomplete || E2}
-          name=${this.name || E2}
-          ?disabled=${this.disabled}
-          inputmode=${inputMode || E2}
-          max=${this.max || E2}
-          maxlength=${hasMaxLength ? this.maxLength : E2}
-          min=${this.min || E2}
-          minlength=${hasMinLength ? this.minLength : E2}
-          pattern=${this.pattern || E2}
-          placeholder=${this.placeholder || E2}
-          ?readonly=${this.readOnly}
-          ?required=${this.required}
-          ?multiple=${this.multiple}
-          step=${this.step || E2}
-          type=${this.type}
-          .value=${l5(this.value)}
-          @change=${this.redispatchEvent}
-          @focus=${this.handleFocusChange}
-          @blur=${this.handleFocusChange}
-          @input=${this.handleInput}
-          @select=${this.redispatchEvent} />
-        ${suffix}
-      </div>
-    `;
-    }
-    renderPrefix() {
-      return this.renderAffix(
-        this.prefixText,
-        /* isSuffix */
-        false
-      );
-    }
-    renderSuffix() {
-      return this.renderAffix(
-        this.suffixText,
-        /* isSuffix */
-        true
-      );
-    }
-    renderAffix(text2, isSuffix) {
-      if (!text2) {
-        return E2;
-      }
-      const classes = {
-        "suffix": isSuffix,
-        "prefix": !isSuffix
-      };
-      return x`<span class="${e10(classes)}">${text2}</span>`;
-    }
-    getErrorText() {
-      return this.error ? this.errorText : this.nativeErrorText;
-    }
-    handleFocusChange() {
-      this.focused = this.inputOrTextarea?.matches(":focus") ?? false;
-    }
-    handleInput(event) {
-      this.dirty = true;
-      this.value = event.target.value;
-    }
-    redispatchEvent(event) {
-      redispatchEvent(this, event);
-    }
-    getInputOrTextarea() {
-      if (!this.inputOrTextarea) {
-        this.connectedCallback();
-        this.scheduleUpdate();
-      }
-      if (this.isUpdatePending) {
-        this.scheduleUpdate();
-      }
-      return this.inputOrTextarea;
-    }
-    getInput() {
-      if (this.type === "textarea") {
-        return null;
-      }
-      return this.getInputOrTextarea();
-    }
-    handleIconChange() {
-      this.hasLeadingIcon = this.leadingIcons.length > 0;
-      this.hasTrailingIcon = this.trailingIcons.length > 0;
-    }
-    [getFormValue]() {
-      return this.value;
-    }
-    formResetCallback() {
-      this.reset();
-    }
-    formStateRestoreCallback(state) {
-      this.value = state;
-    }
-    focus() {
-      this.getInputOrTextarea().focus();
-    }
-    [createValidator]() {
-      return new TextFieldValidator(() => ({
-        state: this,
-        renderedControl: this.inputOrTextarea
-      }));
-    }
-    [getValidityAnchor]() {
-      return this.inputOrTextarea;
-    }
-    [onReportValidity](invalidEvent) {
-      invalidEvent?.preventDefault();
-      const prevMessage = this.getErrorText();
-      this.nativeError = !!invalidEvent;
-      this.nativeErrorText = this.validationMessage;
-      if (prevMessage === this.getErrorText()) {
-        this.field?.reannounceError();
-      }
-    }
-  };
-  (() => {
-    requestUpdateOnAriaChange(TextField);
-  })();
-  TextField.shadowRootOptions = {
-    ...i6.shadowRootOptions,
-    delegatesFocus: true
-  };
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], TextField.prototype, "error", void 0);
-  __decorate2([
-    n5({ attribute: "error-text" })
-  ], TextField.prototype, "errorText", void 0);
-  __decorate2([
-    n5()
-  ], TextField.prototype, "label", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "no-asterisk" })
-  ], TextField.prototype, "noAsterisk", void 0);
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], TextField.prototype, "required", void 0);
-  __decorate2([
-    n5()
-  ], TextField.prototype, "value", void 0);
-  __decorate2([
-    n5({ attribute: "prefix-text" })
-  ], TextField.prototype, "prefixText", void 0);
-  __decorate2([
-    n5({ attribute: "suffix-text" })
-  ], TextField.prototype, "suffixText", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "has-leading-icon" })
-  ], TextField.prototype, "hasLeadingIcon", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "has-trailing-icon" })
-  ], TextField.prototype, "hasTrailingIcon", void 0);
-  __decorate2([
-    n5({ attribute: "supporting-text" })
-  ], TextField.prototype, "supportingText", void 0);
-  __decorate2([
-    n5({ attribute: "text-direction" })
-  ], TextField.prototype, "textDirection", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], TextField.prototype, "rows", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], TextField.prototype, "cols", void 0);
-  __decorate2([
-    n5({ reflect: true })
-  ], TextField.prototype, "inputMode", void 0);
-  __decorate2([
-    n5()
-  ], TextField.prototype, "max", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], TextField.prototype, "maxLength", void 0);
-  __decorate2([
-    n5()
-  ], TextField.prototype, "min", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], TextField.prototype, "minLength", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "no-spinner" })
-  ], TextField.prototype, "noSpinner", void 0);
-  __decorate2([
-    n5()
-  ], TextField.prototype, "pattern", void 0);
-  __decorate2([
-    n5({ reflect: true, converter: stringConverter })
-  ], TextField.prototype, "placeholder", void 0);
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], TextField.prototype, "readOnly", void 0);
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], TextField.prototype, "multiple", void 0);
-  __decorate2([
-    n5()
-  ], TextField.prototype, "step", void 0);
-  __decorate2([
-    n5({ reflect: true })
-  ], TextField.prototype, "type", void 0);
-  __decorate2([
-    n5({ reflect: true })
-  ], TextField.prototype, "autocomplete", void 0);
-  __decorate2([
-    r6()
-  ], TextField.prototype, "dirty", void 0);
-  __decorate2([
-    r6()
-  ], TextField.prototype, "focused", void 0);
-  __decorate2([
-    r6()
-  ], TextField.prototype, "nativeError", void 0);
-  __decorate2([
-    r6()
-  ], TextField.prototype, "nativeErrorText", void 0);
-  __decorate2([
-    e6(".input")
-  ], TextField.prototype, "inputOrTextarea", void 0);
-  __decorate2([
-    e6(".field")
-  ], TextField.prototype, "field", void 0);
-  __decorate2([
-    o9({ slot: "leading-icon" })
-  ], TextField.prototype, "leadingIcons", void 0);
-  __decorate2([
-    o9({ slot: "trailing-icon" })
-  ], TextField.prototype, "trailingIcons", void 0);
-
-  // node_modules/@material/web/textfield/internal/outlined-text-field.js
-  var OutlinedTextField = class extends TextField {
-    constructor() {
-      super(...arguments);
-      this.fieldTag = i8`md-outlined-field`;
+      return this.toRgbString() === comparedColor.toRgbString();
     }
   };
 
-  // node_modules/@material/web/textfield/internal/shared-styles.js
-  var styles7 = i3`:host{display:inline-flex;outline:none;resize:both;text-align:start;-webkit-tap-highlight-color:rgba(0,0,0,0)}.text-field,.field{width:100%}.text-field{display:inline-flex}.field{cursor:text}.disabled .field{cursor:default}.text-field,.textarea .field{resize:inherit}.icon{color:currentColor;display:flex;fill:currentColor}.icon ::slotted(*){display:flex}[hasstart] .icon.leading{font-size:var(--_leading-icon-size);height:var(--_leading-icon-size);width:var(--_leading-icon-size)}[hasend] .icon.trailing{font-size:var(--_trailing-icon-size);height:var(--_trailing-icon-size);width:var(--_trailing-icon-size)}.input-wrapper{display:flex}.input-wrapper>*{all:inherit;padding:0}.input{caret-color:var(--_caret-color);overflow-x:hidden;text-align:inherit}.input::placeholder{color:currentColor;opacity:1}.input::-webkit-calendar-picker-indicator{display:none}.input::-webkit-search-decoration,.input::-webkit-search-cancel-button{display:none}@media(forced-colors: active){.input{background:none}}.no-spinner .input::-webkit-inner-spin-button,.no-spinner .input::-webkit-outer-spin-button{display:none}.no-spinner .input[type=number]{-moz-appearance:textfield}:focus-within .input{caret-color:var(--_focus-caret-color)}.error:focus-within .input{caret-color:var(--_error-focus-caret-color)}.text-field:not(.disabled) .prefix{color:var(--_input-text-prefix-color)}.text-field:not(.disabled) .suffix{color:var(--_input-text-suffix-color)}.text-field:not(.disabled) .input::placeholder{color:var(--_input-text-placeholder-color)}.prefix,.suffix{text-wrap:nowrap;width:min-content}.prefix{padding-inline-end:var(--_input-text-prefix-trailing-space)}.suffix{padding-inline-start:var(--_input-text-suffix-leading-space)}
-`;
-
-  // node_modules/@material/web/textfield/outlined-text-field.js
-  var MdOutlinedTextField = class MdOutlinedTextField2 extends OutlinedTextField {
-    constructor() {
-      super(...arguments);
-      this.fieldTag = i8`md-outlined-field`;
-    }
-  };
-  MdOutlinedTextField.styles = [styles7, styles6];
-  MdOutlinedTextField = __decorate2([
-    t4("md-outlined-text-field")
-  ], MdOutlinedTextField);
-
-  // node_modules/@jsfe/material/dist/esm/widgets/date.js
-  var date = (options) => x`
-	<md-outlined-text-field
-		.type=${options.type}
-		.supportingText=${options.helpText ?? ""}
-		.id=${options.id}
-		.label=${options.label ?? ""}
-		.name=${options.id}
-		.placeholder=${options.placeholder ?? ""}
-		.required=${options.required ?? false}
-		.value=${options.value ? String(options.value) : ""}
-		@input=${(event) => {
-    const { valueAsDate: newValue } = event.target;
-    if (newValue)
-      options.valueChangedCallback?.(newValue);
-  }}
-		@keydown=${options.handleKeydown}
-	>
-	</md-outlined-text-field>
-	<style>
-		md-outlined-text-field {
-			width: 100%;
-		}
-	</style>
-`;
-
-  // node_modules/lit-html/directives/if-defined.js
-  var o14 = (o15) => o15 ?? E2;
-
-  // node_modules/@jsfe/material/dist/esm/widgets/number.js
-  var number = (options) => x`
-	<md-outlined-text-field
-		.type=${"number"}
-		.supportingText=${options.helpText}
-		.id=${options.id}
-		.label=${options.label}
-		step=${o14(options.step)}
-		min=${o14(options.min)}
-		max=${o14(options.max)}
-		.name=${options.id}
-		.placeholder=${options.placeholder}
-		.required=${options.required}
-		value=${o14(options.value)}
-		@input=${(event) => {
-    const { valueAsNumber: newValue } = event.target;
-    options.valueChangedCallback?.(newValue);
-  }}
-		@keydown=${options.handleKeydown}
-	>
-	</md-outlined-text-field>
-`;
-
-  // node_modules/@material/web/elevation/internal/elevation.js
-  var Elevation = class extends i6 {
-    connectedCallback() {
-      super.connectedCallback();
-      this.setAttribute("aria-hidden", "true");
-    }
-    render() {
-      return x`<span class="shadow"></span>`;
-    }
-  };
-
-  // node_modules/@material/web/elevation/internal/elevation-styles.js
-  var styles8 = i3`:host,.shadow,.shadow::before,.shadow::after{border-radius:inherit;inset:0;position:absolute;transition-duration:inherit;transition-property:inherit;transition-timing-function:inherit}:host{display:flex;pointer-events:none;transition-property:box-shadow,opacity}.shadow::before,.shadow::after{content:"";transition-property:box-shadow,opacity;--_level: var(--md-elevation-level, 0);--_shadow-color: var(--md-elevation-shadow-color, var(--md-sys-color-shadow, #000))}.shadow::before{box-shadow:0px calc(1px*(clamp(0,var(--_level),1) + clamp(0,var(--_level) - 3,1) + 2*clamp(0,var(--_level) - 4,1))) calc(1px*(2*clamp(0,var(--_level),1) + clamp(0,var(--_level) - 2,1) + clamp(0,var(--_level) - 4,1))) 0px var(--_shadow-color);opacity:.3}.shadow::after{box-shadow:0px calc(1px*(clamp(0,var(--_level),1) + clamp(0,var(--_level) - 1,1) + 2*clamp(0,var(--_level) - 2,3))) calc(1px*(3*clamp(0,var(--_level),2) + 2*clamp(0,var(--_level) - 2,3))) calc(1px*(clamp(0,var(--_level),4) + 2*clamp(0,var(--_level) - 4,1))) var(--_shadow-color);opacity:.15}
-`;
-
-  // node_modules/@material/web/elevation/elevation.js
-  var MdElevation = class MdElevation2 extends Elevation {
-  };
-  MdElevation.styles = [styles8];
-  MdElevation = __decorate2([
-    t4("md-elevation")
-  ], MdElevation);
-
-  // node_modules/@jsfe/material/dist/esm/widgets/object.js
-  var object = (options) => {
-    return x`
-		<fieldset
-			id=${options.id}
-			class="theme-material widget-object widget-fieldset"
-			part="object"
-		>
-			<md-elevation></md-elevation>
-			<!--  -->
-			${options.label ? x`<legend>${options.label}</legend>` : E2}
-			<!-- -->
-			${options.helpText ? x`<p class="widget-object__description">${options.helpText}</p>` : E2}
-			<!--  -->
-			${options.children}
-		</fieldset>
-	`;
-  };
-
-  // node_modules/@material/web/slider/internal/forced-colors-styles.js
-  var styles9 = i3`@media(forced-colors: active){:host{--md-slider-active-track-color: CanvasText;--md-slider-disabled-active-track-color: GrayText;--md-slider-disabled-active-track-opacity: 1;--md-slider-disabled-handle-color: GrayText;--md-slider-disabled-inactive-track-color: GrayText;--md-slider-disabled-inactive-track-opacity: 1;--md-slider-focus-handle-color: CanvasText;--md-slider-handle-color: CanvasText;--md-slider-handle-shadow-color: Canvas;--md-slider-hover-handle-color: CanvasText;--md-slider-hover-state-layer-color: Canvas;--md-slider-hover-state-layer-opacity: 1;--md-slider-inactive-track-color: Canvas;--md-slider-label-container-color: Canvas;--md-slider-label-text-color: CanvasText;--md-slider-pressed-handle-color: CanvasText;--md-slider-pressed-state-layer-color: Canvas;--md-slider-pressed-state-layer-opacity: 1;--md-slider-with-overlap-handle-outline-color: CanvasText}.label,.label::before{border:var(--_with-overlap-handle-outline-color) solid var(--_with-overlap-handle-outline-width)}:host(:not([disabled])) .track::before{border:1px solid var(--_active-track-color)}.tickmarks::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='CanvasText'%3E%3Ccircle cx='2' cy='2'  r='1'/%3E%3C/svg%3E")}.tickmarks::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='Canvas'%3E%3Ccircle cx='2' cy='2' r='1'/%3E%3C/svg%3E")}:host([disabled]) .tickmarks::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='Canvas'%3E%3Ccircle cx='2' cy='2'  r='1'/%3E%3C/svg%3E")}}
-`;
-
-  // node_modules/lit-html/directives/when.js
-  function n11(n12, r10, t7) {
-    return n12 ? r10(n12) : t7?.(n12);
-  }
-
-  // node_modules/@material/web/slider/internal/slider.js
-  var sliderBaseClass = mixinFormAssociated(mixinElementInternals(i6));
-  var Slider = class extends sliderBaseClass {
-    /**
-     * The HTML name to use in form submission for a range slider's starting
-     * value. Use `name` instead if both the start and end values should use the
-     * same name.
-     */
-    get nameStart() {
-      return this.getAttribute("name-start") ?? this.name;
-    }
-    set nameStart(name) {
-      this.setAttribute("name-start", name);
-    }
-    /**
-     * The HTML name to use in form submission for a range slider's ending value.
-     * Use `name` instead if both the start and end values should use the same
-     * name.
-     */
-    get nameEnd() {
-      return this.getAttribute("name-end") ?? this.nameStart;
-    }
-    set nameEnd(name) {
-      this.setAttribute("name-end", name);
-    }
-    // Note: start aria-* properties are only applied when range=true, which is
-    // why they do not need to handle both cases.
-    get renderAriaLabelStart() {
-      const { ariaLabel } = this;
-      return this.ariaLabelStart || ariaLabel && `${ariaLabel} start` || this.valueLabelStart || String(this.valueStart);
-    }
-    get renderAriaValueTextStart() {
-      return this.ariaValueTextStart || this.valueLabelStart || String(this.valueStart);
-    }
-    // Note: end aria-* properties are applied for single and range sliders, which
-    // is why it needs to handle `this.range` (while start aria-* properties do
-    // not).
-    get renderAriaLabelEnd() {
-      const { ariaLabel } = this;
-      if (this.range) {
-        return this.ariaLabelEnd || ariaLabel && `${ariaLabel} end` || this.valueLabelEnd || String(this.valueEnd);
-      }
-      return ariaLabel || this.valueLabel || String(this.value);
-    }
-    get renderAriaValueTextEnd() {
-      if (this.range) {
-        return this.ariaValueTextEnd || this.valueLabelEnd || String(this.valueEnd);
-      }
-      const { ariaValueText } = this;
-      return ariaValueText || this.valueLabel || String(this.value);
-    }
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.PSBQ3SJY.js
+  var hasEyeDropper = "EyeDropper" in window;
+  var SlColorPicker = class extends ShoelaceElement {
     constructor() {
       super();
-      this.min = 0;
-      this.max = 100;
-      this.valueLabel = "";
-      this.valueLabelStart = "";
-      this.valueLabelEnd = "";
-      this.ariaLabelStart = "";
-      this.ariaValueTextStart = "";
-      this.ariaLabelEnd = "";
-      this.ariaValueTextEnd = "";
-      this.step = 1;
-      this.ticks = false;
-      this.labeled = false;
-      this.range = false;
-      this.handleStartHover = false;
-      this.handleEndHover = false;
-      this.startOnTop = false;
-      this.handlesOverlapping = false;
-      this.ripplePointerId = 1;
-      this.isRedispatchingEvent = false;
-      if (!o7) {
-        this.addEventListener("click", (event) => {
-          if (!isActivationClick(event) || !this.inputEnd) {
-            return;
+      this.formControlController = new FormControlController(this);
+      this.isSafeValue = false;
+      this.localize = new LocalizeController2(this);
+      this.hasFocus = false;
+      this.isDraggingGridHandle = false;
+      this.isEmpty = false;
+      this.inputValue = "";
+      this.hue = 0;
+      this.saturation = 100;
+      this.brightness = 100;
+      this.alpha = 100;
+      this.value = "";
+      this.defaultValue = "";
+      this.label = "";
+      this.format = "hex";
+      this.inline = false;
+      this.size = "medium";
+      this.noFormatToggle = false;
+      this.name = "";
+      this.disabled = false;
+      this.hoist = false;
+      this.opacity = false;
+      this.uppercase = false;
+      this.swatches = "";
+      this.form = "";
+      this.required = false;
+      this.handleFocusIn = () => {
+        this.hasFocus = true;
+        this.emit("sl-focus");
+      };
+      this.handleFocusOut = () => {
+        this.hasFocus = false;
+        this.emit("sl-blur");
+      };
+      this.addEventListener("focusin", this.handleFocusIn);
+      this.addEventListener("focusout", this.handleFocusOut);
+    }
+    /** Gets the validity state object */
+    get validity() {
+      return this.input.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.input.validationMessage;
+    }
+    firstUpdated() {
+      this.input.updateComplete.then(() => {
+        this.formControlController.updateValidity();
+      });
+    }
+    handleCopy() {
+      this.input.select();
+      document.execCommand("copy");
+      this.previewButton.focus();
+      this.previewButton.classList.add("color-picker__preview-color--copied");
+      this.previewButton.addEventListener("animationend", () => {
+        this.previewButton.classList.remove("color-picker__preview-color--copied");
+      });
+    }
+    handleFormatToggle() {
+      const formats = ["hex", "rgb", "hsl", "hsv"];
+      const nextIndex = (formats.indexOf(this.format) + 1) % formats.length;
+      this.format = formats[nextIndex];
+      this.setColor(this.value);
+      this.emit("sl-change");
+      this.emit("sl-input");
+    }
+    handleAlphaDrag(event) {
+      const container = this.shadowRoot.querySelector(".color-picker__slider.color-picker__alpha");
+      const handle = container.querySelector(".color-picker__slider-handle");
+      const { width } = container.getBoundingClientRect();
+      let initialValue = this.value;
+      let currentValue = this.value;
+      handle.focus();
+      event.preventDefault();
+      drag(container, {
+        onMove: (x2) => {
+          this.alpha = clamp2(x2 / width * 100, 0, 100);
+          this.syncValues();
+          if (this.value !== currentValue) {
+            currentValue = this.value;
+            this.emit("sl-input");
           }
-          this.focus();
-          dispatchActivationClick(this.inputEnd);
-        });
+        },
+        onStop: () => {
+          if (this.value !== initialValue) {
+            initialValue = this.value;
+            this.emit("sl-change");
+          }
+        },
+        initialEvent: event
+      });
+    }
+    handleHueDrag(event) {
+      const container = this.shadowRoot.querySelector(".color-picker__slider.color-picker__hue");
+      const handle = container.querySelector(".color-picker__slider-handle");
+      const { width } = container.getBoundingClientRect();
+      let initialValue = this.value;
+      let currentValue = this.value;
+      handle.focus();
+      event.preventDefault();
+      drag(container, {
+        onMove: (x2) => {
+          this.hue = clamp2(x2 / width * 360, 0, 360);
+          this.syncValues();
+          if (this.value !== currentValue) {
+            currentValue = this.value;
+            this.emit("sl-input");
+          }
+        },
+        onStop: () => {
+          if (this.value !== initialValue) {
+            initialValue = this.value;
+            this.emit("sl-change");
+          }
+        },
+        initialEvent: event
+      });
+    }
+    handleGridDrag(event) {
+      const grid = this.shadowRoot.querySelector(".color-picker__grid");
+      const handle = grid.querySelector(".color-picker__grid-handle");
+      const { width, height } = grid.getBoundingClientRect();
+      let initialValue = this.value;
+      let currentValue = this.value;
+      handle.focus();
+      event.preventDefault();
+      this.isDraggingGridHandle = true;
+      drag(grid, {
+        onMove: (x2, y4) => {
+          this.saturation = clamp2(x2 / width * 100, 0, 100);
+          this.brightness = clamp2(100 - y4 / height * 100, 0, 100);
+          this.syncValues();
+          if (this.value !== currentValue) {
+            currentValue = this.value;
+            this.emit("sl-input");
+          }
+        },
+        onStop: () => {
+          this.isDraggingGridHandle = false;
+          if (this.value !== initialValue) {
+            initialValue = this.value;
+            this.emit("sl-change");
+          }
+        },
+        initialEvent: event
+      });
+    }
+    handleAlphaKeyDown(event) {
+      const increment = event.shiftKey ? 10 : 1;
+      const oldValue = this.value;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        this.alpha = clamp2(this.alpha - increment, 0, 100);
+        this.syncValues();
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        this.alpha = clamp2(this.alpha + increment, 0, 100);
+        this.syncValues();
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        this.alpha = 0;
+        this.syncValues();
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        this.alpha = 100;
+        this.syncValues();
+      }
+      if (this.value !== oldValue) {
+        this.emit("sl-change");
+        this.emit("sl-input");
       }
     }
-    focus() {
-      this.inputEnd?.focus();
-    }
-    willUpdate(changed) {
-      this.renderValueStart = changed.has("valueStart") ? this.valueStart : this.inputStart?.valueAsNumber;
-      const endValueChanged = changed.has("valueEnd") && this.range || changed.has("value");
-      this.renderValueEnd = endValueChanged ? this.range ? this.valueEnd : this.value : this.inputEnd?.valueAsNumber;
-      if (changed.get("handleStartHover") !== void 0) {
-        this.toggleRippleHover(this.rippleStart, this.handleStartHover);
-      } else if (changed.get("handleEndHover") !== void 0) {
-        this.toggleRippleHover(this.rippleEnd, this.handleEndHover);
+    handleHueKeyDown(event) {
+      const increment = event.shiftKey ? 10 : 1;
+      const oldValue = this.value;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        this.hue = clamp2(this.hue - increment, 0, 360);
+        this.syncValues();
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        this.hue = clamp2(this.hue + increment, 0, 360);
+        this.syncValues();
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        this.hue = 0;
+        this.syncValues();
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        this.hue = 360;
+        this.syncValues();
+      }
+      if (this.value !== oldValue) {
+        this.emit("sl-change");
+        this.emit("sl-input");
       }
     }
-    updated(changed) {
-      if (this.range) {
-        this.renderValueStart = this.inputStart.valueAsNumber;
+    handleGridKeyDown(event) {
+      const increment = event.shiftKey ? 10 : 1;
+      const oldValue = this.value;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        this.saturation = clamp2(this.saturation - increment, 0, 100);
+        this.syncValues();
       }
-      this.renderValueEnd = this.inputEnd.valueAsNumber;
-      if (this.range) {
-        const segment = (this.max - this.min) / 3;
-        if (this.valueStart === void 0) {
-          this.inputStart.valueAsNumber = this.min + segment;
-          const v3 = this.inputStart.valueAsNumber;
-          this.valueStart = this.renderValueStart = v3;
-        }
-        if (this.valueEnd === void 0) {
-          this.inputEnd.valueAsNumber = this.min + 2 * segment;
-          const v3 = this.inputEnd.valueAsNumber;
-          this.valueEnd = this.renderValueEnd = v3;
-        }
-      } else {
-        this.value ?? (this.value = this.renderValueEnd);
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        this.saturation = clamp2(this.saturation + increment, 0, 100);
+        this.syncValues();
       }
-      if (changed.has("range") || changed.has("renderValueStart") || changed.has("renderValueEnd") || this.isUpdatePending) {
-        const startNub = this.handleStart?.querySelector(".handleNub");
-        const endNub = this.handleEnd?.querySelector(".handleNub");
-        this.handlesOverlapping = isOverlapping(startNub, endNub);
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        this.brightness = clamp2(this.brightness + increment, 0, 100);
+        this.syncValues();
       }
-      this.performUpdate();
-    }
-    render() {
-      const step = this.step === 0 ? 1 : this.step;
-      const range2 = Math.max(this.max - this.min, step);
-      const startFraction = this.range ? ((this.renderValueStart ?? this.min) - this.min) / range2 : 0;
-      const endFraction = ((this.renderValueEnd ?? this.min) - this.min) / range2;
-      const containerStyles = {
-        // for clipping inputs and active track.
-        "--_start-fraction": String(startFraction),
-        "--_end-fraction": String(endFraction),
-        // for generating tick marks
-        "--_tick-count": String(range2 / step)
-      };
-      const containerClasses = { ranged: this.range };
-      const labelStart = this.valueLabelStart || String(this.renderValueStart);
-      const labelEnd = (this.range ? this.valueLabelEnd : this.valueLabel) || String(this.renderValueEnd);
-      const inputStartProps = {
-        start: true,
-        value: this.renderValueStart,
-        ariaLabel: this.renderAriaLabelStart,
-        ariaValueText: this.renderAriaValueTextStart,
-        ariaMin: this.min,
-        ariaMax: this.valueEnd ?? this.max
-      };
-      const inputEndProps = {
-        start: false,
-        value: this.renderValueEnd,
-        ariaLabel: this.renderAriaLabelEnd,
-        ariaValueText: this.renderAriaValueTextEnd,
-        ariaMin: this.range ? this.valueStart ?? this.min : this.min,
-        ariaMax: this.max
-      };
-      const handleStartProps = {
-        start: true,
-        hover: this.handleStartHover,
-        label: labelStart
-      };
-      const handleEndProps = {
-        start: false,
-        hover: this.handleEndHover,
-        label: labelEnd
-      };
-      const handleContainerClasses = {
-        hover: this.handleStartHover || this.handleEndHover
-      };
-      return x` <div
-      class="container ${e10(containerClasses)}"
-      style=${o13(containerStyles)}>
-      ${n11(this.range, () => this.renderInput(inputStartProps))}
-      ${this.renderInput(inputEndProps)} ${this.renderTrack()}
-      <div class="handleContainerPadded">
-        <div class="handleContainerBlock">
-          <div class="handleContainer ${e10(handleContainerClasses)}">
-            ${n11(this.range, () => this.renderHandle(handleStartProps))}
-            ${this.renderHandle(handleEndProps)}
-          </div>
-        </div>
-      </div>
-    </div>`;
-    }
-    renderTrack() {
-      return x`
-      <div class="track"></div>
-      ${this.ticks ? x`<div class="tickmarks"></div>` : E2}
-    `;
-    }
-    renderLabel(value2) {
-      return x`<div class="label" aria-hidden="true">
-      <span class="labelContent" part="label">${value2}</span>
-    </div>`;
-    }
-    renderHandle({ start, hover, label }) {
-      const onTop = !this.disabled && start === this.startOnTop;
-      const isOverlapping2 = !this.disabled && this.handlesOverlapping;
-      const name = start ? "start" : "end";
-      return x`<div
-      class="handle ${e10({
-        [name]: true,
-        hover,
-        onTop,
-        isOverlapping: isOverlapping2
-      })}">
-      <md-focus-ring part="focus-ring" for=${name}></md-focus-ring>
-      <md-ripple
-        for=${name}
-        class=${name}
-        ?disabled=${this.disabled}></md-ripple>
-      <div class="handleNub">
-        <md-elevation part="elevation"></md-elevation>
-      </div>
-      ${n11(this.labeled, () => this.renderLabel(label))}
-    </div>`;
-    }
-    renderInput({ start, value: value2, ariaLabel, ariaValueText, ariaMin, ariaMax }) {
-      const name = start ? `start` : `end`;
-      return x`<input
-      type="range"
-      class="${e10({
-        start,
-        end: !start
-      })}"
-      @focus=${this.handleFocus}
-      @pointerdown=${this.handleDown}
-      @pointerup=${this.handleUp}
-      @pointerenter=${this.handleEnter}
-      @pointermove=${this.handleMove}
-      @pointerleave=${this.handleLeave}
-      @keydown=${this.handleKeydown}
-      @keyup=${this.handleKeyup}
-      @input=${this.handleInput}
-      @change=${this.handleChange}
-      id=${name}
-      .disabled=${this.disabled}
-      .min=${String(this.min)}
-      aria-valuemin=${ariaMin}
-      .max=${String(this.max)}
-      aria-valuemax=${ariaMax}
-      .step=${String(this.step)}
-      .value=${String(value2)}
-      .tabIndex=${start ? 1 : 0}
-      aria-label=${ariaLabel || E2}
-      aria-valuetext=${ariaValueText} />`;
-    }
-    async toggleRippleHover(ripple, hovering) {
-      const rippleEl = await ripple;
-      if (!rippleEl) {
-        return;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        this.brightness = clamp2(this.brightness - increment, 0, 100);
+        this.syncValues();
       }
-      if (hovering) {
-        rippleEl.handlePointerenter(new PointerEvent("pointerenter", {
-          isPrimary: true,
-          pointerId: this.ripplePointerId
-        }));
-      } else {
-        rippleEl.handlePointerleave(new PointerEvent("pointerleave", {
-          isPrimary: true,
-          pointerId: this.ripplePointerId
-        }));
+      if (this.value !== oldValue) {
+        this.emit("sl-change");
+        this.emit("sl-input");
       }
     }
-    handleFocus(event) {
-      this.updateOnTop(event.target);
-    }
-    startAction(event) {
+    handleInputChange(event) {
       const target = event.target;
-      const fixed = target === this.inputStart ? this.inputEnd : this.inputStart;
-      this.action = {
-        canFlip: event.type === "pointerdown",
-        flipped: false,
-        target,
-        fixed,
-        values: /* @__PURE__ */ new Map([
-          [target, target.valueAsNumber],
-          [fixed, fixed?.valueAsNumber]
-        ])
+      const oldValue = this.value;
+      event.stopPropagation();
+      if (this.input.value) {
+        this.setColor(target.value);
+        target.value = this.value;
+      } else {
+        this.value = "";
+      }
+      if (this.value !== oldValue) {
+        this.emit("sl-change");
+        this.emit("sl-input");
+      }
+    }
+    handleInputInput(event) {
+      this.formControlController.updateValidity();
+      event.stopPropagation();
+    }
+    handleInputKeyDown(event) {
+      if (event.key === "Enter") {
+        const oldValue = this.value;
+        if (this.input.value) {
+          this.setColor(this.input.value);
+          this.input.value = this.value;
+          if (this.value !== oldValue) {
+            this.emit("sl-change");
+            this.emit("sl-input");
+          }
+          setTimeout(() => this.input.select());
+        } else {
+          this.hue = 0;
+        }
+      }
+    }
+    handleInputInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    handleTouchMove(event) {
+      event.preventDefault();
+    }
+    parseColor(colorString) {
+      const color = new TinyColor(colorString);
+      if (!color.isValid) {
+        return null;
+      }
+      const hslColor = color.toHsl();
+      const hsl = {
+        h: hslColor.h,
+        s: hslColor.s * 100,
+        l: hslColor.l * 100,
+        a: hslColor.a
+      };
+      const rgb = color.toRgb();
+      const hex = color.toHexString();
+      const hexa = color.toHex8String();
+      const hsvColor = color.toHsv();
+      const hsv = {
+        h: hsvColor.h,
+        s: hsvColor.s * 100,
+        v: hsvColor.v * 100,
+        a: hsvColor.a
+      };
+      return {
+        hsl: {
+          h: hsl.h,
+          s: hsl.s,
+          l: hsl.l,
+          string: this.setLetterCase(`hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`)
+        },
+        hsla: {
+          h: hsl.h,
+          s: hsl.s,
+          l: hsl.l,
+          a: hsl.a,
+          string: this.setLetterCase(
+            `hsla(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%, ${hsl.a.toFixed(2).toString()})`
+          )
+        },
+        hsv: {
+          h: hsv.h,
+          s: hsv.s,
+          v: hsv.v,
+          string: this.setLetterCase(`hsv(${Math.round(hsv.h)}, ${Math.round(hsv.s)}%, ${Math.round(hsv.v)}%)`)
+        },
+        hsva: {
+          h: hsv.h,
+          s: hsv.s,
+          v: hsv.v,
+          a: hsv.a,
+          string: this.setLetterCase(
+            `hsva(${Math.round(hsv.h)}, ${Math.round(hsv.s)}%, ${Math.round(hsv.v)}%, ${hsv.a.toFixed(2).toString()})`
+          )
+        },
+        rgb: {
+          r: rgb.r,
+          g: rgb.g,
+          b: rgb.b,
+          string: this.setLetterCase(`rgb(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)})`)
+        },
+        rgba: {
+          r: rgb.r,
+          g: rgb.g,
+          b: rgb.b,
+          a: rgb.a,
+          string: this.setLetterCase(
+            `rgba(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)}, ${rgb.a.toFixed(2).toString()})`
+          )
+        },
+        hex: this.setLetterCase(hex),
+        hexa: this.setLetterCase(hexa)
       };
     }
-    finishAction(event) {
-      this.action = void 0;
-    }
-    handleKeydown(event) {
-      this.startAction(event);
-    }
-    handleKeyup(event) {
-      this.finishAction(event);
-    }
-    handleDown(event) {
-      this.startAction(event);
-      this.ripplePointerId = event.pointerId;
-      const isStart = event.target === this.inputStart;
-      this.handleStartHover = !this.disabled && isStart && Boolean(this.handleStart);
-      this.handleEndHover = !this.disabled && !isStart && Boolean(this.handleEnd);
-    }
-    async handleUp(event) {
-      if (!this.action) {
-        return;
-      }
-      const { target, values, flipped } = this.action;
-      await new Promise(requestAnimationFrame);
-      if (target !== void 0) {
-        target.focus();
-        if (flipped && target.valueAsNumber !== values.get(target)) {
-          target.dispatchEvent(new Event("change", { bubbles: true }));
-        }
-      }
-      this.finishAction(event);
-    }
-    /**
-     * The move handler tracks handle hovering to facilitate proper ripple
-     * behavior on the slider handle. This is needed because user interaction with
-     * the native input is leveraged to position the handle. Because the separate
-     * displayed handle element has pointer events disabled (to allow interaction
-     * with the input) and the input's handle is a pseudo-element, neither can be
-     * the ripple's interactive element. Therefore the input is the ripple's
-     * interactive element and has a `ripple` directive; however the ripple
-     * is gated on the handle being hovered. In addition, because the ripple
-     * hover state is being specially handled, it must be triggered independent
-     * of the directive. This is done based on the hover state when the
-     * slider is updated.
-     */
-    handleMove(event) {
-      this.handleStartHover = !this.disabled && inBounds(event, this.handleStart);
-      this.handleEndHover = !this.disabled && inBounds(event, this.handleEnd);
-    }
-    handleEnter(event) {
-      this.handleMove(event);
-    }
-    handleLeave() {
-      this.handleStartHover = false;
-      this.handleEndHover = false;
-    }
-    updateOnTop(input) {
-      this.startOnTop = input.classList.contains("start");
-    }
-    needsClamping() {
-      if (!this.action) {
+    setColor(colorString) {
+      const newColor = this.parseColor(colorString);
+      if (newColor === null) {
         return false;
       }
-      const { target, fixed } = this.action;
-      const isStart = target === this.inputStart;
-      return isStart ? target.valueAsNumber > fixed.valueAsNumber : target.valueAsNumber < fixed.valueAsNumber;
-    }
-    // if start/end start coincident and the first drag input would e.g. move
-    // start > end, avoid clamping and "flip" to use the other input
-    // as the action target.
-    isActionFlipped() {
-      const { action } = this;
-      if (!action) {
-        return false;
-      }
-      const { target, fixed, values } = action;
-      if (action.canFlip) {
-        const coincident = values.get(target) === values.get(fixed);
-        if (coincident && this.needsClamping()) {
-          action.canFlip = false;
-          action.flipped = true;
-          action.target = fixed;
-          action.fixed = target;
-        }
-      }
-      return action.flipped;
-    }
-    // when flipped, apply the drag input to the flipped target and reset
-    // the actual target.
-    flipAction() {
-      if (!this.action) {
-        return false;
-      }
-      const { target, fixed, values } = this.action;
-      const changed = target.valueAsNumber !== fixed.valueAsNumber;
-      target.valueAsNumber = fixed.valueAsNumber;
-      fixed.valueAsNumber = values.get(fixed);
-      return changed;
-    }
-    // clamp such that start does not move beyond end and visa versa.
-    clampAction() {
-      if (!this.needsClamping() || !this.action) {
-        return false;
-      }
-      const { target, fixed } = this.action;
-      target.valueAsNumber = fixed.valueAsNumber;
+      this.hue = newColor.hsva.h;
+      this.saturation = newColor.hsva.s;
+      this.brightness = newColor.hsva.v;
+      this.alpha = this.opacity ? newColor.hsva.a * 100 : 100;
+      this.syncValues();
       return true;
     }
-    handleInput(event) {
-      if (this.isRedispatchingEvent) {
+    setLetterCase(string) {
+      if (typeof string !== "string") {
+        return "";
+      }
+      return this.uppercase ? string.toUpperCase() : string.toLowerCase();
+    }
+    async syncValues() {
+      const currentColor = this.parseColor(
+        `hsva(${this.hue}, ${this.saturation}%, ${this.brightness}%, ${this.alpha / 100})`
+      );
+      if (currentColor === null) {
         return;
       }
-      let stopPropagation = false;
-      let redispatch = false;
-      if (this.range) {
-        if (this.isActionFlipped()) {
-          stopPropagation = true;
-          redispatch = this.flipAction();
-        }
-        if (this.clampAction()) {
-          stopPropagation = true;
-          redispatch = false;
-        }
-      }
-      const target = event.target;
-      this.updateOnTop(target);
-      if (this.range) {
-        this.valueStart = this.inputStart.valueAsNumber;
-        this.valueEnd = this.inputEnd.valueAsNumber;
+      if (this.format === "hsl") {
+        this.inputValue = this.opacity ? currentColor.hsla.string : currentColor.hsl.string;
+      } else if (this.format === "rgb") {
+        this.inputValue = this.opacity ? currentColor.rgba.string : currentColor.rgb.string;
+      } else if (this.format === "hsv") {
+        this.inputValue = this.opacity ? currentColor.hsva.string : currentColor.hsv.string;
       } else {
-        this.value = this.inputEnd.valueAsNumber;
+        this.inputValue = this.opacity ? currentColor.hexa : currentColor.hex;
       }
-      if (stopPropagation) {
-        event.stopPropagation();
-      }
-      if (redispatch) {
-        this.isRedispatchingEvent = true;
-        redispatchEvent(target, event);
-        this.isRedispatchingEvent = false;
-      }
+      this.isSafeValue = true;
+      this.value = this.inputValue;
+      await this.updateComplete;
+      this.isSafeValue = false;
     }
-    handleChange(event) {
-      const changeTarget = event.target;
-      const { target, values } = this.action ?? {};
-      const squelch = target && target.valueAsNumber === values.get(changeTarget);
-      if (!squelch) {
-        redispatchEvent(this, event);
-      }
-      this.finishAction(event);
+    handleAfterHide() {
+      this.previewButton.classList.remove("color-picker__preview-color--copied");
     }
-    [getFormValue]() {
-      if (this.range) {
-        const data = new FormData();
-        data.append(this.nameStart, String(this.valueStart));
-        data.append(this.nameEnd, String(this.valueEnd));
-        return data;
-      }
-      return String(this.value);
-    }
-    formResetCallback() {
-      if (this.range) {
-        const valueStart = this.getAttribute("value-start");
-        this.valueStart = valueStart !== null ? Number(valueStart) : void 0;
-        const valueEnd = this.getAttribute("value-end");
-        this.valueEnd = valueEnd !== null ? Number(valueEnd) : void 0;
+    handleEyeDropper() {
+      if (!hasEyeDropper) {
         return;
       }
-      const value2 = this.getAttribute("value");
-      this.value = value2 !== null ? Number(value2) : void 0;
+      const eyeDropper = new EyeDropper();
+      eyeDropper.open().then((colorSelectionResult) => {
+        const oldValue = this.value;
+        this.setColor(colorSelectionResult.sRGBHex);
+        if (this.value !== oldValue) {
+          this.emit("sl-change");
+          this.emit("sl-input");
+        }
+      }).catch(() => {
+      });
     }
-    formStateRestoreCallback(state) {
-      if (Array.isArray(state)) {
-        const [[, valueStart], [, valueEnd]] = state;
-        this.valueStart = Number(valueStart);
-        this.valueEnd = Number(valueEnd);
-        this.range = true;
-        return;
+    selectSwatch(color) {
+      const oldValue = this.value;
+      if (!this.disabled) {
+        this.setColor(color);
+        if (this.value !== oldValue) {
+          this.emit("sl-change");
+          this.emit("sl-input");
+        }
       }
-      this.value = Number(state);
-      this.range = false;
     }
-  };
-  (() => {
-    requestUpdateOnAriaChange(Slider);
-  })();
-  Slider.shadowRootOptions = {
-    ...i6.shadowRootOptions,
-    delegatesFocus: true
-  };
-  __decorate2([
-    n5({ type: Number })
-  ], Slider.prototype, "min", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], Slider.prototype, "max", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], Slider.prototype, "value", void 0);
-  __decorate2([
-    n5({ type: Number, attribute: "value-start" })
-  ], Slider.prototype, "valueStart", void 0);
-  __decorate2([
-    n5({ type: Number, attribute: "value-end" })
-  ], Slider.prototype, "valueEnd", void 0);
-  __decorate2([
-    n5({ attribute: "value-label" })
-  ], Slider.prototype, "valueLabel", void 0);
-  __decorate2([
-    n5({ attribute: "value-label-start" })
-  ], Slider.prototype, "valueLabelStart", void 0);
-  __decorate2([
-    n5({ attribute: "value-label-end" })
-  ], Slider.prototype, "valueLabelEnd", void 0);
-  __decorate2([
-    n5({ attribute: "aria-label-start" })
-  ], Slider.prototype, "ariaLabelStart", void 0);
-  __decorate2([
-    n5({ attribute: "aria-valuetext-start" })
-  ], Slider.prototype, "ariaValueTextStart", void 0);
-  __decorate2([
-    n5({ attribute: "aria-label-end" })
-  ], Slider.prototype, "ariaLabelEnd", void 0);
-  __decorate2([
-    n5({ attribute: "aria-valuetext-end" })
-  ], Slider.prototype, "ariaValueTextEnd", void 0);
-  __decorate2([
-    n5({ type: Number })
-  ], Slider.prototype, "step", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Slider.prototype, "ticks", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Slider.prototype, "labeled", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Slider.prototype, "range", void 0);
-  __decorate2([
-    e6("input.start")
-  ], Slider.prototype, "inputStart", void 0);
-  __decorate2([
-    e6(".handle.start")
-  ], Slider.prototype, "handleStart", void 0);
-  __decorate2([
-    r8("md-ripple.start")
-  ], Slider.prototype, "rippleStart", void 0);
-  __decorate2([
-    e6("input.end")
-  ], Slider.prototype, "inputEnd", void 0);
-  __decorate2([
-    e6(".handle.end")
-  ], Slider.prototype, "handleEnd", void 0);
-  __decorate2([
-    r8("md-ripple.end")
-  ], Slider.prototype, "rippleEnd", void 0);
-  __decorate2([
-    r6()
-  ], Slider.prototype, "handleStartHover", void 0);
-  __decorate2([
-    r6()
-  ], Slider.prototype, "handleEndHover", void 0);
-  __decorate2([
-    r6()
-  ], Slider.prototype, "startOnTop", void 0);
-  __decorate2([
-    r6()
-  ], Slider.prototype, "handlesOverlapping", void 0);
-  __decorate2([
-    r6()
-  ], Slider.prototype, "renderValueStart", void 0);
-  __decorate2([
-    r6()
-  ], Slider.prototype, "renderValueEnd", void 0);
-  function inBounds({ x: x2, y: y4 }, element) {
-    if (!element) {
-      return false;
+    /** Generates a hex string from HSV values. Hue must be 0-360. All other arguments must be 0-100. */
+    getHexString(hue, saturation, brightness, alpha = 100) {
+      const color = new TinyColor(`hsva(${hue}, ${saturation}%, ${brightness}%, ${alpha / 100})`);
+      if (!color.isValid) {
+        return "";
+      }
+      return color.toHex8String();
     }
-    const { top, left, bottom, right } = element.getBoundingClientRect();
-    return x2 >= left && x2 <= right && y4 >= top && y4 <= bottom;
-  }
-  function isOverlapping(elA, elB) {
-    if (!(elA && elB)) {
-      return false;
+    // Prevents nested components from leaking events
+    stopNestedEventPropagation(event) {
+      event.stopImmediatePropagation();
     }
-    const a5 = elA.getBoundingClientRect();
-    const b4 = elB.getBoundingClientRect();
-    return !(a5.top > b4.bottom || a5.right < b4.left || a5.bottom < b4.top || a5.left > b4.right);
-  }
+    handleFormatChange() {
+      this.syncValues();
+    }
+    handleOpacityChange() {
+      this.alpha = 100;
+    }
+    handleValueChange(oldValue, newValue) {
+      this.isEmpty = !newValue;
+      if (!newValue) {
+        this.hue = 0;
+        this.saturation = 0;
+        this.brightness = 100;
+        this.alpha = 100;
+      }
+      if (!this.isSafeValue) {
+        const newColor = this.parseColor(newValue);
+        if (newColor !== null) {
+          this.inputValue = this.value;
+          this.hue = newColor.hsva.h;
+          this.saturation = newColor.hsva.s;
+          this.brightness = newColor.hsva.v;
+          this.alpha = newColor.hsva.a * 100;
+          this.syncValues();
+        } else {
+          this.inputValue = oldValue != null ? oldValue : "";
+        }
+      }
+    }
+    /** Sets focus on the color picker. */
+    focus(options) {
+      if (this.inline) {
+        this.base.focus(options);
+      } else {
+        this.trigger.focus(options);
+      }
+    }
+    /** Removes focus from the color picker. */
+    blur() {
+      var _a;
+      const elementToBlur = this.inline ? this.base : this.trigger;
+      if (this.hasFocus) {
+        elementToBlur.focus({ preventScroll: true });
+        elementToBlur.blur();
+      }
+      if ((_a = this.dropdown) == null ? void 0 : _a.open) {
+        this.dropdown.hide();
+      }
+    }
+    /** Returns the current value as a string in the specified format. */
+    getFormattedValue(format = "hex") {
+      const currentColor = this.parseColor(
+        `hsva(${this.hue}, ${this.saturation}%, ${this.brightness}%, ${this.alpha / 100})`
+      );
+      if (currentColor === null) {
+        return "";
+      }
+      switch (format) {
+        case "hex":
+          return currentColor.hex;
+        case "hexa":
+          return currentColor.hexa;
+        case "rgb":
+          return currentColor.rgb.string;
+        case "rgba":
+          return currentColor.rgba.string;
+        case "hsl":
+          return currentColor.hsl.string;
+        case "hsla":
+          return currentColor.hsla.string;
+        case "hsv":
+          return currentColor.hsv.string;
+        case "hsva":
+          return currentColor.hsva.string;
+        default:
+          return "";
+      }
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      return this.input.checkValidity();
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      if (!this.inline && !this.validity.valid) {
+        this.dropdown.show();
+        this.addEventListener("sl-after-show", () => this.input.reportValidity(), { once: true });
+        if (!this.disabled) {
+          this.formControlController.emitInvalidEvent();
+        }
+        return false;
+      }
+      return this.input.reportValidity();
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message) {
+      this.input.setCustomValidity(message);
+      this.formControlController.updateValidity();
+    }
+    render() {
+      const gridHandleX = this.saturation;
+      const gridHandleY = 100 - this.brightness;
+      const swatches = Array.isArray(this.swatches) ? this.swatches : this.swatches.split(";").filter((color) => color.trim() !== "");
+      const colorPicker2 = x`
+      <div
+        part="base"
+        class=${e10({
+        "color-picker": true,
+        "color-picker--inline": this.inline,
+        "color-picker--disabled": this.disabled,
+        "color-picker--focused": this.hasFocus
+      })}
+        aria-disabled=${this.disabled ? "true" : "false"}
+        aria-labelledby="label"
+        tabindex=${this.inline ? "0" : "-1"}
+      >
+        ${this.inline ? x`
+              <sl-visually-hidden id="label">
+                <slot name="label">${this.label}</slot>
+              </sl-visually-hidden>
+            ` : null}
 
-  // node_modules/@material/web/slider/internal/slider-styles.js
-  var styles10 = i3`:host{--_active-track-color: var(--md-slider-active-track-color, var(--md-sys-color-primary, #6750a4));--_active-track-height: var(--md-slider-active-track-height, 4px);--_active-track-shape: var(--md-slider-active-track-shape, var(--md-sys-shape-corner-full, 9999px));--_disabled-active-track-color: var(--md-slider-disabled-active-track-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-active-track-opacity: var(--md-slider-disabled-active-track-opacity, 0.38);--_disabled-handle-color: var(--md-slider-disabled-handle-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-handle-elevation: var(--md-slider-disabled-handle-elevation, 0);--_disabled-inactive-track-color: var(--md-slider-disabled-inactive-track-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-inactive-track-opacity: var(--md-slider-disabled-inactive-track-opacity, 0.12);--_focus-handle-color: var(--md-slider-focus-handle-color, var(--md-sys-color-primary, #6750a4));--_handle-color: var(--md-slider-handle-color, var(--md-sys-color-primary, #6750a4));--_handle-elevation: var(--md-slider-handle-elevation, 1);--_handle-height: var(--md-slider-handle-height, 20px);--_handle-shadow-color: var(--md-slider-handle-shadow-color, var(--md-sys-color-shadow, #000));--_handle-shape: var(--md-slider-handle-shape, var(--md-sys-shape-corner-full, 9999px));--_handle-width: var(--md-slider-handle-width, 20px);--_hover-handle-color: var(--md-slider-hover-handle-color, var(--md-sys-color-primary, #6750a4));--_hover-state-layer-color: var(--md-slider-hover-state-layer-color, var(--md-sys-color-primary, #6750a4));--_hover-state-layer-opacity: var(--md-slider-hover-state-layer-opacity, 0.08);--_inactive-track-color: var(--md-slider-inactive-track-color, var(--md-sys-color-surface-container-highest, #e6e0e9));--_inactive-track-height: var(--md-slider-inactive-track-height, 4px);--_inactive-track-shape: var(--md-slider-inactive-track-shape, var(--md-sys-shape-corner-full, 9999px));--_label-container-color: var(--md-slider-label-container-color, var(--md-sys-color-primary, #6750a4));--_label-container-height: var(--md-slider-label-container-height, 28px);--_pressed-handle-color: var(--md-slider-pressed-handle-color, var(--md-sys-color-primary, #6750a4));--_pressed-state-layer-color: var(--md-slider-pressed-state-layer-color, var(--md-sys-color-primary, #6750a4));--_pressed-state-layer-opacity: var(--md-slider-pressed-state-layer-opacity, 0.12);--_state-layer-size: var(--md-slider-state-layer-size, 40px);--_with-overlap-handle-outline-color: var(--md-slider-with-overlap-handle-outline-color, var(--md-sys-color-on-primary, #fff));--_with-overlap-handle-outline-width: var(--md-slider-with-overlap-handle-outline-width, 1px);--_with-tick-marks-active-container-color: var(--md-slider-with-tick-marks-active-container-color, var(--md-sys-color-on-primary, #fff));--_with-tick-marks-container-size: var(--md-slider-with-tick-marks-container-size, 2px);--_with-tick-marks-disabled-container-color: var(--md-slider-with-tick-marks-disabled-container-color, var(--md-sys-color-on-surface, #1d1b20));--_with-tick-marks-inactive-container-color: var(--md-slider-with-tick-marks-inactive-container-color, var(--md-sys-color-on-surface-variant, #49454f));--_label-text-color: var(--md-slider-label-text-color, var(--md-sys-color-on-primary, #fff));--_label-text-font: var(--md-slider-label-text-font, var(--md-sys-typescale-label-medium-font, var(--md-ref-typeface-plain, Roboto)));--_label-text-line-height: var(--md-slider-label-text-line-height, var(--md-sys-typescale-label-medium-line-height, 1rem));--_label-text-size: var(--md-slider-label-text-size, var(--md-sys-typescale-label-medium-size, 0.75rem));--_label-text-weight: var(--md-slider-label-text-weight, var(--md-sys-typescale-label-medium-weight, var(--md-ref-typeface-weight-medium, 500)));--_start-fraction: 0;--_end-fraction: 0;--_tick-count: 0;display:inline-flex;vertical-align:middle;min-inline-size:200px;--md-elevation-level: var(--_handle-elevation);--md-elevation-shadow-color: var(--_handle-shadow-color)}md-focus-ring{height:48px;inset:unset;width:48px}md-elevation{transition-duration:250ms}@media(prefers-reduced-motion){.label{transition-duration:0}}:host([disabled]){opacity:var(--_disabled-active-track-opacity);--md-elevation-level: var(--_disabled-handle-elevation)}.container{flex:1;display:flex;align-items:center;position:relative;block-size:var(--_state-layer-size);pointer-events:none;touch-action:none}.track,.tickmarks{position:absolute;inset:0;display:flex;align-items:center}.track::before,.tickmarks::before,.track::after,.tickmarks::after{position:absolute;content:"";inset-inline-start:calc(var(--_state-layer-size)/2 - var(--_with-tick-marks-container-size));inset-inline-end:calc(var(--_state-layer-size)/2 - var(--_with-tick-marks-container-size));background-size:calc((100% - var(--_with-tick-marks-container-size)*2)/var(--_tick-count)) 100%}.track::before,.tickmarks::before{block-size:var(--_inactive-track-height);border-radius:var(--_inactive-track-shape)}.track::before{background:var(--_inactive-track-color)}.tickmarks::before{background-image:radial-gradient(circle at var(--_with-tick-marks-container-size) center, var(--_with-tick-marks-inactive-container-color) 0, var(--_with-tick-marks-inactive-container-color) calc(var(--_with-tick-marks-container-size) / 2), transparent calc(var(--_with-tick-marks-container-size) / 2))}:host([disabled]) .track::before{opacity:calc(1/var(--_disabled-active-track-opacity)*var(--_disabled-inactive-track-opacity));background:var(--_disabled-inactive-track-color)}.track::after,.tickmarks::after{block-size:var(--_active-track-height);border-radius:var(--_active-track-shape);clip-path:inset(0 calc(var(--_with-tick-marks-container-size) * min((1 - var(--_end-fraction)) * 1000000000, 1) + (100% - var(--_with-tick-marks-container-size) * 2) * (1 - var(--_end-fraction))) 0 calc(var(--_with-tick-marks-container-size) * min(var(--_start-fraction) * 1000000000, 1) + (100% - var(--_with-tick-marks-container-size) * 2) * var(--_start-fraction)))}.track::after{background:var(--_active-track-color)}.tickmarks::after{background-image:radial-gradient(circle at var(--_with-tick-marks-container-size) center, var(--_with-tick-marks-active-container-color) 0, var(--_with-tick-marks-active-container-color) calc(var(--_with-tick-marks-container-size) / 2), transparent calc(var(--_with-tick-marks-container-size) / 2))}.track:dir(rtl)::after{clip-path:inset(0 calc(var(--_with-tick-marks-container-size) * min(var(--_start-fraction) * 1000000000, 1) + (100% - var(--_with-tick-marks-container-size) * 2) * var(--_start-fraction)) 0 calc(var(--_with-tick-marks-container-size) * min((1 - var(--_end-fraction)) * 1000000000, 1) + (100% - var(--_with-tick-marks-container-size) * 2) * (1 - var(--_end-fraction))))}.tickmarks:dir(rtl)::after{clip-path:inset(0 calc(var(--_with-tick-marks-container-size) * min(var(--_start-fraction) * 1000000000, 1) + (100% - var(--_with-tick-marks-container-size) * 2) * var(--_start-fraction)) 0 calc(var(--_with-tick-marks-container-size) * min((1 - var(--_end-fraction)) * 1000000000, 1) + (100% - var(--_with-tick-marks-container-size) * 2) * (1 - var(--_end-fraction))))}:host([disabled]) .track::after{background:var(--_disabled-active-track-color)}:host([disabled]) .tickmarks::before{background-image:radial-gradient(circle at var(--_with-tick-marks-container-size) center, var(--_with-tick-marks-disabled-container-color) 0, var(--_with-tick-marks-disabled-container-color) calc(var(--_with-tick-marks-container-size) / 2), transparent calc(var(--_with-tick-marks-container-size) / 2))}.handleContainerPadded{position:relative;block-size:100%;inline-size:100%;padding-inline:calc(var(--_state-layer-size)/2)}.handleContainerBlock{position:relative;block-size:100%;inline-size:100%}.handleContainer{position:absolute;inset-block-start:0;inset-block-end:0;inset-inline-start:calc(100%*var(--_start-fraction));inline-size:calc(100%*(var(--_end-fraction) - var(--_start-fraction)))}.handle{position:absolute;block-size:var(--_state-layer-size);inline-size:var(--_state-layer-size);border-radius:var(--_handle-shape);display:flex;place-content:center;place-items:center}.handleNub{position:absolute;height:var(--_handle-height);width:var(--_handle-width);border-radius:var(--_handle-shape);background:var(--_handle-color)}:host([disabled]) .handleNub{background:var(--_disabled-handle-color)}input.end:focus~.handleContainerPadded .handle.end>.handleNub,input.start:focus~.handleContainerPadded .handle.start>.handleNub{background:var(--_focus-handle-color)}.container>.handleContainerPadded .handle.hover>.handleNub{background:var(--_hover-handle-color)}:host(:not([disabled])) input.end:active~.handleContainerPadded .handle.end>.handleNub,:host(:not([disabled])) input.start:active~.handleContainerPadded .handle.start>.handleNub{background:var(--_pressed-handle-color)}.onTop.isOverlapping .label,.onTop.isOverlapping .label::before{outline:var(--_with-overlap-handle-outline-color) solid var(--_with-overlap-handle-outline-width)}.onTop.isOverlapping .handleNub{border:var(--_with-overlap-handle-outline-color) solid var(--_with-overlap-handle-outline-width)}.handle.start{inset-inline-start:calc(0px - var(--_state-layer-size)/2)}.handle.end{inset-inline-end:calc(0px - var(--_state-layer-size)/2)}.label{position:absolute;box-sizing:border-box;display:flex;padding:4px;place-content:center;place-items:center;border-radius:var(--md-sys-shape-corner-full, 9999px);color:var(--_label-text-color);font-family:var(--_label-text-font);font-size:var(--_label-text-size);line-height:var(--_label-text-line-height);font-weight:var(--_label-text-weight);inset-block-end:100%;min-inline-size:var(--_label-container-height);min-block-size:var(--_label-container-height);background:var(--_label-container-color);transition:transform 100ms cubic-bezier(0.2, 0, 0, 1);transform-origin:center bottom;transform:scale(0)}:host(:focus-within) .label,.handleContainer.hover .label,:where(:has(input:active)) .label{transform:scale(1)}.label::before,.label::after{position:absolute;display:block;content:"";background:inherit}.label::before{inline-size:calc(var(--_label-container-height)/2);block-size:calc(var(--_label-container-height)/2);bottom:calc(var(--_label-container-height)/-10);transform:rotate(45deg)}.label::after{inset:0px;border-radius:inherit}.labelContent{z-index:1}input[type=range]{opacity:0;-webkit-tap-highlight-color:rgba(0,0,0,0);position:absolute;box-sizing:border-box;height:100%;width:100%;margin:0;background:rgba(0,0,0,0);cursor:pointer;pointer-events:auto;appearance:none}input[type=range]:focus{outline:none}::-webkit-slider-runnable-track{-webkit-appearance:none}::-moz-range-track{appearance:none}::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;block-size:var(--_handle-height);inline-size:var(--_handle-width);opacity:0;z-index:2}input.end::-webkit-slider-thumb{--_track-and-knob-padding: calc( (var(--_state-layer-size) - var(--_handle-width)) / 2 );--_x-translate: calc( var(--_track-and-knob-padding) - 2 * var(--_end-fraction) * var(--_track-and-knob-padding) );transform:translateX(var(--_x-translate))}input.end:dir(rtl)::-webkit-slider-thumb{transform:translateX(calc(-1 * var(--_x-translate)))}input.start::-webkit-slider-thumb{--_track-and-knob-padding: calc( (var(--_state-layer-size) - var(--_handle-width)) / 2 );--_x-translate: calc( var(--_track-and-knob-padding) - 2 * var(--_start-fraction) * var(--_track-and-knob-padding) );transform:translateX(var(--_x-translate))}input.start:dir(rtl)::-webkit-slider-thumb{transform:translateX(calc(-1 * var(--_x-translate)))}::-moz-range-thumb{appearance:none;block-size:var(--_state-layer-size);inline-size:var(--_state-layer-size);transform:scaleX(0);opacity:0;z-index:2}.ranged input.start{clip-path:inset(0 calc(100% - (var(--_state-layer-size) / 2 + (100% - var(--_state-layer-size)) * (var(--_start-fraction) + (var(--_end-fraction) - var(--_start-fraction)) / 2))) 0 0)}.ranged input.start:dir(rtl){clip-path:inset(0 0 0 calc(100% - (var(--_state-layer-size) / 2 + (100% - var(--_state-layer-size)) * (var(--_start-fraction) + (var(--_end-fraction) - var(--_start-fraction)) / 2))))}.ranged input.end{clip-path:inset(0 0 0 calc(var(--_state-layer-size) / 2 + (100% - var(--_state-layer-size)) * (var(--_start-fraction) + (var(--_end-fraction) - var(--_start-fraction)) / 2)))}.ranged input.end:dir(rtl){clip-path:inset(0 calc(var(--_state-layer-size) / 2 + (100% - var(--_state-layer-size)) * (var(--_start-fraction) + (var(--_end-fraction) - var(--_start-fraction)) / 2)) 0 0)}.onTop{z-index:1}.handle{--md-ripple-hover-color: var(--_hover-state-layer-color);--md-ripple-hover-opacity: var(--_hover-state-layer-opacity);--md-ripple-pressed-color: var(--_pressed-state-layer-color);--md-ripple-pressed-opacity: var(--_pressed-state-layer-opacity)}md-ripple{border-radius:50%;height:var(--_state-layer-size);width:var(--_state-layer-size)}
+        <div
+          part="grid"
+          class="color-picker__grid"
+          style=${o12({ backgroundColor: this.getHexString(this.hue, 100, 100) })}
+          @pointerdown=${this.handleGridDrag}
+          @touchmove=${this.handleTouchMove}
+        >
+          <span
+            part="grid-handle"
+            class=${e10({
+        "color-picker__grid-handle": true,
+        "color-picker__grid-handle--dragging": this.isDraggingGridHandle
+      })}
+            style=${o12({
+        top: `${gridHandleY}%`,
+        left: `${gridHandleX}%`,
+        backgroundColor: this.getHexString(this.hue, this.saturation, this.brightness, this.alpha)
+      })}
+            role="application"
+            aria-label="HSV"
+            tabindex=${o11(this.disabled ? void 0 : "0")}
+            @keydown=${this.handleGridKeyDown}
+          ></span>
+        </div>
+
+        <div class="color-picker__controls">
+          <div class="color-picker__sliders">
+            <div
+              part="slider hue-slider"
+              class="color-picker__hue color-picker__slider"
+              @pointerdown=${this.handleHueDrag}
+              @touchmove=${this.handleTouchMove}
+            >
+              <span
+                part="slider-handle hue-slider-handle"
+                class="color-picker__slider-handle"
+                style=${o12({
+        left: `${this.hue === 0 ? 0 : 100 / (360 / this.hue)}%`
+      })}
+                role="slider"
+                aria-label="hue"
+                aria-orientation="horizontal"
+                aria-valuemin="0"
+                aria-valuemax="360"
+                aria-valuenow=${`${Math.round(this.hue)}`}
+                tabindex=${o11(this.disabled ? void 0 : "0")}
+                @keydown=${this.handleHueKeyDown}
+              ></span>
+            </div>
+
+            ${this.opacity ? x`
+                  <div
+                    part="slider opacity-slider"
+                    class="color-picker__alpha color-picker__slider color-picker__transparent-bg"
+                    @pointerdown="${this.handleAlphaDrag}"
+                    @touchmove=${this.handleTouchMove}
+                  >
+                    <div
+                      class="color-picker__alpha-gradient"
+                      style=${o12({
+        backgroundImage: `linear-gradient(
+                          to right,
+                          ${this.getHexString(this.hue, this.saturation, this.brightness, 0)} 0%,
+                          ${this.getHexString(this.hue, this.saturation, this.brightness, 100)} 100%
+                        )`
+      })}
+                    ></div>
+                    <span
+                      part="slider-handle opacity-slider-handle"
+                      class="color-picker__slider-handle"
+                      style=${o12({
+        left: `${this.alpha}%`
+      })}
+                      role="slider"
+                      aria-label="alpha"
+                      aria-orientation="horizontal"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      aria-valuenow=${Math.round(this.alpha)}
+                      tabindex=${o11(this.disabled ? void 0 : "0")}
+                      @keydown=${this.handleAlphaKeyDown}
+                    ></span>
+                  </div>
+                ` : ""}
+          </div>
+
+          <button
+            type="button"
+            part="preview"
+            class="color-picker__preview color-picker__transparent-bg"
+            aria-label=${this.localize.term("copy")}
+            style=${o12({
+        "--preview-color": this.getHexString(this.hue, this.saturation, this.brightness, this.alpha)
+      })}
+            @click=${this.handleCopy}
+          ></button>
+        </div>
+
+        <div class="color-picker__user-input" aria-live="polite">
+          <sl-input
+            part="input"
+            type="text"
+            name=${this.name}
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            value=${this.isEmpty ? "" : this.inputValue}
+            ?required=${this.required}
+            ?disabled=${this.disabled}
+            aria-label=${this.localize.term("currentValue")}
+            @keydown=${this.handleInputKeyDown}
+            @sl-change=${this.handleInputChange}
+            @sl-input=${this.handleInputInput}
+            @sl-invalid=${this.handleInputInvalid}
+            @sl-blur=${this.stopNestedEventPropagation}
+            @sl-focus=${this.stopNestedEventPropagation}
+          ></sl-input>
+
+          <sl-button-group>
+            ${!this.noFormatToggle ? x`
+                  <sl-button
+                    part="format-button"
+                    aria-label=${this.localize.term("toggleColorFormat")}
+                    exportparts="
+                      base:format-button__base,
+                      prefix:format-button__prefix,
+                      label:format-button__label,
+                      suffix:format-button__suffix,
+                      caret:format-button__caret
+                    "
+                    @click=${this.handleFormatToggle}
+                    @sl-blur=${this.stopNestedEventPropagation}
+                    @sl-focus=${this.stopNestedEventPropagation}
+                  >
+                    ${this.setLetterCase(this.format)}
+                  </sl-button>
+                ` : ""}
+            ${hasEyeDropper ? x`
+                  <sl-button
+                    part="eye-dropper-button"
+                    exportparts="
+                      base:eye-dropper-button__base,
+                      prefix:eye-dropper-button__prefix,
+                      label:eye-dropper-button__label,
+                      suffix:eye-dropper-button__suffix,
+                      caret:eye-dropper-button__caret
+                    "
+                    @click=${this.handleEyeDropper}
+                    @sl-blur=${this.stopNestedEventPropagation}
+                    @sl-focus=${this.stopNestedEventPropagation}
+                  >
+                    <sl-icon
+                      library="system"
+                      name="eyedropper"
+                      label=${this.localize.term("selectAColorFromTheScreen")}
+                    ></sl-icon>
+                  </sl-button>
+                ` : ""}
+          </sl-button-group>
+        </div>
+
+        ${swatches.length > 0 ? x`
+              <div part="swatches" class="color-picker__swatches">
+                ${swatches.map((swatch) => {
+        const parsedColor = this.parseColor(swatch);
+        if (!parsedColor) {
+          console.error(`Unable to parse swatch color: "${swatch}"`, this);
+          return "";
+        }
+        return x`
+                    <div
+                      part="swatch"
+                      class="color-picker__swatch color-picker__transparent-bg"
+                      tabindex=${o11(this.disabled ? void 0 : "0")}
+                      role="button"
+                      aria-label=${swatch}
+                      @click=${() => this.selectSwatch(swatch)}
+                      @keydown=${(event) => !this.disabled && event.key === "Enter" && this.setColor(parsedColor.hexa)}
+                    >
+                      <div
+                        class="color-picker__swatch-color"
+                        style=${o12({ backgroundColor: parsedColor.hexa })}
+                      ></div>
+                    </div>
+                  `;
+      })}
+              </div>
+            ` : ""}
+      </div>
+    `;
+      if (this.inline) {
+        return colorPicker2;
+      }
+      return x`
+      <sl-dropdown
+        class="color-dropdown"
+        aria-disabled=${this.disabled ? "true" : "false"}
+        .containingElement=${this}
+        ?disabled=${this.disabled}
+        ?hoist=${this.hoist}
+        @sl-after-hide=${this.handleAfterHide}
+      >
+        <button
+          part="trigger"
+          slot="trigger"
+          class=${e10({
+        "color-dropdown__trigger": true,
+        "color-dropdown__trigger--disabled": this.disabled,
+        "color-dropdown__trigger--small": this.size === "small",
+        "color-dropdown__trigger--medium": this.size === "medium",
+        "color-dropdown__trigger--large": this.size === "large",
+        "color-dropdown__trigger--empty": this.isEmpty,
+        "color-dropdown__trigger--focused": this.hasFocus,
+        "color-picker__transparent-bg": true
+      })}
+          style=${o12({
+        color: this.getHexString(this.hue, this.saturation, this.brightness, this.alpha)
+      })}
+          type="button"
+        >
+          <sl-visually-hidden>
+            <slot name="label">${this.label}</slot>
+          </sl-visually-hidden>
+        </button>
+        ${colorPicker2}
+      </sl-dropdown>
+    `;
+    }
+  };
+  SlColorPicker.styles = [component_styles_default, color_picker_styles_default];
+  SlColorPicker.dependencies = {
+    "sl-button-group": SlButtonGroup,
+    "sl-button": SlButton,
+    "sl-dropdown": SlDropdown,
+    "sl-icon": SlIcon,
+    "sl-input": SlInput,
+    "sl-visually-hidden": SlVisuallyHidden
+  };
+  __decorateClass2([
+    e6('[part~="base"]')
+  ], SlColorPicker.prototype, "base", 2);
+  __decorateClass2([
+    e6('[part~="input"]')
+  ], SlColorPicker.prototype, "input", 2);
+  __decorateClass2([
+    e6(".color-dropdown")
+  ], SlColorPicker.prototype, "dropdown", 2);
+  __decorateClass2([
+    e6('[part~="preview"]')
+  ], SlColorPicker.prototype, "previewButton", 2);
+  __decorateClass2([
+    e6('[part~="trigger"]')
+  ], SlColorPicker.prototype, "trigger", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "hasFocus", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "isDraggingGridHandle", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "isEmpty", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "inputValue", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "hue", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "saturation", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "brightness", 2);
+  __decorateClass2([
+    r6()
+  ], SlColorPicker.prototype, "alpha", 2);
+  __decorateClass2([
+    n5()
+  ], SlColorPicker.prototype, "value", 2);
+  __decorateClass2([
+    defaultValue()
+  ], SlColorPicker.prototype, "defaultValue", 2);
+  __decorateClass2([
+    n5()
+  ], SlColorPicker.prototype, "label", 2);
+  __decorateClass2([
+    n5()
+  ], SlColorPicker.prototype, "format", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlColorPicker.prototype, "inline", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlColorPicker.prototype, "size", 2);
+  __decorateClass2([
+    n5({ attribute: "no-format-toggle", type: Boolean })
+  ], SlColorPicker.prototype, "noFormatToggle", 2);
+  __decorateClass2([
+    n5()
+  ], SlColorPicker.prototype, "name", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlColorPicker.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlColorPicker.prototype, "hoist", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlColorPicker.prototype, "opacity", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlColorPicker.prototype, "uppercase", 2);
+  __decorateClass2([
+    n5()
+  ], SlColorPicker.prototype, "swatches", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlColorPicker.prototype, "form", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlColorPicker.prototype, "required", 2);
+  __decorateClass2([
+    t4({ passive: false })
+  ], SlColorPicker.prototype, "handleTouchMove", 1);
+  __decorateClass2([
+    watch("format", { waitUntilFirstUpdate: true })
+  ], SlColorPicker.prototype, "handleFormatChange", 1);
+  __decorateClass2([
+    watch("opacity", { waitUntilFirstUpdate: true })
+  ], SlColorPicker.prototype, "handleOpacityChange", 1);
+  __decorateClass2([
+    watch("value")
+  ], SlColorPicker.prototype, "handleValueChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.BQVAQ53I.js
+  SlColorPicker.define("sl-color-picker");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/color-picker.js
+  var colorPicker = (options) => x`
+	<div class="theme-shoelace widget-color-picker">
+		<label>${options.label}</label>
+		<sl-color-picker
+			.label=${options.label ?? ""}
+			value=${options.value ? String(options.value) : ""}
+			@sl-change=${(event) => {
+    const newValue = event.target.value;
+    options.valueChangedCallback?.(newValue);
+  }}
+			.disabled=${options.disabled}
+		></sl-color-picker>
+
+		<div class="widget-color-picker__description">${options.helpText}</div>
+	</div>
 `;
 
-  // node_modules/@material/web/slider/slider.js
-  var MdSlider = class MdSlider2 extends Slider {
-  };
-  MdSlider.styles = [styles10, styles9];
-  MdSlider = __decorate2([
-    t4("md-slider")
-  ], MdSlider);
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/date.js
+  var date = (options) => x`
+	<sl-input
+		type=${options.type}
+		.label=${options.label ?? ""}
+		.helpText=${options.helpText ?? ""}
+		value=${options.value ? options.value : ""}
+		.name=${options.id}
+		.id=${options.id}
+		.required=${options.required ?? false}
+		@sl-input=${(event) => {
+    let { value: value2 } = event.target;
+    if (options.type === "datetime-local") {
+      value2 = new Date(value2);
+    }
+    options.valueChangedCallback?.(value2);
+  }}
+		.disabled=${options.disabled}
+		.readonly=${options.readonly}
+	>
+	</sl-input>
+`;
 
-  // node_modules/@jsfe/material/dist/esm/widgets/range.js
-  var range = (options) => x`
-	<label class="theme-material widget-range">
-		<!--  -->
-		${options.label} ${options.step}
-		<md-slider
-			labeled
-			.value=${options.value}
-			step=${o14(options.step)}
-			min=${o14(options.min)}
-			max=${o14(options.max)}
-			@input=${(event) => {
-    const newValue = event.target.value;
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/number.js
+  var number = (options) => x` <!--  -->
+		<sl-input
+			type="number"
+			value=${o11(options.value)}
+			step=${o11(options.step)}
+			min=${o11(options.min)}
+			max=${o11(options.max)}
+			.label=${options.label}
+			.helpText=${options.helpText}
+			placeholder=${options.placeholder}
+			.name=${options.id}
+			.id=${options.id}
+			.required=${options.required}
+			@sl-input=${(event) => {
+    const newValue = event.target.valueAsNumber;
     console.log(newValue);
     options.valueChangedCallback?.(newValue);
   }}
-		></md-slider>
+			.disabled=${options.disabled}
+			.readonly=${options.readonly}
+		></sl-input>`;
 
-		${options.helpText ? x` <div>${options.helpText}</div> ` : E2}
-	</label>
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/object.js
+  var object = (options) => x`
+	<fieldset
+		id=${options.id}
+		class="theme-shoelace widget-object widget-fieldset level-${options.level}"
+		part="object"
+	>
+		${options.label ? x`<legend>${options.label}</legend>` : ``}
+		<!-- -->
+		${options.helpText ? x`<div class="widget-fieldset__description">
+					${options.helpText}
+			  </div>` : E2}
+		<!--  -->
+		${options.children}
+	</fieldset>
 `;
 
-  // node_modules/@material/web/list/internal/list-navigation-helpers.js
-  function activateFirstItem(items, isActivatable = isItemNotDisabled) {
-    const firstItem = getFirstActivatableItem(items, isActivatable);
-    if (firstItem) {
-      firstItem.tabIndex = 0;
-      firstItem.focus();
-    }
-    return firstItem;
-  }
-  function activateLastItem(items, isActivatable = isItemNotDisabled) {
-    const lastItem = getLastActivatableItem(items, isActivatable);
-    if (lastItem) {
-      lastItem.tabIndex = 0;
-      lastItem.focus();
-    }
-    return lastItem;
-  }
-  function getActiveItem(items, isActivatable = isItemNotDisabled) {
-    for (let i10 = 0; i10 < items.length; i10++) {
-      const item = items[i10];
-      if (item.tabIndex === 0 && isActivatable(item)) {
-        return {
-          item,
-          index: i10
-        };
-      }
-    }
-    return null;
-  }
-  function getFirstActivatableItem(items, isActivatable = isItemNotDisabled) {
-    for (const item of items) {
-      if (isActivatable(item)) {
-        return item;
-      }
-    }
-    return null;
-  }
-  function getLastActivatableItem(items, isActivatable = isItemNotDisabled) {
-    for (let i10 = items.length - 1; i10 >= 0; i10--) {
-      const item = items[i10];
-      if (isActivatable(item)) {
-        return item;
-      }
-    }
-    return null;
-  }
-  function getNextItem(items, index, isActivatable = isItemNotDisabled, wrap = true) {
-    for (let i10 = 1; i10 < items.length; i10++) {
-      const nextIndex = (i10 + index) % items.length;
-      if (nextIndex < index && !wrap) {
-        return null;
-      }
-      const item = items[nextIndex];
-      if (isActivatable(item)) {
-        return item;
-      }
-    }
-    return items[index] ? items[index] : null;
-  }
-  function getPrevItem(items, index, isActivatable = isItemNotDisabled, wrap = true) {
-    for (let i10 = 1; i10 < items.length; i10++) {
-      const prevIndex = (index - i10 + items.length) % items.length;
-      if (prevIndex > index && !wrap) {
-        return null;
-      }
-      const item = items[prevIndex];
-      if (isActivatable(item)) {
-        return item;
-      }
-    }
-    return items[index] ? items[index] : null;
-  }
-  function activateNextItem(items, activeItemRecord, isActivatable = isItemNotDisabled, wrap = true) {
-    if (activeItemRecord) {
-      const next = getNextItem(items, activeItemRecord.index, isActivatable, wrap);
-      if (next) {
-        next.tabIndex = 0;
-        next.focus();
-      }
-      return next;
-    } else {
-      return activateFirstItem(items, isActivatable);
-    }
-  }
-  function activatePreviousItem(items, activeItemRecord, isActivatable = isItemNotDisabled, wrap = true) {
-    if (activeItemRecord) {
-      const prev = getPrevItem(items, activeItemRecord.index, isActivatable, wrap);
-      if (prev) {
-        prev.tabIndex = 0;
-        prev.focus();
-      }
-      return prev;
-    } else {
-      return activateLastItem(items, isActivatable);
-    }
-  }
-  function isItemNotDisabled(item) {
-    return !item.disabled;
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.FKMWLPHV.js
+  var radio_styles_default = i3`
+  :host {
+    display: block;
   }
 
-  // node_modules/@material/web/list/internal/list-controller.js
-  var NavigableKeys = {
-    ArrowDown: "ArrowDown",
-    ArrowLeft: "ArrowLeft",
-    ArrowUp: "ArrowUp",
-    ArrowRight: "ArrowRight",
-    Home: "Home",
-    End: "End"
-  };
-  var ListController = class {
-    constructor(config) {
-      this.handleKeydown = (event) => {
-        const key = event.key;
-        if (event.defaultPrevented || !this.isNavigableKey(key)) {
-          return;
-        }
-        const items = this.items;
-        if (!items.length) {
-          return;
-        }
-        const activeItemRecord = getActiveItem(items, this.isActivatable);
-        event.preventDefault();
-        const isRtl2 = this.isRtl();
-        const inlinePrevious = isRtl2 ? NavigableKeys.ArrowRight : NavigableKeys.ArrowLeft;
-        const inlineNext = isRtl2 ? NavigableKeys.ArrowLeft : NavigableKeys.ArrowRight;
-        let nextActiveItem = null;
-        switch (key) {
-          case NavigableKeys.ArrowDown:
-          case inlineNext:
-            nextActiveItem = activateNextItem(items, activeItemRecord, this.isActivatable, this.wrapNavigation());
-            break;
-          case NavigableKeys.ArrowUp:
-          case inlinePrevious:
-            nextActiveItem = activatePreviousItem(items, activeItemRecord, this.isActivatable, this.wrapNavigation());
-            break;
-          case NavigableKeys.Home:
-            nextActiveItem = activateFirstItem(items, this.isActivatable);
-            break;
-          case NavigableKeys.End:
-            nextActiveItem = activateLastItem(items, this.isActivatable);
-            break;
-          default:
-            break;
-        }
-        if (nextActiveItem && activeItemRecord && activeItemRecord.item !== nextActiveItem) {
-          activeItemRecord.item.tabIndex = -1;
-        }
-      };
-      this.onDeactivateItems = () => {
-        const items = this.items;
-        for (const item of items) {
-          this.deactivateItem(item);
-        }
-      };
-      this.onRequestActivation = (event) => {
-        this.onDeactivateItems();
-        const target = event.target;
-        this.activateItem(target);
-        target.focus();
-      };
-      this.onSlotchange = () => {
-        const items = this.items;
-        let encounteredActivated = false;
-        for (const item of items) {
-          const isActivated = !item.disabled && item.tabIndex > -1;
-          if (isActivated && !encounteredActivated) {
-            encounteredActivated = true;
-            item.tabIndex = 0;
-            continue;
-          }
-          item.tabIndex = -1;
-        }
-        if (encounteredActivated) {
-          return;
-        }
-        const firstActivatableItem = getFirstActivatableItem(items, this.isActivatable);
-        if (!firstActivatableItem) {
-          return;
-        }
-        firstActivatableItem.tabIndex = 0;
-      };
-      const { isItem, getPossibleItems, isRtl, deactivateItem, activateItem, isNavigableKey, isActivatable, wrapNavigation } = config;
-      this.isItem = isItem;
-      this.getPossibleItems = getPossibleItems;
-      this.isRtl = isRtl;
-      this.deactivateItem = deactivateItem;
-      this.activateItem = activateItem;
-      this.isNavigableKey = isNavigableKey;
-      this.isActivatable = isActivatable;
-      this.wrapNavigation = wrapNavigation ?? (() => true);
-    }
-    /**
-     * The items being managed by the list. Additionally, attempts to see if the
-     * object has a sub-item in the `.item` property.
-     */
-    get items() {
-      const maybeItems = this.getPossibleItems();
-      const items = [];
-      for (const itemOrParent of maybeItems) {
-        const isItem = this.isItem(itemOrParent);
-        if (isItem) {
-          items.push(itemOrParent);
-          continue;
-        }
-        const subItem = itemOrParent.item;
-        if (subItem && this.isItem(subItem)) {
-          items.push(subItem);
-        }
-      }
-      return items;
-    }
-    /**
-     * Activates the next item in the list. If at the end of the list, the first
-     * item will be activated.
-     *
-     * @return The activated list item or `null` if there are no items.
-     */
-    activateNextItem() {
-      const items = this.items;
-      const activeItemRecord = getActiveItem(items, this.isActivatable);
-      if (activeItemRecord) {
-        activeItemRecord.item.tabIndex = -1;
-      }
-      return activateNextItem(items, activeItemRecord, this.isActivatable, this.wrapNavigation());
-    }
-    /**
-     * Activates the previous item in the list. If at the start of the list, the
-     * last item will be activated.
-     *
-     * @return The activated list item or `null` if there are no items.
-     */
-    activatePreviousItem() {
-      const items = this.items;
-      const activeItemRecord = getActiveItem(items, this.isActivatable);
-      if (activeItemRecord) {
-        activeItemRecord.item.tabIndex = -1;
-      }
-      return activatePreviousItem(items, activeItemRecord, this.isActivatable, this.wrapNavigation());
-    }
-  };
+  :host(:focus-visible) {
+    outline: 0px;
+  }
 
-  // node_modules/@material/web/menu/internal/controllers/shared.js
-  function createCloseMenuEvent(initiator, reason) {
-    return new CustomEvent("close-menu", {
-      bubbles: true,
-      composed: true,
-      detail: { initiator, reason, itemPath: [initiator] }
-    });
+  .radio {
+    display: inline-flex;
+    align-items: top;
+    font-family: var(--sl-input-font-family);
+    font-size: var(--sl-input-font-size-medium);
+    font-weight: var(--sl-input-font-weight);
+    color: var(--sl-input-label-color);
+    vertical-align: middle;
+    cursor: pointer;
   }
-  var createDefaultCloseMenuEvent = createCloseMenuEvent;
-  var SelectionKey = {
-    SPACE: "Space",
-    ENTER: "Enter"
-  };
-  var CloseReason = {
-    CLICK_SELECTION: "click-selection",
-    KEYDOWN: "keydown"
-  };
-  var KeydownCloseKey = {
-    ESCAPE: "Escape",
-    SPACE: SelectionKey.SPACE,
-    ENTER: SelectionKey.ENTER
-  };
-  function isClosableKey(code) {
-    return Object.values(KeydownCloseKey).some((value2) => value2 === code);
-  }
-  function isSelectableKey(code) {
-    return Object.values(SelectionKey).some((value2) => value2 === code);
-  }
-  function isElementInSubtree(target, container) {
-    const focusEv = new Event("md-contains", { bubbles: true, composed: true });
-    let composedPath = [];
-    const listener = (ev) => {
-      composedPath = ev.composedPath();
-    };
-    container.addEventListener("md-contains", listener);
-    target.dispatchEvent(focusEv);
-    container.removeEventListener("md-contains", listener);
-    const isContained = composedPath.length > 0;
-    return isContained;
-  }
-  var FocusState = {
-    NONE: "none",
-    LIST_ROOT: "list-root",
-    FIRST_ITEM: "first-item",
-    LAST_ITEM: "last-item"
-  };
 
-  // node_modules/@material/web/menu/internal/controllers/surfacePositionController.js
-  var Corner = {
-    END_START: "end-start",
-    END_END: "end-end",
-    START_START: "start-start",
-    START_END: "start-end"
-  };
-  var SurfacePositionController = class {
-    /**
-     * @param host The host to connect the controller to.
-     * @param getProperties A function that returns the properties for the
-     * controller.
-     */
-    constructor(host, getProperties) {
-      this.host = host;
-      this.getProperties = getProperties;
-      this.surfaceStylesInternal = {
-        "display": "none"
-      };
-      this.lastValues = {
-        isOpen: false
-      };
-      this.host.addController(this);
-    }
-    /**
-     * The StyleInfo map to apply to the surface via Lit's stylemap
-     */
-    get surfaceStyles() {
-      return this.surfaceStylesInternal;
-    }
-    /**
-     * Calculates the surface's new position required so that the surface's
-     * `surfaceCorner` aligns to the anchor's `anchorCorner` while keeping the
-     * surface inside the window viewport. This positioning also respects RTL by
-     * checking `getComputedStyle()` on the surface element.
-     */
-    async position() {
-      const { surfaceEl, anchorEl, anchorCorner: anchorCornerRaw, surfaceCorner: surfaceCornerRaw, positioning, xOffset, yOffset, repositionStrategy } = this.getProperties();
-      const anchorCorner = anchorCornerRaw.toLowerCase().trim();
-      const surfaceCorner = surfaceCornerRaw.toLowerCase().trim();
-      if (!surfaceEl || !anchorEl) {
-        return;
-      }
-      const windowInnerWidth = window.innerWidth;
-      const windowInnerHeight = window.innerHeight;
-      const div = document.createElement("div");
-      div.style.opacity = "0";
-      div.style.position = "fixed";
-      div.style.display = "block";
-      div.style.inset = "0";
-      document.body.appendChild(div);
-      const scrollbarTestRect = div.getBoundingClientRect();
-      div.remove();
-      const blockScrollbarHeight = window.innerHeight - scrollbarTestRect.bottom;
-      const inlineScrollbarWidth = window.innerWidth - scrollbarTestRect.right;
-      this.surfaceStylesInternal = {
-        "display": "block",
-        "opacity": "0"
-      };
-      this.host.requestUpdate();
-      await this.host.updateComplete;
-      if (surfaceEl.popover && surfaceEl.isConnected) {
-        surfaceEl.showPopover();
-      }
-      const surfaceRect = surfaceEl.getSurfacePositionClientRect ? surfaceEl.getSurfacePositionClientRect() : surfaceEl.getBoundingClientRect();
-      const anchorRect = anchorEl.getSurfacePositionClientRect ? anchorEl.getSurfacePositionClientRect() : anchorEl.getBoundingClientRect();
-      const [surfaceBlock, surfaceInline] = surfaceCorner.split("-");
-      const [anchorBlock, anchorInline] = anchorCorner.split("-");
-      const isLTR = getComputedStyle(surfaceEl).direction === "ltr";
-      let { blockInset, blockOutOfBoundsCorrection, surfaceBlockProperty } = this.calculateBlock({
-        surfaceRect,
-        anchorRect,
-        anchorBlock,
-        surfaceBlock,
-        yOffset,
-        positioning,
-        windowInnerHeight,
-        blockScrollbarHeight
-      });
-      if (blockOutOfBoundsCorrection) {
-        const flippedSurfaceBlock = surfaceBlock === "start" ? "end" : "start";
-        const flippedAnchorBlock = anchorBlock === "start" ? "end" : "start";
-        const flippedBlock = this.calculateBlock({
-          surfaceRect,
-          anchorRect,
-          anchorBlock: flippedAnchorBlock,
-          surfaceBlock: flippedSurfaceBlock,
-          yOffset,
-          positioning,
-          windowInnerHeight,
-          blockScrollbarHeight
-        });
-        if (blockOutOfBoundsCorrection > flippedBlock.blockOutOfBoundsCorrection) {
-          blockInset = flippedBlock.blockInset;
-          blockOutOfBoundsCorrection = flippedBlock.blockOutOfBoundsCorrection;
-          surfaceBlockProperty = flippedBlock.surfaceBlockProperty;
-        }
-      }
-      let { inlineInset, inlineOutOfBoundsCorrection, surfaceInlineProperty } = this.calculateInline({
-        surfaceRect,
-        anchorRect,
-        anchorInline,
-        surfaceInline,
-        xOffset,
-        positioning,
-        isLTR,
-        windowInnerWidth,
-        inlineScrollbarWidth
-      });
-      if (inlineOutOfBoundsCorrection) {
-        const flippedSurfaceInline = surfaceInline === "start" ? "end" : "start";
-        const flippedAnchorInline = anchorInline === "start" ? "end" : "start";
-        const flippedInline = this.calculateInline({
-          surfaceRect,
-          anchorRect,
-          anchorInline: flippedAnchorInline,
-          surfaceInline: flippedSurfaceInline,
-          xOffset,
-          positioning,
-          isLTR,
-          windowInnerWidth,
-          inlineScrollbarWidth
-        });
-        if (Math.abs(inlineOutOfBoundsCorrection) > Math.abs(flippedInline.inlineOutOfBoundsCorrection)) {
-          inlineInset = flippedInline.inlineInset;
-          inlineOutOfBoundsCorrection = flippedInline.inlineOutOfBoundsCorrection;
-          surfaceInlineProperty = flippedInline.surfaceInlineProperty;
-        }
-      }
-      if (repositionStrategy === "move") {
-        blockInset = blockInset - blockOutOfBoundsCorrection;
-        inlineInset = inlineInset - inlineOutOfBoundsCorrection;
-      }
-      this.surfaceStylesInternal = {
-        "display": "block",
-        "opacity": "1",
-        [surfaceBlockProperty]: `${blockInset}px`,
-        [surfaceInlineProperty]: `${inlineInset}px`
-      };
-      if (repositionStrategy === "resize") {
-        if (blockOutOfBoundsCorrection) {
-          this.surfaceStylesInternal["height"] = `${surfaceRect.height - blockOutOfBoundsCorrection}px`;
-        }
-        if (inlineOutOfBoundsCorrection) {
-          this.surfaceStylesInternal["width"] = `${surfaceRect.width - inlineOutOfBoundsCorrection}px`;
-        }
-      }
-      this.host.requestUpdate();
-    }
-    /**
-     * Calculates the css property, the inset, and the out of bounds correction
-     * for the surface in the block direction.
-     */
-    calculateBlock(config) {
-      const { surfaceRect, anchorRect, anchorBlock, surfaceBlock, yOffset, positioning, windowInnerHeight, blockScrollbarHeight } = config;
-      const relativeToWindow = positioning === "fixed" || positioning === "document" ? 1 : 0;
-      const relativeToDocument = positioning === "document" ? 1 : 0;
-      const isSurfaceBlockStart = surfaceBlock === "start" ? 1 : 0;
-      const isSurfaceBlockEnd = surfaceBlock === "end" ? 1 : 0;
-      const isOneBlockEnd = anchorBlock !== surfaceBlock ? 1 : 0;
-      const blockAnchorOffset = isOneBlockEnd * anchorRect.height + yOffset;
-      const blockTopLayerOffset = isSurfaceBlockStart * anchorRect.top + isSurfaceBlockEnd * (windowInnerHeight - anchorRect.bottom - blockScrollbarHeight);
-      const blockDocumentOffset = isSurfaceBlockStart * window.scrollY - isSurfaceBlockEnd * window.scrollY;
-      const blockOutOfBoundsCorrection = Math.abs(Math.min(0, windowInnerHeight - blockTopLayerOffset - blockAnchorOffset - surfaceRect.height));
-      const blockInset = relativeToWindow * blockTopLayerOffset + relativeToDocument * blockDocumentOffset + blockAnchorOffset;
-      const surfaceBlockProperty = surfaceBlock === "start" ? "inset-block-start" : "inset-block-end";
-      return { blockInset, blockOutOfBoundsCorrection, surfaceBlockProperty };
-    }
-    /**
-     * Calculates the css property, the inset, and the out of bounds correction
-     * for the surface in the inline direction.
-     */
-    calculateInline(config) {
-      const { isLTR: isLTRBool, surfaceInline, anchorInline, anchorRect, surfaceRect, xOffset, positioning, windowInnerWidth, inlineScrollbarWidth } = config;
-      const relativeToWindow = positioning === "fixed" || positioning === "document" ? 1 : 0;
-      const relativeToDocument = positioning === "document" ? 1 : 0;
-      const isLTR = isLTRBool ? 1 : 0;
-      const isRTL = isLTRBool ? 0 : 1;
-      const isSurfaceInlineStart = surfaceInline === "start" ? 1 : 0;
-      const isSurfaceInlineEnd = surfaceInline === "end" ? 1 : 0;
-      const isOneInlineEnd = anchorInline !== surfaceInline ? 1 : 0;
-      const inlineAnchorOffset = isOneInlineEnd * anchorRect.width + xOffset;
-      const inlineTopLayerOffsetLTR = isSurfaceInlineStart * anchorRect.left + isSurfaceInlineEnd * (windowInnerWidth - anchorRect.right - inlineScrollbarWidth);
-      const inlineTopLayerOffsetRTL = isSurfaceInlineStart * (windowInnerWidth - anchorRect.right - inlineScrollbarWidth) + isSurfaceInlineEnd * anchorRect.left;
-      const inlineTopLayerOffset = isLTR * inlineTopLayerOffsetLTR + isRTL * inlineTopLayerOffsetRTL;
-      const inlineDocumentOffsetLTR = isSurfaceInlineStart * window.scrollX - isSurfaceInlineEnd * window.scrollX;
-      const inlineDocumentOffsetRTL = isSurfaceInlineEnd * window.scrollX - isSurfaceInlineStart * window.scrollX;
-      const inlineDocumentOffset = isLTR * inlineDocumentOffsetLTR + isRTL * inlineDocumentOffsetRTL;
-      const inlineOutOfBoundsCorrection = Math.abs(Math.min(0, windowInnerWidth - inlineTopLayerOffset - inlineAnchorOffset - surfaceRect.width));
-      const inlineInset = relativeToWindow * inlineTopLayerOffset + inlineAnchorOffset + relativeToDocument * inlineDocumentOffset;
-      let surfaceInlineProperty = surfaceInline === "start" ? "inset-inline-start" : "inset-inline-end";
-      if (positioning === "document" || positioning === "fixed") {
-        if (surfaceInline === "start" && isLTRBool || surfaceInline === "end" && !isLTRBool) {
-          surfaceInlineProperty = "left";
-        } else {
-          surfaceInlineProperty = "right";
-        }
-      }
-      return {
-        inlineInset,
-        inlineOutOfBoundsCorrection,
-        surfaceInlineProperty
-      };
-    }
-    hostUpdate() {
-      this.onUpdate();
-    }
-    hostUpdated() {
-      this.onUpdate();
-    }
-    /**
-     * Checks whether the properties passed into the controller have changed since
-     * the last positioning. If so, it will reposition if the surface is open or
-     * close it if the surface should close.
-     */
-    async onUpdate() {
-      const props = this.getProperties();
-      let hasChanged = false;
-      for (const [key, value2] of Object.entries(props)) {
-        hasChanged = hasChanged || value2 !== this.lastValues[key];
-        if (hasChanged)
-          break;
-      }
-      const openChanged = this.lastValues.isOpen !== props.isOpen;
-      const hasAnchor = !!props.anchorEl;
-      const hasSurface = !!props.surfaceEl;
-      if (hasChanged && hasAnchor && hasSurface) {
-        this.lastValues.isOpen = props.isOpen;
-        if (props.isOpen) {
-          this.lastValues = props;
-          await this.position();
-          props.onOpen();
-        } else if (openChanged) {
-          await props.beforeClose();
-          this.close();
-          props.onClose();
-        }
-      }
-    }
-    /**
-     * Hides the surface.
-     */
-    close() {
-      this.surfaceStylesInternal = {
-        "display": "none"
-      };
-      this.host.requestUpdate();
-      const surfaceEl = this.getProperties().surfaceEl;
-      if (surfaceEl?.popover && surfaceEl?.isConnected) {
-        surfaceEl.hidePopover();
-      }
-    }
-  };
-
-  // node_modules/@material/web/menu/internal/controllers/typeaheadController.js
-  var TYPEAHEAD_RECORD = {
-    INDEX: 0,
-    ITEM: 1,
-    TEXT: 2
-  };
-  var TypeaheadController = class {
-    /**
-     * @param getProperties A function that returns the options of the typeahead
-     * controller:
-     *
-     * {
-     *   getItems: A function that returns an array of menu items to be searched.
-     *   typeaheadBufferTime: The maximum time between each keystroke to keep the
-     *       current type buffer alive.
-     * }
-     */
-    constructor(getProperties) {
-      this.getProperties = getProperties;
-      this.typeaheadRecords = [];
-      this.typaheadBuffer = "";
-      this.cancelTypeaheadTimeout = 0;
-      this.isTypingAhead = false;
-      this.lastActiveRecord = null;
-      this.onKeydown = (event) => {
-        if (this.isTypingAhead) {
-          this.typeahead(event);
-        } else {
-          this.beginTypeahead(event);
-        }
-      };
-      this.endTypeahead = () => {
-        this.isTypingAhead = false;
-        this.typaheadBuffer = "";
-        this.typeaheadRecords = [];
-      };
-    }
-    get items() {
-      return this.getProperties().getItems();
-    }
-    get active() {
-      return this.getProperties().active;
-    }
-    /**
-     * Sets up typingahead
-     */
-    beginTypeahead(event) {
-      if (!this.active) {
-        return;
-      }
-      if (event.code === "Space" || event.code === "Enter" || event.code.startsWith("Arrow") || event.code === "Escape") {
-        return;
-      }
-      this.isTypingAhead = true;
-      this.typeaheadRecords = this.items.map((el, index) => [
-        index,
-        el,
-        el.typeaheadText.trim().toLowerCase()
-      ]);
-      this.lastActiveRecord = this.typeaheadRecords.find((record) => record[TYPEAHEAD_RECORD.ITEM].tabIndex === 0) ?? null;
-      if (this.lastActiveRecord) {
-        this.lastActiveRecord[TYPEAHEAD_RECORD.ITEM].tabIndex = -1;
-      }
-      this.typeahead(event);
-    }
-    /**
-     * Performs the typeahead. Based on the normalized items and the current text
-     * buffer, finds the _next_ item with matching text and activates it.
-     *
-     * @example
-     *
-     * items: Apple, Banana, Olive, Orange, Cucumber
-     * buffer: ''
-     * user types: o
-     *
-     * activates Olive
-     *
-     * @example
-     *
-     * items: Apple, Banana, Olive (active), Orange, Cucumber
-     * buffer: 'o'
-     * user types: l
-     *
-     * activates Olive
-     *
-     * @example
-     *
-     * items: Apple, Banana, Olive (active), Orange, Cucumber
-     * buffer: ''
-     * user types: o
-     *
-     * activates Orange
-     *
-     * @example
-     *
-     * items: Apple, Banana, Olive, Orange (active), Cucumber
-     * buffer: ''
-     * user types: o
-     *
-     * activates Olive
-     */
-    typeahead(event) {
-      if (event.defaultPrevented)
-        return;
-      clearTimeout(this.cancelTypeaheadTimeout);
-      if (event.code === "Enter" || event.code.startsWith("Arrow") || event.code === "Escape") {
-        this.endTypeahead();
-        if (this.lastActiveRecord) {
-          this.lastActiveRecord[TYPEAHEAD_RECORD.ITEM].tabIndex = -1;
-        }
-        return;
-      }
-      if (event.code === "Space") {
-        event.preventDefault();
-      }
-      this.cancelTypeaheadTimeout = setTimeout(this.endTypeahead, this.getProperties().typeaheadBufferTime);
-      this.typaheadBuffer += event.key.toLowerCase();
-      const lastActiveIndex = this.lastActiveRecord ? this.lastActiveRecord[TYPEAHEAD_RECORD.INDEX] : -1;
-      const numRecords = this.typeaheadRecords.length;
-      const rebaseIndexOnActive = (record) => {
-        return (record[TYPEAHEAD_RECORD.INDEX] + numRecords - lastActiveIndex) % numRecords;
-      };
-      const matchingRecords = this.typeaheadRecords.filter((record) => !record[TYPEAHEAD_RECORD.ITEM].disabled && record[TYPEAHEAD_RECORD.TEXT].startsWith(this.typaheadBuffer)).sort((a5, b4) => rebaseIndexOnActive(a5) - rebaseIndexOnActive(b4));
-      if (matchingRecords.length === 0) {
-        clearTimeout(this.cancelTypeaheadTimeout);
-        if (this.lastActiveRecord) {
-          this.lastActiveRecord[TYPEAHEAD_RECORD.ITEM].tabIndex = -1;
-        }
-        this.endTypeahead();
-        return;
-      }
-      const isNewQuery = this.typaheadBuffer.length === 1;
-      let nextRecord;
-      if (this.lastActiveRecord === matchingRecords[0] && isNewQuery) {
-        nextRecord = matchingRecords[1] ?? matchingRecords[0];
-      } else {
-        nextRecord = matchingRecords[0];
-      }
-      if (this.lastActiveRecord) {
-        this.lastActiveRecord[TYPEAHEAD_RECORD.ITEM].tabIndex = -1;
-      }
-      this.lastActiveRecord = nextRecord;
-      nextRecord[TYPEAHEAD_RECORD.ITEM].tabIndex = 0;
-      nextRecord[TYPEAHEAD_RECORD.ITEM].focus();
-      return;
-    }
-  };
-
-  // node_modules/@material/web/menu/internal/menu.js
-  var DEFAULT_TYPEAHEAD_BUFFER_TIME = 200;
-  var submenuNavKeys = /* @__PURE__ */ new Set([
-    NavigableKeys.ArrowDown,
-    NavigableKeys.ArrowUp,
-    NavigableKeys.Home,
-    NavigableKeys.End
-  ]);
-  var menuNavKeys = /* @__PURE__ */ new Set([
-    NavigableKeys.ArrowLeft,
-    NavigableKeys.ArrowRight,
-    ...submenuNavKeys
-  ]);
-  function getFocusedElement(activeDoc = document) {
-    let activeEl = activeDoc.activeElement;
-    while (activeEl && activeEl?.shadowRoot?.activeElement) {
-      activeEl = activeEl.shadowRoot.activeElement;
-    }
-    return activeEl;
+  .radio--small {
+    --toggle-size: var(--sl-toggle-size-small);
+    font-size: var(--sl-input-font-size-small);
   }
-  var Menu = class extends i6 {
-    /**
-     * Whether the menu is animating upwards or downwards when opening. This is
-     * helpful for calculating some animation calculations.
-     */
-    get openDirection() {
-      const menuCornerBlock = this.menuCorner.split("-")[0];
-      return menuCornerBlock === "start" ? "DOWN" : "UP";
-    }
-    /**
-     * The element which the menu should align to. If `anchor` is set to a
-     * non-empty idref string, then `anchorEl` will resolve to the element with
-     * the given id in the same root node. Otherwise, `null`.
-     */
-    get anchorElement() {
-      if (this.anchor) {
-        return this.getRootNode().querySelector(`#${this.anchor}`);
-      }
-      return this.currentAnchorElement;
-    }
-    set anchorElement(element) {
-      this.currentAnchorElement = element;
-      this.requestUpdate("anchorElement");
-    }
+
+  .radio--medium {
+    --toggle-size: var(--sl-toggle-size-medium);
+    font-size: var(--sl-input-font-size-medium);
+  }
+
+  .radio--large {
+    --toggle-size: var(--sl-toggle-size-large);
+    font-size: var(--sl-input-font-size-large);
+  }
+
+  .radio__checked-icon {
+    display: inline-flex;
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+  }
+
+  .radio__control {
+    flex: 0 0 auto;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+    border-radius: 50%;
+    background-color: var(--sl-input-background-color);
+    color: transparent;
+    transition:
+      var(--sl-transition-fast) border-color,
+      var(--sl-transition-fast) background-color,
+      var(--sl-transition-fast) color,
+      var(--sl-transition-fast) box-shadow;
+  }
+
+  .radio__input {
+    position: absolute;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  /* Hover */
+  .radio:not(.radio--checked):not(.radio--disabled) .radio__control:hover {
+    border-color: var(--sl-input-border-color-hover);
+    background-color: var(--sl-input-background-color-hover);
+  }
+
+  /* Checked */
+  .radio--checked .radio__control {
+    color: var(--sl-color-neutral-0);
+    border-color: var(--sl-color-primary-600);
+    background-color: var(--sl-color-primary-600);
+  }
+
+  /* Checked + hover */
+  .radio.radio--checked:not(.radio--disabled) .radio__control:hover {
+    border-color: var(--sl-color-primary-500);
+    background-color: var(--sl-color-primary-500);
+  }
+
+  /* Checked + focus */
+  :host(:focus-visible) .radio__control {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  /* Disabled */
+  .radio--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* When the control isn't checked, hide the circle for Windows High Contrast mode a11y */
+  .radio:not(.radio--checked) svg circle {
+    opacity: 0;
+  }
+
+  .radio__label {
+    display: inline-block;
+    color: var(--sl-input-label-color);
+    line-height: var(--toggle-size);
+    margin-inline-start: 0.5em;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.ZSG32LO3.js
+  var SlRadio = class extends ShoelaceElement {
     constructor() {
       super();
-      this.anchor = "";
-      this.positioning = "absolute";
-      this.quick = false;
-      this.hasOverflow = false;
-      this.open = false;
-      this.xOffset = 0;
-      this.yOffset = 0;
-      this.typeaheadDelay = DEFAULT_TYPEAHEAD_BUFFER_TIME;
-      this.anchorCorner = Corner.END_START;
-      this.menuCorner = Corner.START_START;
-      this.stayOpenOnOutsideClick = false;
-      this.stayOpenOnFocusout = false;
-      this.skipRestoreFocus = false;
-      this.defaultFocus = FocusState.FIRST_ITEM;
-      this.noNavigationWrap = false;
-      this.typeaheadActive = true;
-      this.isSubmenu = false;
-      this.pointerPath = [];
-      this.isRepositioning = false;
-      this.openCloseAnimationSignal = createAnimationSignal();
-      this.listController = new ListController({
-        isItem: (maybeItem) => {
-          return maybeItem.hasAttribute("md-menu-item");
-        },
-        getPossibleItems: () => this.slotItems,
-        isRtl: () => getComputedStyle(this).direction === "rtl",
-        deactivateItem: (item) => {
-          item.selected = false;
-          item.tabIndex = -1;
-        },
-        activateItem: (item) => {
-          item.selected = true;
-          item.tabIndex = 0;
-        },
-        isNavigableKey: (key) => {
-          if (!this.isSubmenu) {
-            return menuNavKeys.has(key);
-          }
-          const isRtl = getComputedStyle(this).direction === "rtl";
-          const arrowOpen = isRtl ? NavigableKeys.ArrowLeft : NavigableKeys.ArrowRight;
-          if (key === arrowOpen) {
-            return true;
-          }
-          return submenuNavKeys.has(key);
-        },
-        wrapNavigation: () => !this.noNavigationWrap
-      });
-      this.lastFocusedElement = null;
-      this.typeaheadController = new TypeaheadController(() => {
-        return {
-          getItems: () => this.items,
-          typeaheadBufferTime: this.typeaheadDelay,
-          active: this.typeaheadActive
-        };
-      });
-      this.currentAnchorElement = null;
-      this.internals = // Cast needed for closure
-      this.attachInternals();
-      this.menuPositionController = new SurfacePositionController(this, () => {
-        return {
-          anchorCorner: this.anchorCorner,
-          surfaceCorner: this.menuCorner,
-          surfaceEl: this.surfaceEl,
-          anchorEl: this.anchorElement,
-          positioning: this.positioning === "popover" ? "document" : this.positioning,
-          isOpen: this.open,
-          xOffset: this.xOffset,
-          yOffset: this.yOffset,
-          onOpen: this.onOpened,
-          beforeClose: this.beforeClose,
-          onClose: this.onClosed,
-          // We can't resize components that have overflow like menus with
-          // submenus because the overflow-y will show menu items / content
-          // outside the bounds of the menu. Popover API fixes this because each
-          // submenu is hoisted to the top-layer and are not considered overflow
-          // content.
-          repositionStrategy: this.hasOverflow && this.positioning !== "popover" ? "move" : "resize"
-        };
-      });
-      this.onWindowResize = () => {
-        if (this.isRepositioning || this.positioning !== "document" && this.positioning !== "fixed" && this.positioning !== "popover") {
-          return;
-        }
-        this.isRepositioning = true;
-        this.reposition();
-        this.isRepositioning = false;
+      this.checked = false;
+      this.hasFocus = false;
+      this.size = "medium";
+      this.disabled = false;
+      this.handleBlur = () => {
+        this.hasFocus = false;
+        this.emit("sl-blur");
       };
-      this.handleFocusout = async (event) => {
-        const anchorEl = this.anchorElement;
-        if (this.stayOpenOnFocusout || !this.open || this.pointerPath.includes(anchorEl)) {
-          return;
-        }
-        if (event.relatedTarget) {
-          if (isElementInSubtree(event.relatedTarget, this) || this.pointerPath.length !== 0 && isElementInSubtree(event.relatedTarget, anchorEl)) {
-            return;
-          }
-        } else if (this.pointerPath.includes(this)) {
-          return;
-        }
-        const oldRestoreFocus = this.skipRestoreFocus;
-        this.skipRestoreFocus = true;
-        this.close();
-        await this.updateComplete;
-        this.skipRestoreFocus = oldRestoreFocus;
-      };
-      this.onOpened = async () => {
-        this.lastFocusedElement = getFocusedElement();
-        const items = this.items;
-        const activeItemRecord = getActiveItem(items);
-        if (activeItemRecord && this.defaultFocus !== FocusState.NONE) {
-          activeItemRecord.item.tabIndex = -1;
-        }
-        let animationAborted = !this.quick;
-        if (this.quick) {
-          this.dispatchEvent(new Event("opening"));
-        } else {
-          animationAborted = !!await this.animateOpen();
-        }
-        switch (this.defaultFocus) {
-          case FocusState.FIRST_ITEM:
-            const first = getFirstActivatableItem(items);
-            if (first) {
-              first.tabIndex = 0;
-              first.focus();
-              await first.updateComplete;
-            }
-            break;
-          case FocusState.LAST_ITEM:
-            const last = getLastActivatableItem(items);
-            if (last) {
-              last.tabIndex = 0;
-              last.focus();
-              await last.updateComplete;
-            }
-            break;
-          case FocusState.LIST_ROOT:
-            this.focus();
-            break;
-          default:
-          case FocusState.NONE:
-            break;
-        }
-        if (!animationAborted) {
-          this.dispatchEvent(new Event("opened"));
+      this.handleClick = () => {
+        if (!this.disabled) {
+          this.checked = true;
         }
       };
-      this.beforeClose = async () => {
-        this.open = false;
-        if (!this.skipRestoreFocus) {
-          this.lastFocusedElement?.focus?.();
-        }
-        if (!this.quick) {
-          await this.animateClose();
-        }
+      this.handleFocus = () => {
+        this.hasFocus = true;
+        this.emit("sl-focus");
       };
-      this.onClosed = () => {
-        if (this.quick) {
-          this.dispatchEvent(new Event("closing"));
-          this.dispatchEvent(new Event("closed"));
-        }
-      };
-      this.onWindowPointerdown = (event) => {
-        this.pointerPath = event.composedPath();
-      };
-      this.onDocumentClick = (event) => {
-        if (!this.open) {
-          return;
-        }
-        const path = event.composedPath();
-        if (!this.stayOpenOnOutsideClick && !path.includes(this) && !path.includes(this.anchorElement)) {
-          this.open = false;
-        }
-      };
-      if (!o7) {
-        this.internals.role = "menu";
-        this.addEventListener("keydown", this.handleKeydown);
-        this.addEventListener("keydown", this.captureKeydown, { capture: true });
-        this.addEventListener("focusout", this.handleFocusout);
-      }
-    }
-    /**
-     * The menu items associated with this menu. The items must be `MenuItem`s and
-     * have both the `md-menu-item` and `md-list-item` attributes.
-     */
-    get items() {
-      return this.listController.items;
-    }
-    willUpdate(changed) {
-      if (!changed.has("open")) {
-        return;
-      }
-      if (this.open) {
-        this.removeAttribute("aria-hidden");
-        return;
-      }
-      this.setAttribute("aria-hidden", "true");
-    }
-    update(changed) {
-      if (changed.has("open")) {
-        if (this.open) {
-          this.setUpGlobalEventListeners();
-        } else {
-          this.cleanUpGlobalEventListeners();
-        }
-      }
-      if (changed.has("positioning") && this.positioning === "popover" && // type required for Google JS conformance
-      !this.showPopover) {
-        this.positioning = "fixed";
-      }
-      super.update(changed);
+      this.addEventListener("blur", this.handleBlur);
+      this.addEventListener("click", this.handleClick);
+      this.addEventListener("focus", this.handleFocus);
     }
     connectedCallback() {
       super.connectedCallback();
-      if (this.open) {
-        this.setUpGlobalEventListeners();
-      }
+      this.setInitialAttributes();
     }
-    disconnectedCallback() {
-      super.disconnectedCallback();
-      this.cleanUpGlobalEventListeners();
+    setInitialAttributes() {
+      this.setAttribute("role", "radio");
+      this.setAttribute("tabindex", "-1");
+      this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
     }
-    getBoundingClientRect() {
-      if (!this.surfaceEl) {
-        return super.getBoundingClientRect();
-      }
-      return this.surfaceEl.getBoundingClientRect();
+    handleCheckedChange() {
+      this.setAttribute("aria-checked", this.checked ? "true" : "false");
+      this.setAttribute("tabindex", this.checked ? "0" : "-1");
     }
-    getClientRects() {
-      if (!this.surfaceEl) {
-        return super.getClientRects();
-      }
-      return this.surfaceEl.getClientRects();
-    }
-    render() {
-      return this.renderSurface();
-    }
-    /**
-     * Renders the positionable surface element and its contents.
-     */
-    renderSurface() {
-      return x`
-      <div
-        class="menu ${e10(this.getSurfaceClasses())}"
-        style=${o13(this.menuPositionController.surfaceStyles)}
-        popover=${this.positioning === "popover" ? "manual" : E2}>
-        ${this.renderElevation()}
-        <div class="items">
-          <div class="item-padding"> ${this.renderMenuItems()} </div>
-        </div>
-      </div>
-    `;
-    }
-    /**
-     * Renders the menu items' slot
-     */
-    renderMenuItems() {
-      return x`<slot
-      @close-menu=${this.onCloseMenu}
-      @deactivate-items=${this.onDeactivateItems}
-      @request-activation=${this.onRequestActivation}
-      @deactivate-typeahead=${this.handleDeactivateTypeahead}
-      @activate-typeahead=${this.handleActivateTypeahead}
-      @stay-open-on-focusout=${this.handleStayOpenOnFocusout}
-      @close-on-focusout=${this.handleCloseOnFocusout}
-      @slotchange=${this.listController.onSlotchange}></slot>`;
-    }
-    /**
-     * Renders the elevation component.
-     */
-    renderElevation() {
-      return x`<md-elevation part="elevation"></md-elevation>`;
-    }
-    getSurfaceClasses() {
-      return {
-        open: this.open,
-        fixed: this.positioning === "fixed",
-        "has-overflow": this.hasOverflow
-      };
-    }
-    captureKeydown(event) {
-      if (event.target === this && !event.defaultPrevented && isClosableKey(event.code)) {
-        event.preventDefault();
-        this.close();
-      }
-      this.typeaheadController.onKeydown(event);
-    }
-    /**
-     * Performs the opening animation:
-     *
-     * https://direct.googleplex.com/#/spec/295000003+271060003
-     *
-     * @return A promise that resolve to `true` if the animation was aborted,
-     *     `false` if it was not aborted.
-     */
-    async animateOpen() {
-      const surfaceEl = this.surfaceEl;
-      const slotEl = this.slotEl;
-      if (!surfaceEl || !slotEl)
-        return true;
-      const openDirection = this.openDirection;
-      this.dispatchEvent(new Event("opening"));
-      surfaceEl.classList.toggle("animating", true);
-      const signal = this.openCloseAnimationSignal.start();
-      const height = surfaceEl.offsetHeight;
-      const openingUpwards = openDirection === "UP";
-      const children = this.items;
-      const FULL_DURATION = 500;
-      const SURFACE_OPACITY_DURATION = 50;
-      const ITEM_OPACITY_DURATION = 250;
-      const DELAY_BETWEEN_ITEMS = (FULL_DURATION - ITEM_OPACITY_DURATION) / children.length;
-      const surfaceHeightAnimation = surfaceEl.animate([{ height: "0px" }, { height: `${height}px` }], {
-        duration: FULL_DURATION,
-        easing: EASING.EMPHASIZED
-      });
-      const upPositionCorrectionAnimation = slotEl.animate([
-        { transform: openingUpwards ? `translateY(-${height}px)` : "" },
-        { transform: "" }
-      ], { duration: FULL_DURATION, easing: EASING.EMPHASIZED });
-      const surfaceOpacityAnimation = surfaceEl.animate([{ opacity: 0 }, { opacity: 1 }], SURFACE_OPACITY_DURATION);
-      const childrenAnimations = [];
-      for (let i10 = 0; i10 < children.length; i10++) {
-        const directionalIndex = openingUpwards ? children.length - 1 - i10 : i10;
-        const child = children[directionalIndex];
-        const animation = child.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: ITEM_OPACITY_DURATION,
-          delay: DELAY_BETWEEN_ITEMS * i10
-        });
-        child.classList.toggle("md-menu-hidden", true);
-        animation.addEventListener("finish", () => {
-          child.classList.toggle("md-menu-hidden", false);
-        });
-        childrenAnimations.push([child, animation]);
-      }
-      let resolveAnimation = (value2) => {
-      };
-      const animationFinished = new Promise((resolve) => {
-        resolveAnimation = resolve;
-      });
-      signal.addEventListener("abort", () => {
-        surfaceHeightAnimation.cancel();
-        upPositionCorrectionAnimation.cancel();
-        surfaceOpacityAnimation.cancel();
-        childrenAnimations.forEach(([child, animation]) => {
-          child.classList.toggle("md-menu-hidden", false);
-          animation.cancel();
-        });
-        resolveAnimation(true);
-      });
-      surfaceHeightAnimation.addEventListener("finish", () => {
-        surfaceEl.classList.toggle("animating", false);
-        this.openCloseAnimationSignal.finish();
-        resolveAnimation(false);
-      });
-      return await animationFinished;
-    }
-    /**
-     * Performs the closing animation:
-     *
-     * https://direct.googleplex.com/#/spec/295000003+271060003
-     */
-    animateClose() {
-      let resolve;
-      const animationEnded = new Promise((res) => {
-        resolve = res;
-      });
-      const surfaceEl = this.surfaceEl;
-      const slotEl = this.slotEl;
-      if (!surfaceEl || !slotEl) {
-        resolve(false);
-        return animationEnded;
-      }
-      const openDirection = this.openDirection;
-      const closingDownwards = openDirection === "UP";
-      this.dispatchEvent(new Event("closing"));
-      surfaceEl.classList.toggle("animating", true);
-      const signal = this.openCloseAnimationSignal.start();
-      const height = surfaceEl.offsetHeight;
-      const children = this.items;
-      const FULL_DURATION = 150;
-      const SURFACE_OPACITY_DURATION = 50;
-      const SURFACE_OPACITY_DELAY = FULL_DURATION - SURFACE_OPACITY_DURATION;
-      const ITEM_OPACITY_DURATION = 50;
-      const ITEM_OPACITY_INITIAL_DELAY = 50;
-      const END_HEIGHT_PERCENTAGE = 0.35;
-      const DELAY_BETWEEN_ITEMS = (FULL_DURATION - ITEM_OPACITY_INITIAL_DELAY - ITEM_OPACITY_DURATION) / children.length;
-      const surfaceHeightAnimation = surfaceEl.animate([
-        { height: `${height}px` },
-        { height: `${height * END_HEIGHT_PERCENTAGE}px` }
-      ], {
-        duration: FULL_DURATION,
-        easing: EASING.EMPHASIZED_ACCELERATE
-      });
-      const downPositionCorrectionAnimation = slotEl.animate([
-        { transform: "" },
-        {
-          transform: closingDownwards ? `translateY(-${height * (1 - END_HEIGHT_PERCENTAGE)}px)` : ""
-        }
-      ], { duration: FULL_DURATION, easing: EASING.EMPHASIZED_ACCELERATE });
-      const surfaceOpacityAnimation = surfaceEl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: SURFACE_OPACITY_DURATION, delay: SURFACE_OPACITY_DELAY });
-      const childrenAnimations = [];
-      for (let i10 = 0; i10 < children.length; i10++) {
-        const directionalIndex = closingDownwards ? i10 : children.length - 1 - i10;
-        const child = children[directionalIndex];
-        const animation = child.animate([{ opacity: 1 }, { opacity: 0 }], {
-          duration: ITEM_OPACITY_DURATION,
-          delay: ITEM_OPACITY_INITIAL_DELAY + DELAY_BETWEEN_ITEMS * i10
-        });
-        animation.addEventListener("finish", () => {
-          child.classList.toggle("md-menu-hidden", true);
-        });
-        childrenAnimations.push([child, animation]);
-      }
-      signal.addEventListener("abort", () => {
-        surfaceHeightAnimation.cancel();
-        downPositionCorrectionAnimation.cancel();
-        surfaceOpacityAnimation.cancel();
-        childrenAnimations.forEach(([child, animation]) => {
-          animation.cancel();
-          child.classList.toggle("md-menu-hidden", false);
-        });
-        resolve(false);
-      });
-      surfaceHeightAnimation.addEventListener("finish", () => {
-        surfaceEl.classList.toggle("animating", false);
-        childrenAnimations.forEach(([child]) => {
-          child.classList.toggle("md-menu-hidden", false);
-        });
-        this.openCloseAnimationSignal.finish();
-        this.dispatchEvent(new Event("closed"));
-        resolve(true);
-      });
-      return animationEnded;
-    }
-    handleKeydown(event) {
-      this.pointerPath = [];
-      this.listController.handleKeydown(event);
-    }
-    setUpGlobalEventListeners() {
-      document.addEventListener("click", this.onDocumentClick, { capture: true });
-      window.addEventListener("pointerdown", this.onWindowPointerdown);
-      document.addEventListener("resize", this.onWindowResize, { passive: true });
-      window.addEventListener("resize", this.onWindowResize, { passive: true });
-    }
-    cleanUpGlobalEventListeners() {
-      document.removeEventListener("click", this.onDocumentClick, {
-        capture: true
-      });
-      window.removeEventListener("pointerdown", this.onWindowPointerdown);
-      document.removeEventListener("resize", this.onWindowResize);
-      window.removeEventListener("resize", this.onWindowResize);
-    }
-    onCloseMenu() {
-      this.close();
-    }
-    onDeactivateItems(event) {
-      event.stopPropagation();
-      this.listController.onDeactivateItems();
-    }
-    onRequestActivation(event) {
-      event.stopPropagation();
-      this.listController.onRequestActivation(event);
-    }
-    handleDeactivateTypeahead(event) {
-      event.stopPropagation();
-      this.typeaheadActive = false;
-    }
-    handleActivateTypeahead(event) {
-      event.stopPropagation();
-      this.typeaheadActive = true;
-    }
-    handleStayOpenOnFocusout(event) {
-      event.stopPropagation();
-      this.stayOpenOnFocusout = true;
-    }
-    handleCloseOnFocusout(event) {
-      event.stopPropagation();
-      this.stayOpenOnFocusout = false;
-    }
-    close() {
-      this.open = false;
-      const maybeSubmenu = this.slotItems;
-      maybeSubmenu.forEach((item) => {
-        item.close?.();
-      });
-    }
-    show() {
-      this.open = true;
-    }
-    /**
-     * Activates the next item in the menu. If at the end of the menu, the first
-     * item will be activated.
-     *
-     * @return The activated menu item or `null` if there are no items.
-     */
-    activateNextItem() {
-      return this.listController.activateNextItem() ?? null;
-    }
-    /**
-     * Activates the previous item in the menu. If at the start of the menu, the
-     * last item will be activated.
-     *
-     * @return The activated menu item or `null` if there are no items.
-     */
-    activatePreviousItem() {
-      return this.listController.activatePreviousItem() ?? null;
-    }
-    /**
-     * Repositions the menu if it is open.
-     *
-     * Useful for the case where document or window-positioned menus have their
-     * anchors moved while open.
-     */
-    reposition() {
-      if (this.open) {
-        this.menuPositionController.position();
-      }
-    }
-  };
-  __decorate2([
-    e6(".menu")
-  ], Menu.prototype, "surfaceEl", void 0);
-  __decorate2([
-    e6("slot")
-  ], Menu.prototype, "slotEl", void 0);
-  __decorate2([
-    n5()
-  ], Menu.prototype, "anchor", void 0);
-  __decorate2([
-    n5()
-  ], Menu.prototype, "positioning", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Menu.prototype, "quick", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "has-overflow" })
-  ], Menu.prototype, "hasOverflow", void 0);
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], Menu.prototype, "open", void 0);
-  __decorate2([
-    n5({ type: Number, attribute: "x-offset" })
-  ], Menu.prototype, "xOffset", void 0);
-  __decorate2([
-    n5({ type: Number, attribute: "y-offset" })
-  ], Menu.prototype, "yOffset", void 0);
-  __decorate2([
-    n5({ type: Number, attribute: "typeahead-delay" })
-  ], Menu.prototype, "typeaheadDelay", void 0);
-  __decorate2([
-    n5({ attribute: "anchor-corner" })
-  ], Menu.prototype, "anchorCorner", void 0);
-  __decorate2([
-    n5({ attribute: "menu-corner" })
-  ], Menu.prototype, "menuCorner", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "stay-open-on-outside-click" })
-  ], Menu.prototype, "stayOpenOnOutsideClick", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "stay-open-on-focusout" })
-  ], Menu.prototype, "stayOpenOnFocusout", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "skip-restore-focus" })
-  ], Menu.prototype, "skipRestoreFocus", void 0);
-  __decorate2([
-    n5({ attribute: "default-focus" })
-  ], Menu.prototype, "defaultFocus", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "no-navigation-wrap" })
-  ], Menu.prototype, "noNavigationWrap", void 0);
-  __decorate2([
-    o9({ flatten: true })
-  ], Menu.prototype, "slotItems", void 0);
-  __decorate2([
-    r6()
-  ], Menu.prototype, "typeaheadActive", void 0);
-
-  // node_modules/@material/web/menu/internal/menu-styles.js
-  var styles11 = i3`:host{--md-elevation-level: var(--md-menu-container-elevation, 2);--md-elevation-shadow-color: var(--md-menu-container-shadow-color, var(--md-sys-color-shadow, #000));min-width:112px;color:unset;display:contents}md-focus-ring{--md-focus-ring-shape: var(--md-menu-container-shape, var(--md-sys-shape-corner-extra-small, 4px))}.menu{border-radius:var(--md-menu-container-shape, var(--md-sys-shape-corner-extra-small, 4px));display:none;inset:auto;border:none;padding:0px;overflow:visible;background-color:rgba(0,0,0,0);color:inherit;opacity:0;z-index:20;position:absolute;user-select:none;max-height:inherit;height:inherit;min-width:inherit;max-width:inherit;scrollbar-width:inherit}.menu::backdrop{display:none}.fixed{position:fixed}.items{display:block;list-style-type:none;margin:0;outline:none;box-sizing:border-box;background-color:var(--md-menu-container-color, var(--md-sys-color-surface-container, #f3edf7));height:inherit;max-height:inherit;overflow:auto;min-width:inherit;max-width:inherit;border-radius:inherit;scrollbar-width:inherit}.item-padding{padding-block:8px}.has-overflow:not([popover]) .items{overflow:visible}.has-overflow.animating .items,.animating .items{overflow:hidden}.has-overflow.animating .items{pointer-events:none}.animating ::slotted(.md-menu-hidden){opacity:0}slot{display:block;height:inherit;max-height:inherit}::slotted(:is(md-divider,[role=separator])){margin:8px 0}@media(forced-colors: active){.menu{border-style:solid;border-color:CanvasText;border-width:1px}}
-`;
-
-  // node_modules/@material/web/menu/menu.js
-  var MdMenu = class MdMenu2 extends Menu {
-  };
-  MdMenu.styles = [styles11];
-  MdMenu = __decorate2([
-    t4("md-menu")
-  ], MdMenu);
-
-  // node_modules/@material/web/labs/behaviors/validators/select-validator.js
-  var SelectValidator = class extends Validator {
-    computeValidity(state) {
-      if (!this.selectControl) {
-        this.selectControl = document.createElement("select");
-      }
-      B2(x`<option value=${state.value}></option>`, this.selectControl);
-      this.selectControl.value = state.value;
-      this.selectControl.required = state.required;
-      return {
-        validity: this.selectControl.validity,
-        validationMessage: this.selectControl.validationMessage
-      };
-    }
-    equals(prev, next) {
-      return prev.value === next.value && prev.required === next.required;
-    }
-    copy({ value: value2, required }) {
-      return { value: value2, required };
-    }
-  };
-
-  // node_modules/@material/web/select/internal/shared.js
-  function getSelectedItems(items) {
-    const selectedItemRecords = [];
-    for (let i10 = 0; i10 < items.length; i10++) {
-      const item = items[i10];
-      if (item.selected) {
-        selectedItemRecords.push([item, i10]);
-      }
-    }
-    return selectedItemRecords;
-  }
-
-  // node_modules/@material/web/select/internal/select.js
-  var _a;
-  var VALUE = Symbol("value");
-  var selectBaseClass = mixinOnReportValidity(mixinConstraintValidation(mixinFormAssociated(mixinElementInternals(i6))));
-  var Select = class extends selectBaseClass {
-    /**
-     * The value of the currently selected option.
-     *
-     * Note: For SSR, set `[selected]` on the requested option and `displayText`
-     * rather than setting `value` setting `value` will incur a DOM query.
-     */
-    get value() {
-      return this[VALUE];
-    }
-    set value(value2) {
-      if (o7)
-        return;
-      this.lastUserSetValue = value2;
-      this.select(value2);
-    }
-    get options() {
-      return this.menu?.items ?? [];
-    }
-    /**
-     * The index of the currently selected option.
-     *
-     * Note: For SSR, set `[selected]` on the requested option and `displayText`
-     * rather than setting `selectedIndex` setting `selectedIndex` will incur a
-     * DOM query.
-     */
-    get selectedIndex() {
-      const [_option, index] = (this.getSelectedOptions() ?? [])[0] ?? [];
-      return index ?? -1;
-    }
-    set selectedIndex(index) {
-      this.lastUserSetSelectedIndex = index;
-      this.selectIndex(index);
-    }
-    /**
-     * Returns an array of selected options.
-     *
-     * NOTE: md-select only supports single selection.
-     */
-    get selectedOptions() {
-      return (this.getSelectedOptions() ?? []).map(([option]) => option);
-    }
-    get hasError() {
-      return this.error || this.nativeError;
-    }
-    constructor() {
-      super();
-      this.quick = false;
-      this.required = false;
-      this.errorText = "";
-      this.label = "";
-      this.noAsterisk = false;
-      this.supportingText = "";
-      this.error = false;
-      this.menuPositioning = "popover";
-      this.clampMenuWidth = false;
-      this.typeaheadDelay = DEFAULT_TYPEAHEAD_BUFFER_TIME;
-      this.hasLeadingIcon = false;
-      this.displayText = "";
-      this.menuAlign = "start";
-      this[_a] = "";
-      this.lastUserSetValue = null;
-      this.lastUserSetSelectedIndex = null;
-      this.lastSelectedOption = null;
-      this.lastSelectedOptionRecords = [];
-      this.nativeError = false;
-      this.nativeErrorText = "";
-      this.focused = false;
-      this.open = false;
-      this.defaultFocus = FocusState.NONE;
-      this.prevOpen = this.open;
-      this.selectWidth = 0;
-      if (o7) {
-        return;
-      }
-      this.addEventListener("focus", this.handleFocus.bind(this));
-      this.addEventListener("blur", this.handleBlur.bind(this));
-    }
-    /**
-     * Selects an option given the value of the option, and updates MdSelect's
-     * value.
-     */
-    select(value2) {
-      const optionToSelect = this.options.find((option) => option.value === value2);
-      if (optionToSelect) {
-        this.selectItem(optionToSelect);
-      }
-    }
-    /**
-     * Selects an option given the index of the option, and updates MdSelect's
-     * value.
-     */
-    selectIndex(index) {
-      const optionToSelect = this.options[index];
-      if (optionToSelect) {
-        this.selectItem(optionToSelect);
-      }
-    }
-    /**
-     * Reset the select to its default value.
-     */
-    reset() {
-      for (const option of this.options) {
-        option.selected = option.hasAttribute("selected");
-      }
-      this.updateValueAndDisplayText();
-      this.nativeError = false;
-      this.nativeErrorText = "";
-    }
-    [(_a = VALUE, onReportValidity)](invalidEvent) {
-      invalidEvent?.preventDefault();
-      const prevMessage = this.getErrorText();
-      this.nativeError = !!invalidEvent;
-      this.nativeErrorText = this.validationMessage;
-      if (prevMessage === this.getErrorText()) {
-        this.field?.reannounceError();
-      }
-    }
-    update(changed) {
-      if (!this.hasUpdated) {
-        this.initUserSelection();
-      }
-      if (this.prevOpen !== this.open && this.open) {
-        const selectRect = this.getBoundingClientRect();
-        this.selectWidth = selectRect.width;
-      }
-      this.prevOpen = this.open;
-      super.update(changed);
+    handleDisabledChange() {
+      this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
     }
     render() {
       return x`
       <span
-        class="select ${e10(this.getRenderClasses())}"
-        @focusout=${this.handleFocusout}>
-        ${this.renderField()} ${this.renderMenu()}
-      </span>
-    `;
-    }
-    async firstUpdated(changed) {
-      await this.menu?.updateComplete;
-      if (!this.lastSelectedOptionRecords.length) {
-        this.initUserSelection();
-      }
-      if (!this.lastSelectedOptionRecords.length && !o7 && !this.options.length) {
-        setTimeout(() => {
-          this.updateValueAndDisplayText();
-        });
-      }
-      super.firstUpdated(changed);
-    }
-    getRenderClasses() {
-      return {
-        "disabled": this.disabled,
-        "error": this.error,
-        "open": this.open
-      };
-    }
-    renderField() {
-      return u5`
-      <${this.fieldTag}
-          aria-haspopup="listbox"
-          role="combobox"
-          part="field"
-          id="field"
-          tabindex=${this.disabled ? "-1" : "0"}
-          aria-label=${this.ariaLabel || E2}
-          aria-describedby="description"
-          aria-expanded=${this.open ? "true" : "false"}
-          aria-controls="listbox"
-          class="field"
-          label=${this.label}
-          ?no-asterisk=${this.noAsterisk}
-          .focused=${this.focused || this.open}
-          .populated=${!!this.displayText}
-          .disabled=${this.disabled}
-          .required=${this.required}
-          .error=${this.hasError}
-          ?has-start=${this.hasLeadingIcon}
-          has-end
-          supporting-text=${this.supportingText}
-          error-text=${this.getErrorText()}
-          @keydown=${this.handleKeydown}
-          @click=${this.handleClick}>
-         ${this.renderFieldContent()}
-         <div id="description" slot="aria-describedby"></div>
-      </${this.fieldTag}>`;
-    }
-    renderFieldContent() {
-      return [
-        this.renderLeadingIcon(),
-        this.renderLabel(),
-        this.renderTrailingIcon()
-      ];
-    }
-    renderLeadingIcon() {
-      return x`
-      <span class="icon leading" slot="start">
-        <slot name="leading-icon" @slotchange=${this.handleIconChange}></slot>
-      </span>
-    `;
-    }
-    renderTrailingIcon() {
-      return x`
-      <span class="icon trailing" slot="end">
-        <slot name="trailing-icon" @slotchange=${this.handleIconChange}>
-          <svg height="5" viewBox="7 10 10 5" focusable="false">
-            <polygon
-              class="down"
-              stroke="none"
-              fill-rule="evenodd"
-              points="7 10 12 15 17 10"></polygon>
-            <polygon
-              class="up"
-              stroke="none"
-              fill-rule="evenodd"
-              points="7 15 12 10 17 15"></polygon>
-          </svg>
-        </slot>
-      </span>
-    `;
-    }
-    renderLabel() {
-      return x`<div id="label">${this.displayText || x`&nbsp;`}</div>`;
-    }
-    renderMenu() {
-      const ariaLabel = this.label || this.ariaLabel;
-      return x`<div class="menu-wrapper">
-      <md-menu
-        id="listbox"
-        .defaultFocus=${this.defaultFocus}
-        role="listbox"
-        tabindex="-1"
-        aria-label=${ariaLabel || E2}
-        stay-open-on-focusout
-        part="menu"
-        exportparts="focus-ring: menu-focus-ring"
-        anchor="field"
-        style=${o13({
-        "--__menu-min-width": `${this.selectWidth}px`,
-        "--__menu-max-width": this.clampMenuWidth ? `${this.selectWidth}px` : void 0
+        part="base"
+        class=${e10({
+        radio: true,
+        "radio--checked": this.checked,
+        "radio--disabled": this.disabled,
+        "radio--focused": this.hasFocus,
+        "radio--small": this.size === "small",
+        "radio--medium": this.size === "medium",
+        "radio--large": this.size === "large"
       })}
-        no-navigation-wrap
-        .open=${this.open}
-        .quick=${this.quick}
-        .positioning=${this.menuPositioning}
-        .typeaheadDelay=${this.typeaheadDelay}
-        .anchorCorner=${this.menuAlign === "start" ? "end-start" : "end-end"}
-        .menuCorner=${this.menuAlign === "start" ? "start-start" : "start-end"}
-        @opening=${this.handleOpening}
-        @opened=${this.redispatchEvent}
-        @closing=${this.redispatchEvent}
-        @closed=${this.handleClosed}
-        @close-menu=${this.handleCloseMenu}
-        @request-selection=${this.handleRequestSelection}
-        @request-deselection=${this.handleRequestDeselection}>
-        ${this.renderMenuContent()}
-      </md-menu>
-    </div>`;
+      >
+        <span part="${`control${this.checked ? " control--checked" : ""}`}" class="radio__control">
+          ${this.checked ? x` <sl-icon part="checked-icon" class="radio__checked-icon" library="system" name="radio"></sl-icon> ` : ""}
+        </span>
+
+        <slot part="label" class="radio__label"></slot>
+      </span>
+    `;
     }
-    renderMenuContent() {
-      return x`<slot></slot>`;
+  };
+  SlRadio.styles = [component_styles_default, radio_styles_default];
+  SlRadio.dependencies = { "sl-icon": SlIcon };
+  __decorateClass2([
+    r6()
+  ], SlRadio.prototype, "checked", 2);
+  __decorateClass2([
+    r6()
+  ], SlRadio.prototype, "hasFocus", 2);
+  __decorateClass2([
+    n5()
+  ], SlRadio.prototype, "value", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlRadio.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRadio.prototype, "disabled", 2);
+  __decorateClass2([
+    watch("checked")
+  ], SlRadio.prototype, "handleCheckedChange", 1);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlRadio.prototype, "handleDisabledChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.MSKEYBDI.js
+  SlRadio.define("sl-radio");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/radio-group.js
+  var radioGroup = (options) => x`
+	<sl-radio-group
+		class="theme-shoelace widget-radio-group"
+		size="medium"
+		.label=${options.label ?? ""}
+		.helpText=${options.helpText ?? ""}
+		value=${typeof options.value !== "undefined" ? String(options.value) : ""}
+		.name=${options.id}
+		.required=${options.required ?? false}
+		@sl-change=${(event) => {
+    let newValue = event.target.value;
+    if (options.type === "number") {
+      newValue = Number(newValue);
     }
-    /**
-     * Handles opening the select on keydown and typahead selection when the menu
-     * is closed.
-     */
-    handleKeydown(event) {
-      if (this.open || this.disabled || !this.menu) {
-        return;
+    options.valueChangedCallback?.(newValue);
+  }}
+	>
+		${options.enum?.map((enumVal) => x`<sl-radio .disabled=${options.disabled} value=${String(enumVal)}
+					>${enumVal}</sl-radio
+				>`)}
+	</sl-radio-group>
+`;
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/radio-group-boolean.js
+  var radioGroupBoolean = (options) => x`
+	<!-- TODO: Disabled state (not supported by Shoelace for this specific field despite the docs?) -->
+	<sl-radio-group
+		class="theme-shoelace widget-radio-group-boolean"
+		size="medium"
+		.label=${options.label ?? ""}
+		.helpText=${options.helpText ?? ""}
+		value=${typeof options.value !== "undefined" ? String(options.value) : ""}
+		.name=${options.id}
+		.required=${options.required ?? false}
+		@sl-change=${(event) => {
+    const newValue = event.target.value;
+    options.valueChangedCallback?.(newValue === "true");
+  }}
+	>
+		<sl-radio .disabled=${options.disabled} value="true"
+			>${options.trueLabel ?? "Yes"}</sl-radio
+		>
+		<sl-radio .disabled=${options.disabled} value="false"
+			>${options.falseLabel ?? "No"}</sl-radio
+		>
+	</sl-radio-group>
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.5D6IT2SR.js
+  var range_styles_default = i3`
+  :host {
+    --thumb-size: 20px;
+    --tooltip-offset: 10px;
+    --track-color-active: var(--sl-color-neutral-200);
+    --track-color-inactive: var(--sl-color-neutral-200);
+    --track-active-offset: 0%;
+    --track-height: 6px;
+
+    display: block;
+  }
+
+  .range {
+    position: relative;
+  }
+
+  .range__control {
+    --percent: 0%;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    width: 100%;
+    height: var(--track-height);
+    background: transparent;
+    line-height: var(--sl-input-height-medium);
+    vertical-align: middle;
+    margin: 0;
+
+    background-image: linear-gradient(
+      to right,
+      var(--track-color-inactive) 0%,
+      var(--track-color-inactive) min(var(--percent), var(--track-active-offset)),
+      var(--track-color-active) min(var(--percent), var(--track-active-offset)),
+      var(--track-color-active) max(var(--percent), var(--track-active-offset)),
+      var(--track-color-inactive) max(var(--percent), var(--track-active-offset)),
+      var(--track-color-inactive) 100%
+    );
+  }
+
+  .range--rtl .range__control {
+    background-image: linear-gradient(
+      to left,
+      var(--track-color-inactive) 0%,
+      var(--track-color-inactive) min(var(--percent), var(--track-active-offset)),
+      var(--track-color-active) min(var(--percent), var(--track-active-offset)),
+      var(--track-color-active) max(var(--percent), var(--track-active-offset)),
+      var(--track-color-inactive) max(var(--percent), var(--track-active-offset)),
+      var(--track-color-inactive) 100%
+    );
+  }
+
+  /* Webkit */
+  .range__control::-webkit-slider-runnable-track {
+    width: 100%;
+    height: var(--track-height);
+    border-radius: 3px;
+    border: none;
+  }
+
+  .range__control::-webkit-slider-thumb {
+    border: none;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border-radius: 50%;
+    background-color: var(--sl-color-primary-600);
+    border: solid var(--sl-input-border-width) var(--sl-color-primary-600);
+    -webkit-appearance: none;
+    margin-top: calc(var(--thumb-size) / -2 + var(--track-height) / 2);
+    cursor: pointer;
+  }
+
+  .range__control:enabled::-webkit-slider-thumb:hover {
+    background-color: var(--sl-color-primary-500);
+    border-color: var(--sl-color-primary-500);
+  }
+
+  .range__control:enabled:focus-visible::-webkit-slider-thumb {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .range__control:enabled::-webkit-slider-thumb:active {
+    background-color: var(--sl-color-primary-500);
+    border-color: var(--sl-color-primary-500);
+    cursor: grabbing;
+  }
+
+  /* Firefox */
+  .range__control::-moz-focus-outer {
+    border: 0;
+  }
+
+  .range__control::-moz-range-progress {
+    background-color: var(--track-color-active);
+    border-radius: 3px;
+    height: var(--track-height);
+  }
+
+  .range__control::-moz-range-track {
+    width: 100%;
+    height: var(--track-height);
+    background-color: var(--track-color-inactive);
+    border-radius: 3px;
+    border: none;
+  }
+
+  .range__control::-moz-range-thumb {
+    border: none;
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    border-radius: 50%;
+    background-color: var(--sl-color-primary-600);
+    border-color: var(--sl-color-primary-600);
+    transition:
+      var(--sl-transition-fast) border-color,
+      var(--sl-transition-fast) background-color,
+      var(--sl-transition-fast) color,
+      var(--sl-transition-fast) box-shadow;
+    cursor: pointer;
+  }
+
+  .range__control:enabled::-moz-range-thumb:hover {
+    background-color: var(--sl-color-primary-500);
+    border-color: var(--sl-color-primary-500);
+  }
+
+  .range__control:enabled:focus-visible::-moz-range-thumb {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .range__control:enabled::-moz-range-thumb:active {
+    background-color: var(--sl-color-primary-500);
+    border-color: var(--sl-color-primary-500);
+    cursor: grabbing;
+  }
+
+  /* States */
+  .range__control:focus-visible {
+    outline: none;
+  }
+
+  .range__control:disabled {
+    opacity: 0.5;
+  }
+
+  .range__control:disabled::-webkit-slider-thumb {
+    cursor: not-allowed;
+  }
+
+  .range__control:disabled::-moz-range-thumb {
+    cursor: not-allowed;
+  }
+
+  /* Tooltip output */
+  .range__tooltip {
+    position: absolute;
+    z-index: var(--sl-z-index-tooltip);
+    left: 0;
+    border-radius: var(--sl-tooltip-border-radius);
+    background-color: var(--sl-tooltip-background-color);
+    font-family: var(--sl-tooltip-font-family);
+    font-size: var(--sl-tooltip-font-size);
+    font-weight: var(--sl-tooltip-font-weight);
+    line-height: var(--sl-tooltip-line-height);
+    color: var(--sl-tooltip-color);
+    opacity: 0;
+    padding: var(--sl-tooltip-padding);
+    transition: var(--sl-transition-fast) opacity;
+    pointer-events: none;
+  }
+
+  .range__tooltip:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: 50%;
+    translate: calc(-1 * var(--sl-tooltip-arrow-size));
+  }
+
+  .range--tooltip-visible .range__tooltip {
+    opacity: 1;
+  }
+
+  /* Tooltip on top */
+  .range--tooltip-top .range__tooltip {
+    top: calc(-1 * var(--thumb-size) - var(--tooltip-offset));
+  }
+
+  .range--tooltip-top .range__tooltip:after {
+    border-top: var(--sl-tooltip-arrow-size) solid var(--sl-tooltip-background-color);
+    border-left: var(--sl-tooltip-arrow-size) solid transparent;
+    border-right: var(--sl-tooltip-arrow-size) solid transparent;
+    top: 100%;
+  }
+
+  /* Tooltip on bottom */
+  .range--tooltip-bottom .range__tooltip {
+    bottom: calc(-1 * var(--thumb-size) - var(--tooltip-offset));
+  }
+
+  .range--tooltip-bottom .range__tooltip:after {
+    border-bottom: var(--sl-tooltip-arrow-size) solid var(--sl-tooltip-background-color);
+    border-left: var(--sl-tooltip-arrow-size) solid transparent;
+    border-right: var(--sl-tooltip-arrow-size) solid transparent;
+    bottom: 100%;
+  }
+
+  @media (forced-colors: active) {
+    .range__control,
+    .range__tooltip {
+      border: solid 1px transparent;
+    }
+
+    .range__control::-webkit-slider-thumb {
+      border: solid 1px transparent;
+    }
+
+    .range__control::-moz-range-thumb {
+      border: solid 1px transparent;
+    }
+
+    .range__tooltip:after {
+      display: none;
+    }
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.HRYVEIKV.js
+  var SlRange = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.formControlController = new FormControlController(this);
+      this.hasSlotController = new HasSlotController(this, "help-text", "label");
+      this.localize = new LocalizeController2(this);
+      this.hasFocus = false;
+      this.hasTooltip = false;
+      this.title = "";
+      this.name = "";
+      this.value = 0;
+      this.label = "";
+      this.helpText = "";
+      this.disabled = false;
+      this.min = 0;
+      this.max = 100;
+      this.step = 1;
+      this.tooltip = "top";
+      this.tooltipFormatter = (value2) => value2.toString();
+      this.form = "";
+      this.defaultValue = 0;
+    }
+    /** Gets the validity state object */
+    get validity() {
+      return this.input.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.input.validationMessage;
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      this.resizeObserver = new ResizeObserver(() => this.syncRange());
+      if (this.value < this.min) {
+        this.value = this.min;
       }
-      const typeaheadController = this.menu.typeaheadController;
-      const isOpenKey = event.code === "Space" || event.code === "ArrowDown" || event.code === "ArrowUp" || event.code === "End" || event.code === "Home" || event.code === "Enter";
-      if (!typeaheadController.isTypingAhead && isOpenKey) {
-        event.preventDefault();
-        this.open = true;
-        switch (event.code) {
-          case "Space":
-          case "ArrowDown":
-          case "Enter":
-            this.defaultFocus = FocusState.NONE;
-            break;
-          case "End":
-            this.defaultFocus = FocusState.LAST_ITEM;
-            break;
-          case "ArrowUp":
-          case "Home":
-            this.defaultFocus = FocusState.FIRST_ITEM;
-            break;
-          default:
-            break;
-        }
-        return;
+      if (this.value > this.max) {
+        this.value = this.max;
       }
-      const isPrintableKey = event.key.length === 1;
-      if (isPrintableKey) {
-        typeaheadController.onKeydown(event);
-        event.preventDefault();
-        const { lastActiveRecord } = typeaheadController;
-        if (!lastActiveRecord) {
-          return;
-        }
-        this.labelEl?.setAttribute?.("aria-live", "polite");
-        const hasChanged = this.selectItem(lastActiveRecord[TYPEAHEAD_RECORD.ITEM]);
-        if (hasChanged) {
-          this.dispatchInteractionEvents();
-        }
-      }
+      this.updateComplete.then(() => {
+        this.syncRange();
+        this.resizeObserver.observe(this.input);
+      });
     }
-    handleClick() {
-      this.open = !this.open;
+    disconnectedCallback() {
+      var _a;
+      super.disconnectedCallback();
+      (_a = this.resizeObserver) == null ? void 0 : _a.unobserve(this.input);
     }
-    handleFocus() {
-      this.focused = true;
+    handleChange() {
+      this.emit("sl-change");
+    }
+    handleInput() {
+      this.value = parseFloat(this.input.value);
+      this.emit("sl-input");
+      this.syncRange();
     }
     handleBlur() {
-      this.focused = false;
+      this.hasFocus = false;
+      this.hasTooltip = false;
+      this.emit("sl-blur");
     }
-    /**
-     * Handles closing the menu when the focus leaves the select's subtree.
-     */
-    handleFocusout(event) {
-      if (event.relatedTarget && isElementInSubtree(event.relatedTarget, this)) {
-        return;
-      }
-      this.open = false;
+    handleFocus() {
+      this.hasFocus = true;
+      this.hasTooltip = true;
+      this.emit("sl-focus");
     }
-    /**
-     * Gets a list of all selected select options as a list item record array.
-     *
-     * @return An array of selected list option records.
-     */
-    getSelectedOptions() {
-      if (!this.menu) {
-        this.lastSelectedOptionRecords = [];
-        return null;
-      }
-      const items = this.menu.items;
-      this.lastSelectedOptionRecords = getSelectedItems(items);
-      return this.lastSelectedOptionRecords;
+    handleThumbDragStart() {
+      this.hasTooltip = true;
     }
-    async getUpdateComplete() {
-      await this.menu?.updateComplete;
-      return super.getUpdateComplete();
+    handleThumbDragEnd() {
+      this.hasTooltip = false;
     }
-    /**
-     * Gets the selected options from the DOM, and updates the value and display
-     * text to the first selected option's value and headline respectively.
-     *
-     * @return Whether or not the selected option has changed since last update.
-     */
-    updateValueAndDisplayText() {
-      const selectedOptions = this.getSelectedOptions() ?? [];
-      let hasSelectedOptionChanged = false;
-      if (selectedOptions.length) {
-        const [firstSelectedOption] = selectedOptions[0];
-        hasSelectedOptionChanged = this.lastSelectedOption !== firstSelectedOption;
-        this.lastSelectedOption = firstSelectedOption;
-        this[VALUE] = firstSelectedOption.value;
-        this.displayText = firstSelectedOption.displayText;
-      } else {
-        hasSelectedOptionChanged = this.lastSelectedOption !== null;
-        this.lastSelectedOption = null;
-        this[VALUE] = "";
-        this.displayText = "";
-      }
-      return hasSelectedOptionChanged;
+    syncProgress(percent) {
+      this.input.style.setProperty("--percent", `${percent * 100}%`);
     }
-    /**
-     * Focuses and activates the last selected item upon opening, and resets other
-     * active items.
-     */
-    async handleOpening(e11) {
-      this.labelEl?.removeAttribute?.("aria-live");
-      this.redispatchEvent(e11);
-      if (this.defaultFocus !== FocusState.NONE) {
-        return;
-      }
-      const items = this.menu.items;
-      const activeItem = getActiveItem(items)?.item;
-      let [selectedItem] = this.lastSelectedOptionRecords[0] ?? [null];
-      if (activeItem && activeItem !== selectedItem) {
-        activeItem.tabIndex = -1;
-      }
-      selectedItem = selectedItem ?? items[0];
-      if (selectedItem) {
-        selectedItem.tabIndex = 0;
-        selectedItem.focus();
-      }
-    }
-    redispatchEvent(e11) {
-      redispatchEvent(this, e11);
-    }
-    handleClosed(e11) {
-      this.open = false;
-      this.redispatchEvent(e11);
-    }
-    /**
-     * Determines the reason for closing, and updates the UI accordingly.
-     */
-    handleCloseMenu(event) {
-      const reason = event.detail.reason;
-      const item = event.detail.itemPath[0];
-      this.open = false;
-      let hasChanged = false;
-      if (reason.kind === "click-selection") {
-        hasChanged = this.selectItem(item);
-      } else if (reason.kind === "keydown" && isSelectableKey(reason.key)) {
-        hasChanged = this.selectItem(item);
-      } else {
-        item.tabIndex = -1;
-        item.blur();
-      }
-      if (hasChanged) {
-        this.dispatchInteractionEvents();
-      }
-    }
-    /**
-     * Selects a given option, deselects other options, and updates the UI.
-     *
-     * @return Whether the last selected option has changed.
-     */
-    selectItem(item) {
-      const selectedOptions = this.getSelectedOptions() ?? [];
-      selectedOptions.forEach(([option]) => {
-        if (item !== option) {
-          option.selected = false;
-        }
-      });
-      item.selected = true;
-      return this.updateValueAndDisplayText();
-    }
-    /**
-     * Handles updating selection when an option element requests selection via
-     * property / attribute change.
-     */
-    handleRequestSelection(event) {
-      const requestingOptionEl = event.target;
-      if (this.lastSelectedOptionRecords.some(([option]) => option === requestingOptionEl)) {
-        return;
-      }
-      this.selectItem(requestingOptionEl);
-    }
-    /**
-     * Handles updating selection when an option element requests deselection via
-     * property / attribute change.
-     */
-    handleRequestDeselection(event) {
-      const requestingOptionEl = event.target;
-      if (!this.lastSelectedOptionRecords.some(([option]) => option === requestingOptionEl)) {
-        return;
-      }
-      this.updateValueAndDisplayText();
-    }
-    /**
-     * Attempts to initialize the selected option from user-settable values like
-     * SSR, setting `value`, or `selectedIndex` at startup.
-     */
-    initUserSelection() {
-      if (this.lastUserSetValue && !this.lastSelectedOptionRecords.length) {
-        this.select(this.lastUserSetValue);
-      } else if (this.lastUserSetSelectedIndex !== null && !this.lastSelectedOptionRecords.length) {
-        this.selectIndex(this.lastUserSetSelectedIndex);
-      } else {
-        this.updateValueAndDisplayText();
-      }
-    }
-    handleIconChange() {
-      this.hasLeadingIcon = this.leadingIcons.length > 0;
-    }
-    /**
-     * Dispatches the `input` and `change` events.
-     */
-    dispatchInteractionEvents() {
-      this.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
-      this.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-    getErrorText() {
-      return this.error ? this.errorText : this.nativeErrorText;
-    }
-    [getFormValue]() {
-      return this.value;
-    }
-    formResetCallback() {
-      this.reset();
-    }
-    formStateRestoreCallback(state) {
-      this.value = state;
-    }
-    click() {
-      this.field?.click();
-    }
-    [createValidator]() {
-      return new SelectValidator(() => this);
-    }
-    [getValidityAnchor]() {
-      return this.field;
-    }
-  };
-  (() => {
-    requestUpdateOnAriaChange(Select);
-  })();
-  Select.shadowRootOptions = {
-    ...i6.shadowRootOptions,
-    delegatesFocus: true
-  };
-  __decorate2([
-    n5({ type: Boolean })
-  ], Select.prototype, "quick", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Select.prototype, "required", void 0);
-  __decorate2([
-    n5({ type: String, attribute: "error-text" })
-  ], Select.prototype, "errorText", void 0);
-  __decorate2([
-    n5()
-  ], Select.prototype, "label", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "no-asterisk" })
-  ], Select.prototype, "noAsterisk", void 0);
-  __decorate2([
-    n5({ type: String, attribute: "supporting-text" })
-  ], Select.prototype, "supportingText", void 0);
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], Select.prototype, "error", void 0);
-  __decorate2([
-    n5({ attribute: "menu-positioning" })
-  ], Select.prototype, "menuPositioning", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "clamp-menu-width" })
-  ], Select.prototype, "clampMenuWidth", void 0);
-  __decorate2([
-    n5({ type: Number, attribute: "typeahead-delay" })
-  ], Select.prototype, "typeaheadDelay", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "has-leading-icon" })
-  ], Select.prototype, "hasLeadingIcon", void 0);
-  __decorate2([
-    n5({ attribute: "display-text" })
-  ], Select.prototype, "displayText", void 0);
-  __decorate2([
-    n5({ attribute: "menu-align" })
-  ], Select.prototype, "menuAlign", void 0);
-  __decorate2([
-    n5()
-  ], Select.prototype, "value", null);
-  __decorate2([
-    n5({ type: Number, attribute: "selected-index" })
-  ], Select.prototype, "selectedIndex", null);
-  __decorate2([
-    r6()
-  ], Select.prototype, "nativeError", void 0);
-  __decorate2([
-    r6()
-  ], Select.prototype, "nativeErrorText", void 0);
-  __decorate2([
-    r6()
-  ], Select.prototype, "focused", void 0);
-  __decorate2([
-    r6()
-  ], Select.prototype, "open", void 0);
-  __decorate2([
-    r6()
-  ], Select.prototype, "defaultFocus", void 0);
-  __decorate2([
-    e6(".field")
-  ], Select.prototype, "field", void 0);
-  __decorate2([
-    e6("md-menu")
-  ], Select.prototype, "menu", void 0);
-  __decorate2([
-    e6("#label")
-  ], Select.prototype, "labelEl", void 0);
-  __decorate2([
-    o9({ slot: "leading-icon", flatten: true })
-  ], Select.prototype, "leadingIcons", void 0);
-
-  // node_modules/@material/web/select/internal/outlined-select.js
-  var OutlinedSelect = class extends Select {
-    constructor() {
-      super(...arguments);
-      this.fieldTag = i8`md-outlined-field`;
-    }
-  };
-
-  // node_modules/@material/web/select/internal/outlined-select-styles.js
-  var styles12 = i3`:host{--_text-field-disabled-input-text-color: var(--md-outlined-select-text-field-disabled-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-disabled-input-text-opacity: var(--md-outlined-select-text-field-disabled-input-text-opacity, 0.38);--_text-field-disabled-label-text-color: var(--md-outlined-select-text-field-disabled-label-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-disabled-label-text-opacity: var(--md-outlined-select-text-field-disabled-label-text-opacity, 0.38);--_text-field-disabled-leading-icon-color: var(--md-outlined-select-text-field-disabled-leading-icon-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-disabled-leading-icon-opacity: var(--md-outlined-select-text-field-disabled-leading-icon-opacity, 0.38);--_text-field-disabled-outline-color: var(--md-outlined-select-text-field-disabled-outline-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-disabled-outline-opacity: var(--md-outlined-select-text-field-disabled-outline-opacity, 0.12);--_text-field-disabled-outline-width: var(--md-outlined-select-text-field-disabled-outline-width, 1px);--_text-field-disabled-supporting-text-color: var(--md-outlined-select-text-field-disabled-supporting-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-disabled-supporting-text-opacity: var(--md-outlined-select-text-field-disabled-supporting-text-opacity, 0.38);--_text-field-disabled-trailing-icon-color: var(--md-outlined-select-text-field-disabled-trailing-icon-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-disabled-trailing-icon-opacity: var(--md-outlined-select-text-field-disabled-trailing-icon-opacity, 0.38);--_text-field-error-focus-input-text-color: var(--md-outlined-select-text-field-error-focus-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-error-focus-label-text-color: var(--md-outlined-select-text-field-error-focus-label-text-color, var(--md-sys-color-error, #b3261e));--_text-field-error-focus-leading-icon-color: var(--md-outlined-select-text-field-error-focus-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-error-focus-outline-color: var(--md-outlined-select-text-field-error-focus-outline-color, var(--md-sys-color-error, #b3261e));--_text-field-error-focus-supporting-text-color: var(--md-outlined-select-text-field-error-focus-supporting-text-color, var(--md-sys-color-error, #b3261e));--_text-field-error-focus-trailing-icon-color: var(--md-outlined-select-text-field-error-focus-trailing-icon-color, var(--md-sys-color-error, #b3261e));--_text-field-error-hover-input-text-color: var(--md-outlined-select-text-field-error-hover-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-error-hover-label-text-color: var(--md-outlined-select-text-field-error-hover-label-text-color, var(--md-sys-color-on-error-container, #410e0b));--_text-field-error-hover-leading-icon-color: var(--md-outlined-select-text-field-error-hover-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-error-hover-outline-color: var(--md-outlined-select-text-field-error-hover-outline-color, var(--md-sys-color-on-error-container, #410e0b));--_text-field-error-hover-supporting-text-color: var(--md-outlined-select-text-field-error-hover-supporting-text-color, var(--md-sys-color-error, #b3261e));--_text-field-error-hover-trailing-icon-color: var(--md-outlined-select-text-field-error-hover-trailing-icon-color, var(--md-sys-color-on-error-container, #410e0b));--_text-field-error-input-text-color: var(--md-outlined-select-text-field-error-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-error-label-text-color: var(--md-outlined-select-text-field-error-label-text-color, var(--md-sys-color-error, #b3261e));--_text-field-error-leading-icon-color: var(--md-outlined-select-text-field-error-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-error-outline-color: var(--md-outlined-select-text-field-error-outline-color, var(--md-sys-color-error, #b3261e));--_text-field-error-supporting-text-color: var(--md-outlined-select-text-field-error-supporting-text-color, var(--md-sys-color-error, #b3261e));--_text-field-error-trailing-icon-color: var(--md-outlined-select-text-field-error-trailing-icon-color, var(--md-sys-color-error, #b3261e));--_text-field-focus-input-text-color: var(--md-outlined-select-text-field-focus-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-focus-label-text-color: var(--md-outlined-select-text-field-focus-label-text-color, var(--md-sys-color-primary, #6750a4));--_text-field-focus-leading-icon-color: var(--md-outlined-select-text-field-focus-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-focus-outline-color: var(--md-outlined-select-text-field-focus-outline-color, var(--md-sys-color-primary, #6750a4));--_text-field-focus-outline-width: var(--md-outlined-select-text-field-focus-outline-width, 3px);--_text-field-focus-supporting-text-color: var(--md-outlined-select-text-field-focus-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-focus-trailing-icon-color: var(--md-outlined-select-text-field-focus-trailing-icon-color, var(--md-sys-color-primary, #6750a4));--_text-field-hover-input-text-color: var(--md-outlined-select-text-field-hover-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-hover-label-text-color: var(--md-outlined-select-text-field-hover-label-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-hover-leading-icon-color: var(--md-outlined-select-text-field-hover-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-hover-outline-color: var(--md-outlined-select-text-field-hover-outline-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-hover-outline-width: var(--md-outlined-select-text-field-hover-outline-width, 1px);--_text-field-hover-supporting-text-color: var(--md-outlined-select-text-field-hover-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-hover-trailing-icon-color: var(--md-outlined-select-text-field-hover-trailing-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-input-text-color: var(--md-outlined-select-text-field-input-text-color, var(--md-sys-color-on-surface, #1d1b20));--_text-field-input-text-font: var(--md-outlined-select-text-field-input-text-font, var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto)));--_text-field-input-text-line-height: var(--md-outlined-select-text-field-input-text-line-height, var(--md-sys-typescale-body-large-line-height, 1.5rem));--_text-field-input-text-size: var(--md-outlined-select-text-field-input-text-size, var(--md-sys-typescale-body-large-size, 1rem));--_text-field-input-text-weight: var(--md-outlined-select-text-field-input-text-weight, var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400)));--_text-field-label-text-color: var(--md-outlined-select-text-field-label-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-label-text-font: var(--md-outlined-select-text-field-label-text-font, var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto)));--_text-field-label-text-line-height: var(--md-outlined-select-text-field-label-text-line-height, var(--md-sys-typescale-body-large-line-height, 1.5rem));--_text-field-label-text-populated-line-height: var(--md-outlined-select-text-field-label-text-populated-line-height, var(--md-sys-typescale-body-small-line-height, 1rem));--_text-field-label-text-populated-size: var(--md-outlined-select-text-field-label-text-populated-size, var(--md-sys-typescale-body-small-size, 0.75rem));--_text-field-label-text-size: var(--md-outlined-select-text-field-label-text-size, var(--md-sys-typescale-body-large-size, 1rem));--_text-field-label-text-weight: var(--md-outlined-select-text-field-label-text-weight, var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400)));--_text-field-leading-icon-color: var(--md-outlined-select-text-field-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-leading-icon-size: var(--md-outlined-select-text-field-leading-icon-size, 24px);--_text-field-outline-color: var(--md-outlined-select-text-field-outline-color, var(--md-sys-color-outline, #79747e));--_text-field-outline-width: var(--md-outlined-select-text-field-outline-width, 1px);--_text-field-supporting-text-color: var(--md-outlined-select-text-field-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-supporting-text-font: var(--md-outlined-select-text-field-supporting-text-font, var(--md-sys-typescale-body-small-font, var(--md-ref-typeface-plain, Roboto)));--_text-field-supporting-text-line-height: var(--md-outlined-select-text-field-supporting-text-line-height, var(--md-sys-typescale-body-small-line-height, 1rem));--_text-field-supporting-text-size: var(--md-outlined-select-text-field-supporting-text-size, var(--md-sys-typescale-body-small-size, 0.75rem));--_text-field-supporting-text-weight: var(--md-outlined-select-text-field-supporting-text-weight, var(--md-sys-typescale-body-small-weight, var(--md-ref-typeface-weight-regular, 400)));--_text-field-trailing-icon-color: var(--md-outlined-select-text-field-trailing-icon-color, var(--md-sys-color-on-surface-variant, #49454f));--_text-field-trailing-icon-size: var(--md-outlined-select-text-field-trailing-icon-size, 24px);--_text-field-container-shape-start-start: var(--md-outlined-select-text-field-container-shape-start-start, var(--md-outlined-select-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_text-field-container-shape-start-end: var(--md-outlined-select-text-field-container-shape-start-end, var(--md-outlined-select-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_text-field-container-shape-end-end: var(--md-outlined-select-text-field-container-shape-end-end, var(--md-outlined-select-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--_text-field-container-shape-end-start: var(--md-outlined-select-text-field-container-shape-end-start, var(--md-outlined-select-text-field-container-shape, var(--md-sys-shape-corner-extra-small, 4px)));--md-outlined-field-container-shape-end-end: var(--_text-field-container-shape-end-end);--md-outlined-field-container-shape-end-start: var(--_text-field-container-shape-end-start);--md-outlined-field-container-shape-start-end: var(--_text-field-container-shape-start-end);--md-outlined-field-container-shape-start-start: var(--_text-field-container-shape-start-start);--md-outlined-field-content-color: var(--_text-field-input-text-color);--md-outlined-field-content-font: var(--_text-field-input-text-font);--md-outlined-field-content-line-height: var(--_text-field-input-text-line-height);--md-outlined-field-content-size: var(--_text-field-input-text-size);--md-outlined-field-content-weight: var(--_text-field-input-text-weight);--md-outlined-field-disabled-content-color: var(--_text-field-disabled-input-text-color);--md-outlined-field-disabled-content-opacity: var(--_text-field-disabled-input-text-opacity);--md-outlined-field-disabled-label-text-color: var(--_text-field-disabled-label-text-color);--md-outlined-field-disabled-label-text-opacity: var(--_text-field-disabled-label-text-opacity);--md-outlined-field-disabled-leading-content-color: var(--_text-field-disabled-leading-icon-color);--md-outlined-field-disabled-leading-content-opacity: var(--_text-field-disabled-leading-icon-opacity);--md-outlined-field-disabled-outline-color: var(--_text-field-disabled-outline-color);--md-outlined-field-disabled-outline-opacity: var(--_text-field-disabled-outline-opacity);--md-outlined-field-disabled-outline-width: var(--_text-field-disabled-outline-width);--md-outlined-field-disabled-supporting-text-color: var(--_text-field-disabled-supporting-text-color);--md-outlined-field-disabled-supporting-text-opacity: var(--_text-field-disabled-supporting-text-opacity);--md-outlined-field-disabled-trailing-content-color: var(--_text-field-disabled-trailing-icon-color);--md-outlined-field-disabled-trailing-content-opacity: var(--_text-field-disabled-trailing-icon-opacity);--md-outlined-field-error-content-color: var(--_text-field-error-input-text-color);--md-outlined-field-error-focus-content-color: var(--_text-field-error-focus-input-text-color);--md-outlined-field-error-focus-label-text-color: var(--_text-field-error-focus-label-text-color);--md-outlined-field-error-focus-leading-content-color: var(--_text-field-error-focus-leading-icon-color);--md-outlined-field-error-focus-outline-color: var(--_text-field-error-focus-outline-color);--md-outlined-field-error-focus-supporting-text-color: var(--_text-field-error-focus-supporting-text-color);--md-outlined-field-error-focus-trailing-content-color: var(--_text-field-error-focus-trailing-icon-color);--md-outlined-field-error-hover-content-color: var(--_text-field-error-hover-input-text-color);--md-outlined-field-error-hover-label-text-color: var(--_text-field-error-hover-label-text-color);--md-outlined-field-error-hover-leading-content-color: var(--_text-field-error-hover-leading-icon-color);--md-outlined-field-error-hover-outline-color: var(--_text-field-error-hover-outline-color);--md-outlined-field-error-hover-supporting-text-color: var(--_text-field-error-hover-supporting-text-color);--md-outlined-field-error-hover-trailing-content-color: var(--_text-field-error-hover-trailing-icon-color);--md-outlined-field-error-label-text-color: var(--_text-field-error-label-text-color);--md-outlined-field-error-leading-content-color: var(--_text-field-error-leading-icon-color);--md-outlined-field-error-outline-color: var(--_text-field-error-outline-color);--md-outlined-field-error-supporting-text-color: var(--_text-field-error-supporting-text-color);--md-outlined-field-error-trailing-content-color: var(--_text-field-error-trailing-icon-color);--md-outlined-field-focus-content-color: var(--_text-field-focus-input-text-color);--md-outlined-field-focus-label-text-color: var(--_text-field-focus-label-text-color);--md-outlined-field-focus-leading-content-color: var(--_text-field-focus-leading-icon-color);--md-outlined-field-focus-outline-color: var(--_text-field-focus-outline-color);--md-outlined-field-focus-outline-width: var(--_text-field-focus-outline-width);--md-outlined-field-focus-supporting-text-color: var(--_text-field-focus-supporting-text-color);--md-outlined-field-focus-trailing-content-color: var(--_text-field-focus-trailing-icon-color);--md-outlined-field-hover-content-color: var(--_text-field-hover-input-text-color);--md-outlined-field-hover-label-text-color: var(--_text-field-hover-label-text-color);--md-outlined-field-hover-leading-content-color: var(--_text-field-hover-leading-icon-color);--md-outlined-field-hover-outline-color: var(--_text-field-hover-outline-color);--md-outlined-field-hover-outline-width: var(--_text-field-hover-outline-width);--md-outlined-field-hover-supporting-text-color: var(--_text-field-hover-supporting-text-color);--md-outlined-field-hover-trailing-content-color: var(--_text-field-hover-trailing-icon-color);--md-outlined-field-label-text-color: var(--_text-field-label-text-color);--md-outlined-field-label-text-font: var(--_text-field-label-text-font);--md-outlined-field-label-text-line-height: var(--_text-field-label-text-line-height);--md-outlined-field-label-text-populated-line-height: var(--_text-field-label-text-populated-line-height);--md-outlined-field-label-text-populated-size: var(--_text-field-label-text-populated-size);--md-outlined-field-label-text-size: var(--_text-field-label-text-size);--md-outlined-field-label-text-weight: var(--_text-field-label-text-weight);--md-outlined-field-leading-content-color: var(--_text-field-leading-icon-color);--md-outlined-field-outline-color: var(--_text-field-outline-color);--md-outlined-field-outline-width: var(--_text-field-outline-width);--md-outlined-field-supporting-text-color: var(--_text-field-supporting-text-color);--md-outlined-field-supporting-text-font: var(--_text-field-supporting-text-font);--md-outlined-field-supporting-text-line-height: var(--_text-field-supporting-text-line-height);--md-outlined-field-supporting-text-size: var(--_text-field-supporting-text-size);--md-outlined-field-supporting-text-weight: var(--_text-field-supporting-text-weight);--md-outlined-field-trailing-content-color: var(--_text-field-trailing-icon-color)}[has-start] .icon.leading{font-size:var(--_text-field-leading-icon-size);height:var(--_text-field-leading-icon-size);width:var(--_text-field-leading-icon-size)}.icon.trailing{font-size:var(--_text-field-trailing-icon-size);height:var(--_text-field-trailing-icon-size);width:var(--_text-field-trailing-icon-size)}
-`;
-
-  // node_modules/@material/web/select/internal/shared-styles.js
-  var styles13 = i3`:host{color:unset;min-width:210px;display:flex}.field{cursor:default;outline:none}.select{position:relative;flex-direction:column}.icon.trailing svg,.icon ::slotted(*){fill:currentColor}.icon ::slotted(*){width:inherit;height:inherit;font-size:inherit}.icon slot{display:flex;height:100%;width:100%;align-items:center;justify-content:center}.icon.trailing :is(.up,.down){opacity:0;transition:opacity 75ms linear 75ms}.select:not(.open) .down,.select.open .up{opacity:1}.field,.select,md-menu{min-width:inherit;width:inherit;max-width:inherit;display:flex}md-menu{min-width:var(--__menu-min-width);max-width:var(--__menu-max-width, inherit)}.menu-wrapper{width:0px;height:0px;max-width:inherit}md-menu ::slotted(:not[disabled]){cursor:pointer}.field,.select{width:100%}:host{display:inline-flex}:host([disabled]){pointer-events:none}
-`;
-
-  // node_modules/@material/web/select/outlined-select.js
-  var MdOutlinedSelect = class MdOutlinedSelect2 extends OutlinedSelect {
-  };
-  MdOutlinedSelect.styles = [styles13, styles12];
-  MdOutlinedSelect = __decorate2([
-    t4("md-outlined-select")
-  ], MdOutlinedSelect);
-
-  // node_modules/@material/web/menu/internal/menuitem/menu-item-styles.js
-  var styles14 = i3`:host{display:flex;--md-ripple-hover-color: var(--md-menu-item-hover-state-layer-color, var(--md-sys-color-on-surface, #1d1b20));--md-ripple-hover-opacity: var(--md-menu-item-hover-state-layer-opacity, 0.08);--md-ripple-pressed-color: var(--md-menu-item-pressed-state-layer-color, var(--md-sys-color-on-surface, #1d1b20));--md-ripple-pressed-opacity: var(--md-menu-item-pressed-state-layer-opacity, 0.12)}:host([disabled]){opacity:var(--md-menu-item-disabled-opacity, 0.3);pointer-events:none}md-focus-ring{z-index:1;--md-focus-ring-shape: 8px}a,button,li{background:none;border:none;padding:0;margin:0;text-align:unset;text-decoration:none}.list-item{border-radius:inherit;display:flex;flex:1;max-width:inherit;min-width:inherit;outline:none;-webkit-tap-highlight-color:rgba(0,0,0,0)}.list-item:not(.disabled){cursor:pointer}[slot=container]{pointer-events:none}md-ripple{border-radius:inherit}md-item{border-radius:inherit;flex:1;color:var(--md-menu-item-label-text-color, var(--md-sys-color-on-surface, #1d1b20));font-family:var(--md-menu-item-label-text-font, var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto)));font-size:var(--md-menu-item-label-text-size, var(--md-sys-typescale-body-large-size, 1rem));line-height:var(--md-menu-item-label-text-line-height, var(--md-sys-typescale-body-large-line-height, 1.5rem));font-weight:var(--md-menu-item-label-text-weight, var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400)));min-height:var(--md-menu-item-one-line-container-height, 56px);padding-top:var(--md-menu-item-top-space, 12px);padding-bottom:var(--md-menu-item-bottom-space, 12px);padding-inline-start:var(--md-menu-item-leading-space, 16px);padding-inline-end:var(--md-menu-item-trailing-space, 16px)}md-item[multiline]{min-height:var(--md-menu-item-two-line-container-height, 72px)}[slot=supporting-text]{color:var(--md-menu-item-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));font-family:var(--md-menu-item-supporting-text-font, var(--md-sys-typescale-body-medium-font, var(--md-ref-typeface-plain, Roboto)));font-size:var(--md-menu-item-supporting-text-size, var(--md-sys-typescale-body-medium-size, 0.875rem));line-height:var(--md-menu-item-supporting-text-line-height, var(--md-sys-typescale-body-medium-line-height, 1.25rem));font-weight:var(--md-menu-item-supporting-text-weight, var(--md-sys-typescale-body-medium-weight, var(--md-ref-typeface-weight-regular, 400)))}[slot=trailing-supporting-text]{color:var(--md-menu-item-trailing-supporting-text-color, var(--md-sys-color-on-surface-variant, #49454f));font-family:var(--md-menu-item-trailing-supporting-text-font, var(--md-sys-typescale-label-small-font, var(--md-ref-typeface-plain, Roboto)));font-size:var(--md-menu-item-trailing-supporting-text-size, var(--md-sys-typescale-label-small-size, 0.6875rem));line-height:var(--md-menu-item-trailing-supporting-text-line-height, var(--md-sys-typescale-label-small-line-height, 1rem));font-weight:var(--md-menu-item-trailing-supporting-text-weight, var(--md-sys-typescale-label-small-weight, var(--md-ref-typeface-weight-medium, 500)))}:is([slot=start],[slot=end])::slotted(*){fill:currentColor}[slot=start]{color:var(--md-menu-item-leading-icon-color, var(--md-sys-color-on-surface-variant, #49454f))}[slot=end]{color:var(--md-menu-item-trailing-icon-color, var(--md-sys-color-on-surface-variant, #49454f))}.list-item{background-color:var(--md-menu-item-container-color, transparent)}.list-item.selected{background-color:var(--md-menu-item-selected-container-color, var(--md-sys-color-secondary-container, #e8def8))}.selected:not(.disabled) ::slotted(*){color:var(--md-menu-item-selected-label-text-color, var(--md-sys-color-on-secondary-container, #1d192b))}@media(forced-colors: active){:host([disabled]),:host([disabled]) slot{color:GrayText;opacity:1}.list-item{position:relative}.list-item.selected::before{content:"";position:absolute;inset:0;box-sizing:border-box;border-radius:inherit;pointer-events:none;border:3px double CanvasText}}
-`;
-
-  // node_modules/@material/web/labs/item/internal/item.js
-  var Item = class extends i6 {
-    constructor() {
-      super(...arguments);
-      this.multiline = false;
-    }
-    render() {
-      return x`
-      <slot name="container"></slot>
-      <slot class="non-text" name="start"></slot>
-      <div class="text">
-        <slot name="overline" @slotchange=${this.handleTextSlotChange}></slot>
-        <slot
-          class="default-slot"
-          @slotchange=${this.handleTextSlotChange}></slot>
-        <slot name="headline" @slotchange=${this.handleTextSlotChange}></slot>
-        <slot
-          name="supporting-text"
-          @slotchange=${this.handleTextSlotChange}></slot>
-      </div>
-      <slot class="non-text" name="trailing-supporting-text"></slot>
-      <slot class="non-text" name="end"></slot>
-    `;
-    }
-    handleTextSlotChange() {
-      let isMultiline = false;
-      let slotsWithContent = 0;
-      for (const slot of this.textSlots) {
-        if (slotHasContent(slot)) {
-          slotsWithContent += 1;
-        }
-        if (slotsWithContent > 1) {
-          isMultiline = true;
-          break;
-        }
-      }
-      this.multiline = isMultiline;
-    }
-  };
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], Item.prototype, "multiline", void 0);
-  __decorate2([
-    r7(".text slot")
-  ], Item.prototype, "textSlots", void 0);
-  function slotHasContent(slot) {
-    for (const node of slot.assignedNodes({ flatten: true })) {
-      const isElement = node.nodeType === Node.ELEMENT_NODE;
-      const isTextWithContent = node.nodeType === Node.TEXT_NODE && node.textContent?.match(/\S/);
-      if (isElement || isTextWithContent) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // node_modules/@material/web/labs/item/internal/item-styles.js
-  var styles15 = i3`:host{color:var(--md-sys-color-on-surface, #1d1b20);font-family:var(--md-sys-typescale-body-large-font, var(--md-ref-typeface-plain, Roboto));font-size:var(--md-sys-typescale-body-large-size, 1rem);font-weight:var(--md-sys-typescale-body-large-weight, var(--md-ref-typeface-weight-regular, 400));line-height:var(--md-sys-typescale-body-large-line-height, 1.5rem);align-items:center;box-sizing:border-box;display:flex;gap:16px;min-height:56px;overflow:hidden;padding:12px 16px;position:relative;text-overflow:ellipsis}:host([multiline]){min-height:72px}[name=overline]{color:var(--md-sys-color-on-surface-variant, #49454f);font-family:var(--md-sys-typescale-label-small-font, var(--md-ref-typeface-plain, Roboto));font-size:var(--md-sys-typescale-label-small-size, 0.6875rem);font-weight:var(--md-sys-typescale-label-small-weight, var(--md-ref-typeface-weight-medium, 500));line-height:var(--md-sys-typescale-label-small-line-height, 1rem)}[name=supporting-text]{color:var(--md-sys-color-on-surface-variant, #49454f);font-family:var(--md-sys-typescale-body-medium-font, var(--md-ref-typeface-plain, Roboto));font-size:var(--md-sys-typescale-body-medium-size, 0.875rem);font-weight:var(--md-sys-typescale-body-medium-weight, var(--md-ref-typeface-weight-regular, 400));line-height:var(--md-sys-typescale-body-medium-line-height, 1.25rem)}[name=trailing-supporting-text]{color:var(--md-sys-color-on-surface-variant, #49454f);font-family:var(--md-sys-typescale-label-small-font, var(--md-ref-typeface-plain, Roboto));font-size:var(--md-sys-typescale-label-small-size, 0.6875rem);font-weight:var(--md-sys-typescale-label-small-weight, var(--md-ref-typeface-weight-medium, 500));line-height:var(--md-sys-typescale-label-small-line-height, 1rem)}[name=container]::slotted(*){inset:0;position:absolute}.default-slot{display:inline}.default-slot,.text ::slotted(*){overflow:hidden;text-overflow:ellipsis}.text{display:flex;flex:1;flex-direction:column;overflow:hidden}
-`;
-
-  // node_modules/@material/web/labs/item/item.js
-  var MdItem = class MdItem2 extends Item {
-  };
-  MdItem.styles = [styles15];
-  MdItem = __decorate2([
-    t4("md-item")
-  ], MdItem);
-
-  // node_modules/@material/web/menu/internal/controllers/menuItemController.js
-  var MenuItemController = class {
-    /**
-     * @param host The MenuItem in which to attach this controller to.
-     * @param config The object that configures this controller's behavior.
-     */
-    constructor(host, config) {
-      this.host = host;
-      this.internalTypeaheadText = null;
-      this.onClick = () => {
-        if (this.host.keepOpen)
-          return;
-        this.host.dispatchEvent(createDefaultCloseMenuEvent(this.host, {
-          kind: CloseReason.CLICK_SELECTION
-        }));
-      };
-      this.onKeydown = (event) => {
-        if (this.host.href && event.code === "Enter") {
-          const interactiveElement = this.getInteractiveElement();
-          if (interactiveElement instanceof HTMLAnchorElement) {
-            interactiveElement.click();
-          }
-        }
-        if (event.defaultPrevented)
-          return;
-        const keyCode = event.code;
-        if (this.host.keepOpen && keyCode !== "Escape")
-          return;
-        if (isClosableKey(keyCode)) {
-          event.preventDefault();
-          this.host.dispatchEvent(createDefaultCloseMenuEvent(this.host, {
-            kind: CloseReason.KEYDOWN,
-            key: keyCode
-          }));
-        }
-      };
-      this.getHeadlineElements = config.getHeadlineElements;
-      this.getSupportingTextElements = config.getSupportingTextElements;
-      this.getDefaultElements = config.getDefaultElements;
-      this.getInteractiveElement = config.getInteractiveElement;
-      this.host.addController(this);
-    }
-    /**
-     * The text that is selectable via typeahead. If not set, defaults to the
-     * innerText of the item slotted into the `"headline"` slot, and if there are
-     * no slotted elements into headline, then it checks the _default_ slot, and
-     * then the `"supporting-text"` slot if nothing is in _default_.
-     */
-    get typeaheadText() {
-      if (this.internalTypeaheadText !== null) {
-        return this.internalTypeaheadText;
-      }
-      const headlineElements = this.getHeadlineElements();
-      const textParts = [];
-      headlineElements.forEach((headlineElement) => {
-        if (headlineElement.textContent && headlineElement.textContent.trim()) {
-          textParts.push(headlineElement.textContent.trim());
-        }
-      });
-      if (textParts.length === 0) {
-        this.getDefaultElements().forEach((defaultElement) => {
-          if (defaultElement.textContent && defaultElement.textContent.trim()) {
-            textParts.push(defaultElement.textContent.trim());
-          }
-        });
-      }
-      if (textParts.length === 0) {
-        this.getSupportingTextElements().forEach((supportingTextElement) => {
-          if (supportingTextElement.textContent && supportingTextElement.textContent.trim()) {
-            textParts.push(supportingTextElement.textContent.trim());
-          }
-        });
-      }
-      return textParts.join(" ");
-    }
-    /**
-     * The recommended tag name to render as the list item.
-     */
-    get tagName() {
-      const type = this.host.type;
-      switch (type) {
-        case "link":
-          return "a";
-        case "button":
-          return "button";
-        default:
-        case "menuitem":
-        case "option":
-          return "li";
-      }
-    }
-    /**
-     * The recommended role of the menu item.
-     */
-    get role() {
-      return this.host.type === "option" ? "option" : "menuitem";
-    }
-    hostConnected() {
-      this.host.toggleAttribute("md-menu-item", true);
-    }
-    hostUpdate() {
-      if (this.host.href) {
-        this.host.type = "link";
-      }
-    }
-    /**
-     * Use to set the typeaheadText when it changes.
-     */
-    setTypeaheadText(text2) {
-      this.internalTypeaheadText = text2;
-    }
-  };
-
-  // node_modules/@material/web/select/internal/selectoption/selectOptionController.js
-  function createRequestSelectionEvent() {
-    return new Event("request-selection", {
-      bubbles: true,
-      composed: true
-    });
-  }
-  function createRequestDeselectionEvent() {
-    return new Event("request-deselection", {
-      bubbles: true,
-      composed: true
-    });
-  }
-  var SelectOptionController = class {
-    /**
-     * The recommended role of the select option.
-     */
-    get role() {
-      return this.menuItemController.role;
-    }
-    /**
-     * The text that is selectable via typeahead. If not set, defaults to the
-     * innerText of the item slotted into the `"headline"` slot, and if there are
-     * no slotted elements into headline, then it checks the _default_ slot, and
-     * then the `"supporting-text"` slot if nothing is in _default_.
-     */
-    get typeaheadText() {
-      return this.menuItemController.typeaheadText;
-    }
-    setTypeaheadText(text2) {
-      this.menuItemController.setTypeaheadText(text2);
-    }
-    /**
-     * The text that is displayed in the select field when selected. If not set,
-     * defaults to the textContent of the item slotted into the `"headline"` slot,
-     * and if there are no slotted elements into headline, then it checks the
-     * _default_ slot, and then the `"supporting-text"` slot if nothing is in
-     * _default_.
-     */
-    get displayText() {
-      if (this.internalDisplayText !== null) {
-        return this.internalDisplayText;
-      }
-      return this.menuItemController.typeaheadText;
-    }
-    setDisplayText(text2) {
-      this.internalDisplayText = text2;
-    }
-    /**
-     * @param host The SelectOption in which to attach this controller to.
-     * @param config The object that configures this controller's behavior.
-     */
-    constructor(host, config) {
-      this.host = host;
-      this.internalDisplayText = null;
-      this.lastSelected = this.host.selected;
-      this.firstUpdate = true;
-      this.onClick = () => {
-        this.menuItemController.onClick();
-      };
-      this.onKeydown = (e11) => {
-        this.menuItemController.onKeydown(e11);
-      };
-      this.menuItemController = new MenuItemController(host, config);
-      host.addController(this);
-    }
-    hostUpdate() {
-      if (this.lastSelected !== this.host.selected) {
-        this.host.ariaSelected = this.host.selected ? "true" : "false";
-      }
-    }
-    hostUpdated() {
-      if (this.lastSelected !== this.host.selected && !this.firstUpdate) {
-        if (this.host.selected) {
-          this.host.dispatchEvent(createRequestSelectionEvent());
+    syncTooltip(percent) {
+      if (this.output !== null) {
+        const inputWidth = this.input.offsetWidth;
+        const tooltipWidth = this.output.offsetWidth;
+        const thumbSize = getComputedStyle(this.input).getPropertyValue("--thumb-size");
+        const isRtl = this.localize.dir() === "rtl";
+        const percentAsWidth = inputWidth * percent;
+        if (isRtl) {
+          const x2 = `${inputWidth - percentAsWidth}px + ${percent} * ${thumbSize}`;
+          this.output.style.translate = `calc((${x2} - ${tooltipWidth / 2}px - ${thumbSize} / 2))`;
         } else {
-          this.host.dispatchEvent(createRequestDeselectionEvent());
+          const x2 = `${percentAsWidth}px - ${percent} * ${thumbSize}`;
+          this.output.style.translate = `calc(${x2} - ${tooltipWidth / 2}px + ${thumbSize} / 2)`;
         }
       }
-      this.lastSelected = this.host.selected;
-      this.firstUpdate = false;
     }
-  };
-
-  // node_modules/@material/web/select/internal/selectoption/select-option.js
-  var SelectOptionEl = class extends i6 {
-    constructor() {
-      super(...arguments);
-      this.disabled = false;
-      this.isMenuItem = true;
-      this.selected = false;
-      this.value = "";
-      this.type = "option";
-      this.selectOptionController = new SelectOptionController(this, {
-        getHeadlineElements: () => {
-          return this.headlineElements;
-        },
-        getSupportingTextElements: () => {
-          return this.supportingTextElements;
-        },
-        getDefaultElements: () => {
-          return this.defaultElements;
-        },
-        getInteractiveElement: () => this.listItemRoot
-      });
+    handleValueChange() {
+      this.formControlController.updateValidity();
+      this.input.value = this.value.toString();
+      this.value = parseFloat(this.input.value);
+      this.syncRange();
     }
-    /**
-     * The text that is selectable via typeahead. If not set, defaults to the
-     * innerText of the item slotted into the `"headline"` slot.
-     */
-    get typeaheadText() {
-      return this.selectOptionController.typeaheadText;
+    handleDisabledChange() {
+      this.formControlController.setValidity(this.disabled);
     }
-    set typeaheadText(text2) {
-      this.selectOptionController.setTypeaheadText(text2);
+    syncRange() {
+      const percent = Math.max(0, (this.value - this.min) / (this.max - this.min));
+      this.syncProgress(percent);
+      if (this.tooltip !== "none" && this.hasTooltip) {
+        this.updateComplete.then(() => this.syncTooltip(percent));
+      }
     }
-    /**
-     * The text that is displayed in the select field when selected. If not set,
-     * defaults to the textContent of the item slotted into the `"headline"` slot.
-     */
-    get displayText() {
-      return this.selectOptionController.displayText;
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
     }
-    set displayText(text2) {
-      this.selectOptionController.setDisplayText(text2);
+    /** Sets focus on the range. */
+    focus(options) {
+      this.input.focus(options);
+    }
+    /** Removes focus from the range. */
+    blur() {
+      this.input.blur();
+    }
+    /** Increments the value of the range by the value of the step attribute. */
+    stepUp() {
+      this.input.stepUp();
+      if (this.value !== Number(this.input.value)) {
+        this.value = Number(this.input.value);
+      }
+    }
+    /** Decrements the value of the range by the value of the step attribute. */
+    stepDown() {
+      this.input.stepDown();
+      if (this.value !== Number(this.input.value)) {
+        this.value = Number(this.input.value);
+      }
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      return this.input.checkValidity();
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      return this.input.reportValidity();
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message) {
+      this.input.setCustomValidity(message);
+      this.formControlController.updateValidity();
     }
     render() {
-      return this.renderListItem(x`
-      <md-item>
-        <div slot="container">
-          ${this.renderRipple()} ${this.renderFocusRing()}
-        </div>
-        <slot name="start" slot="start"></slot>
-        <slot name="end" slot="end"></slot>
-        ${this.renderBody()}
-      </md-item>
-    `);
-    }
-    /**
-     * Renders the root list item.
-     *
-     * @param content the child content of the list item.
-     */
-    renderListItem(content) {
+      const hasLabelSlot = this.hasSlotController.test("label");
+      const hasHelpTextSlot = this.hasSlotController.test("help-text");
+      const hasLabel = this.label ? true : !!hasLabelSlot;
+      const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
       return x`
-      <li
-        id="item"
-        tabindex=${this.disabled ? -1 : 0}
-        role=${this.selectOptionController.role}
-        aria-label=${this.ariaLabel || E2}
-        aria-selected=${this.ariaSelected || E2}
-        aria-checked=${this.ariaChecked || E2}
-        aria-expanded=${this.ariaExpanded || E2}
-        aria-haspopup=${this.ariaHasPopup || E2}
-        class="list-item ${e10(this.getRenderClasses())}"
-        @click=${this.selectOptionController.onClick}
-        @keydown=${this.selectOptionController.onKeydown}
-        >${content}</li
+      <div
+        part="form-control"
+        class=${e10({
+        "form-control": true,
+        "form-control--medium": true,
+        // range only has one size
+        "form-control--has-label": hasLabel,
+        "form-control--has-help-text": hasHelpText
+      })}
       >
+        <label
+          part="form-control-label"
+          class="form-control__label"
+          for="input"
+          aria-hidden=${hasLabel ? "false" : "true"}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div
+            part="base"
+            class=${e10({
+        range: true,
+        "range--disabled": this.disabled,
+        "range--focused": this.hasFocus,
+        "range--rtl": this.localize.dir() === "rtl",
+        "range--tooltip-visible": this.hasTooltip,
+        "range--tooltip-top": this.tooltip === "top",
+        "range--tooltip-bottom": this.tooltip === "bottom"
+      })}
+            @mousedown=${this.handleThumbDragStart}
+            @mouseup=${this.handleThumbDragEnd}
+            @touchstart=${this.handleThumbDragStart}
+            @touchend=${this.handleThumbDragEnd}
+          >
+            <input
+              part="input"
+              id="input"
+              class="range__control"
+              title=${this.title}
+              type="range"
+              name=${o11(this.name)}
+              ?disabled=${this.disabled}
+              min=${o11(this.min)}
+              max=${o11(this.max)}
+              step=${o11(this.step)}
+              .value=${l5(this.value.toString())}
+              aria-describedby="help-text"
+              @change=${this.handleChange}
+              @focus=${this.handleFocus}
+              @input=${this.handleInput}
+              @invalid=${this.handleInvalid}
+              @blur=${this.handleBlur}
+            />
+            ${this.tooltip !== "none" && !this.disabled ? x`
+                  <output part="tooltip" class="range__tooltip">
+                    ${typeof this.tooltipFormatter === "function" ? this.tooltipFormatter(this.value) : this.value}
+                  </output>
+                ` : ""}
+          </div>
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </div>
     `;
     }
-    /**
-     * Handles rendering of the ripple element.
-     */
-    renderRipple() {
-      return x` <md-ripple
-      part="ripple"
-      for="item"
-      ?disabled=${this.disabled}></md-ripple>`;
+  };
+  SlRange.styles = [component_styles_default, form_control_styles_default, range_styles_default];
+  __decorateClass2([
+    e6(".range__control")
+  ], SlRange.prototype, "input", 2);
+  __decorateClass2([
+    e6(".range__tooltip")
+  ], SlRange.prototype, "output", 2);
+  __decorateClass2([
+    r6()
+  ], SlRange.prototype, "hasFocus", 2);
+  __decorateClass2([
+    r6()
+  ], SlRange.prototype, "hasTooltip", 2);
+  __decorateClass2([
+    n5()
+  ], SlRange.prototype, "title", 2);
+  __decorateClass2([
+    n5()
+  ], SlRange.prototype, "name", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlRange.prototype, "value", 2);
+  __decorateClass2([
+    n5()
+  ], SlRange.prototype, "label", 2);
+  __decorateClass2([
+    n5({ attribute: "help-text" })
+  ], SlRange.prototype, "helpText", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRange.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlRange.prototype, "min", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlRange.prototype, "max", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlRange.prototype, "step", 2);
+  __decorateClass2([
+    n5()
+  ], SlRange.prototype, "tooltip", 2);
+  __decorateClass2([
+    n5({ attribute: false })
+  ], SlRange.prototype, "tooltipFormatter", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlRange.prototype, "form", 2);
+  __decorateClass2([
+    defaultValue()
+  ], SlRange.prototype, "defaultValue", 2);
+  __decorateClass2([
+    t4({ passive: true })
+  ], SlRange.prototype, "handleThumbDragStart", 1);
+  __decorateClass2([
+    watch("value", { waitUntilFirstUpdate: true })
+  ], SlRange.prototype, "handleValueChange", 1);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlRange.prototype, "handleDisabledChange", 1);
+  __decorateClass2([
+    watch("hasTooltip", { waitUntilFirstUpdate: true })
+  ], SlRange.prototype, "syncRange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.CKH4GVK3.js
+  SlRange.define("sl-range");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/range.js
+  var range = (options) => x` <!--  -->
+		<sl-range
+			value=${o11(options.value)}
+			step=${o11(options.step)}
+			min=${o11(options.min)}
+			max=${o11(options.max)}
+			.label=${options.label}
+			.helpText=${options.helpText}
+			placeholder=${options.placeholder}
+			.name=${options.id}
+			.id=${options.id}
+			.required=${options.required}
+			@sl-input=${(event) => {
+    const newValue = event.target.value;
+    console.log(newValue);
+    options.valueChangedCallback?.(newValue);
+  }}
+			.disabled=${options.disabled}
+		></sl-range>`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.X2WW2TWJ.js
+  var rating_styles_default = i3`
+  :host {
+    --symbol-color: var(--sl-color-neutral-300);
+    --symbol-color-active: var(--sl-color-amber-500);
+    --symbol-size: 1.2rem;
+    --symbol-spacing: var(--sl-spacing-3x-small);
+
+    display: inline-flex;
+  }
+
+  .rating {
+    position: relative;
+    display: inline-flex;
+    border-radius: var(--sl-border-radius-medium);
+    vertical-align: middle;
+  }
+
+  .rating:focus {
+    outline: none;
+  }
+
+  .rating:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .rating__symbols {
+    display: inline-flex;
+    position: relative;
+    font-size: var(--symbol-size);
+    line-height: 0;
+    color: var(--symbol-color);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .rating__symbols > * {
+    padding: var(--symbol-spacing);
+  }
+
+  .rating__symbol--active,
+  .rating__partial--filled {
+    color: var(--symbol-color-active);
+  }
+
+  .rating__partial-symbol-container {
+    position: relative;
+  }
+
+  .rating__partial--filled {
+    position: absolute;
+    top: var(--symbol-spacing);
+    left: var(--symbol-spacing);
+  }
+
+  .rating__symbol {
+    transition: var(--sl-transition-fast) scale;
+    pointer-events: none;
+  }
+
+  .rating__symbol--hover {
+    scale: 1.2;
+  }
+
+  .rating--disabled .rating__symbols,
+  .rating--readonly .rating__symbols {
+    cursor: default;
+  }
+
+  .rating--disabled .rating__symbol--hover,
+  .rating--readonly .rating__symbol--hover {
+    scale: none;
+  }
+
+  .rating--disabled {
+    opacity: 0.5;
+  }
+
+  .rating--disabled .rating__symbols {
+    cursor: not-allowed;
+  }
+
+  /* Forced colors mode */
+  @media (forced-colors: active) {
+    .rating__symbol--active {
+      color: SelectedItem;
     }
-    /**
-     * Handles rendering of the focus ring.
-     */
-    renderFocusRing() {
-      return x` <md-focus-ring
-      part="focus-ring"
-      for="item"
-      inward></md-focus-ring>`;
+  }
+`;
+
+  // node_modules/lit-html/directives/unsafe-html.js
+  var e12 = class extends i7 {
+    constructor(i11) {
+      if (super(i11), this.it = E2, i11.type !== t6.CHILD)
+        throw Error(this.constructor.directiveName + "() can only be used in child bindings");
     }
-    /**
-     * Classes applied to the list item root.
-     */
-    getRenderClasses() {
-      return {
-        "disabled": this.disabled,
-        "selected": this.selected
+    render(r9) {
+      if (r9 === E2 || null == r9)
+        return this._t = void 0, this.it = r9;
+      if (r9 === T2)
+        return r9;
+      if ("string" != typeof r9)
+        throw Error(this.constructor.directiveName + "() called with a non-string value");
+      if (r9 === this.it)
+        return this._t;
+      this.it = r9;
+      const s6 = [r9];
+      return s6.raw = s6, this._t = { _$litType$: this.constructor.resultType, strings: s6, values: [] };
+    }
+  };
+  e12.directiveName = "unsafeHTML", e12.resultType = 1;
+  var o13 = e8(e12);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.EOSHXBLN.js
+  var SlRating = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.localize = new LocalizeController2(this);
+      this.hoverValue = 0;
+      this.isHovering = false;
+      this.label = "";
+      this.value = 0;
+      this.max = 5;
+      this.precision = 1;
+      this.readonly = false;
+      this.disabled = false;
+      this.getSymbol = () => '<sl-icon name="star-fill" library="system"></sl-icon>';
+    }
+    getValueFromMousePosition(event) {
+      return this.getValueFromXCoordinate(event.clientX);
+    }
+    getValueFromTouchPosition(event) {
+      return this.getValueFromXCoordinate(event.touches[0].clientX);
+    }
+    getValueFromXCoordinate(coordinate) {
+      const isRtl = this.localize.dir() === "rtl";
+      const { left, right, width } = this.rating.getBoundingClientRect();
+      const value2 = isRtl ? this.roundToPrecision((right - coordinate) / width * this.max, this.precision) : this.roundToPrecision((coordinate - left) / width * this.max, this.precision);
+      return clamp2(value2, 0, this.max);
+    }
+    handleClick(event) {
+      if (this.disabled) {
+        return;
+      }
+      this.setValue(this.getValueFromMousePosition(event));
+      this.emit("sl-change");
+    }
+    setValue(newValue) {
+      if (this.disabled || this.readonly) {
+        return;
+      }
+      this.value = newValue === this.value ? 0 : newValue;
+      this.isHovering = false;
+    }
+    handleKeyDown(event) {
+      const isLtr = this.localize.dir() === "ltr";
+      const isRtl = this.localize.dir() === "rtl";
+      const oldValue = this.value;
+      if (this.disabled || this.readonly) {
+        return;
+      }
+      if (event.key === "ArrowDown" || isLtr && event.key === "ArrowLeft" || isRtl && event.key === "ArrowRight") {
+        const decrement = event.shiftKey ? 1 : this.precision;
+        this.value = Math.max(0, this.value - decrement);
+        event.preventDefault();
+      }
+      if (event.key === "ArrowUp" || isLtr && event.key === "ArrowRight" || isRtl && event.key === "ArrowLeft") {
+        const increment = event.shiftKey ? 1 : this.precision;
+        this.value = Math.min(this.max, this.value + increment);
+        event.preventDefault();
+      }
+      if (event.key === "Home") {
+        this.value = 0;
+        event.preventDefault();
+      }
+      if (event.key === "End") {
+        this.value = this.max;
+        event.preventDefault();
+      }
+      if (this.value !== oldValue) {
+        this.emit("sl-change");
+      }
+    }
+    handleMouseEnter(event) {
+      this.isHovering = true;
+      this.hoverValue = this.getValueFromMousePosition(event);
+    }
+    handleMouseMove(event) {
+      this.hoverValue = this.getValueFromMousePosition(event);
+    }
+    handleMouseLeave() {
+      this.isHovering = false;
+    }
+    handleTouchStart(event) {
+      this.isHovering = true;
+      this.hoverValue = this.getValueFromTouchPosition(event);
+      event.preventDefault();
+    }
+    handleTouchMove(event) {
+      this.hoverValue = this.getValueFromTouchPosition(event);
+    }
+    handleTouchEnd(event) {
+      this.isHovering = false;
+      this.setValue(this.hoverValue);
+      this.emit("sl-change");
+      event.preventDefault();
+    }
+    roundToPrecision(numberToRound, precision = 0.5) {
+      const multiplier = 1 / precision;
+      return Math.ceil(numberToRound * multiplier) / multiplier;
+    }
+    handleHoverValueChange() {
+      this.emit("sl-hover", {
+        detail: {
+          phase: "move",
+          value: this.hoverValue
+        }
+      });
+    }
+    handleIsHoveringChange() {
+      this.emit("sl-hover", {
+        detail: {
+          phase: this.isHovering ? "start" : "end",
+          value: this.hoverValue
+        }
+      });
+    }
+    /** Sets focus on the rating. */
+    focus(options) {
+      this.rating.focus(options);
+    }
+    /** Removes focus from the rating. */
+    blur() {
+      this.rating.blur();
+    }
+    render() {
+      const isRtl = this.localize.dir() === "rtl";
+      const counter = Array.from(Array(this.max).keys());
+      let displayValue = 0;
+      if (this.disabled || this.readonly) {
+        displayValue = this.value;
+      } else {
+        displayValue = this.isHovering ? this.hoverValue : this.value;
+      }
+      return x`
+      <div
+        part="base"
+        class=${e10({
+        rating: true,
+        "rating--readonly": this.readonly,
+        "rating--disabled": this.disabled,
+        "rating--rtl": isRtl
+      })}
+        role="slider"
+        aria-label=${this.label}
+        aria-disabled=${this.disabled ? "true" : "false"}
+        aria-readonly=${this.readonly ? "true" : "false"}
+        aria-valuenow=${this.value}
+        aria-valuemin=${0}
+        aria-valuemax=${this.max}
+        tabindex=${this.disabled || this.readonly ? "-1" : "0"}
+        @click=${this.handleClick}
+        @keydown=${this.handleKeyDown}
+        @mouseenter=${this.handleMouseEnter}
+        @touchstart=${this.handleTouchStart}
+        @mouseleave=${this.handleMouseLeave}
+        @touchend=${this.handleTouchEnd}
+        @mousemove=${this.handleMouseMove}
+        @touchmove=${this.handleTouchMove}
+      >
+        <span class="rating__symbols">
+          ${counter.map((index) => {
+        if (displayValue > index && displayValue < index + 1) {
+          return x`
+                <span
+                  class=${e10({
+            rating__symbol: true,
+            "rating__partial-symbol-container": true,
+            "rating__symbol--hover": this.isHovering && Math.ceil(displayValue) === index + 1
+          })}
+                  role="presentation"
+                >
+                  <div
+                    style=${o12({
+            clipPath: isRtl ? `inset(0 ${(displayValue - index) * 100}% 0 0)` : `inset(0 0 0 ${(displayValue - index) * 100}%)`
+          })}
+                  >
+                    ${o13(this.getSymbol(index + 1))}
+                  </div>
+                  <div
+                    class="rating__partial--filled"
+                    style=${o12({
+            clipPath: isRtl ? `inset(0 0 0 ${100 - (displayValue - index) * 100}%)` : `inset(0 ${100 - (displayValue - index) * 100}% 0 0)`
+          })}
+                  >
+                    ${o13(this.getSymbol(index + 1))}
+                  </div>
+                </span>
+              `;
+        }
+        return x`
+              <span
+                class=${e10({
+          rating__symbol: true,
+          "rating__symbol--hover": this.isHovering && Math.ceil(displayValue) === index + 1,
+          "rating__symbol--active": displayValue >= index + 1
+        })}
+                role="presentation"
+              >
+                ${o13(this.getSymbol(index + 1))}
+              </span>
+            `;
+      })}
+        </span>
+      </div>
+    `;
+    }
+  };
+  SlRating.styles = [component_styles_default, rating_styles_default];
+  SlRating.dependencies = { "sl-icon": SlIcon };
+  __decorateClass2([
+    e6(".rating")
+  ], SlRating.prototype, "rating", 2);
+  __decorateClass2([
+    r6()
+  ], SlRating.prototype, "hoverValue", 2);
+  __decorateClass2([
+    r6()
+  ], SlRating.prototype, "isHovering", 2);
+  __decorateClass2([
+    n5()
+  ], SlRating.prototype, "label", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlRating.prototype, "value", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlRating.prototype, "max", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlRating.prototype, "precision", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRating.prototype, "readonly", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlRating.prototype, "disabled", 2);
+  __decorateClass2([
+    n5()
+  ], SlRating.prototype, "getSymbol", 2);
+  __decorateClass2([
+    t4({ passive: true })
+  ], SlRating.prototype, "handleTouchMove", 1);
+  __decorateClass2([
+    watch("hoverValue")
+  ], SlRating.prototype, "handleHoverValueChange", 1);
+  __decorateClass2([
+    watch("isHovering")
+  ], SlRating.prototype, "handleIsHoveringChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.SAJCVYYU.js
+  SlRating.define("sl-rating");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/rating.js
+  var rating = (options) => x`<!--  -->
+		<div class="theme-shoelace widget-rating" part="widget-rating">
+			<label for=${options.id}>${options.label}</label>
+
+			<sl-rating
+				value=${o11(options.value)}
+				precision=${o11(options.step)}
+				min=${o11(options.min)}
+				max=${o11(options.max)}
+				.helpText=${options.helpText}
+				.name=${options.id}
+				.id=${options.id}
+				.required=${options.required}
+				@sl-change=${(event) => {
+    const newValue = event.target.value;
+    console.log(newValue);
+    options.valueChangedCallback?.(newValue);
+  }}
+				.disabled=${options.disabled}
+				.readonly=${options.readonly}
+			></sl-rating>
+		</div>`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.XNOUITPX.js
+  var select_styles_default = i3`
+  :host {
+    display: block;
+  }
+
+  /** The popup */
+  .select {
+    flex: 1 1 auto;
+    display: inline-flex;
+    width: 100%;
+    position: relative;
+    vertical-align: middle;
+  }
+
+  .select::part(popup) {
+    z-index: var(--sl-z-index-dropdown);
+  }
+
+  .select[data-current-placement^='top']::part(popup) {
+    transform-origin: bottom;
+  }
+
+  .select[data-current-placement^='bottom']::part(popup) {
+    transform-origin: top;
+  }
+
+  /* Combobox */
+  .select__combobox {
+    flex: 1;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    position: relative;
+    align-items: center;
+    justify-content: start;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    letter-spacing: var(--sl-input-letter-spacing);
+    vertical-align: middle;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      var(--sl-transition-fast) color,
+      var(--sl-transition-fast) border,
+      var(--sl-transition-fast) box-shadow,
+      var(--sl-transition-fast) background-color;
+  }
+
+  .select__display-input {
+    position: relative;
+    width: 100%;
+    font: inherit;
+    border: none;
+    background: none;
+    color: var(--sl-input-color);
+    cursor: inherit;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    -webkit-appearance: none;
+  }
+
+  .select__display-input::placeholder {
+    color: var(--sl-input-placeholder-color);
+  }
+
+  .select:not(.select--disabled):hover .select__display-input {
+    color: var(--sl-input-color-hover);
+  }
+
+  .select__display-input:focus {
+    outline: none;
+  }
+
+  /* Visually hide the display input when multiple is enabled */
+  .select--multiple:not(.select--placeholder-visible) .select__display-input {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+
+  .select__value-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    z-index: -1;
+  }
+
+  .select__tags {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-inline-start: var(--sl-spacing-2x-small);
+  }
+
+  .select__tags::slotted(sl-tag) {
+    cursor: pointer !important;
+  }
+
+  .select--disabled .select__tags,
+  .select--disabled .select__tags::slotted(sl-tag) {
+    cursor: not-allowed !important;
+  }
+
+  /* Standard selects */
+  .select--standard .select__combobox {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  }
+
+  .select--standard.select--disabled .select__combobox {
+    background-color: var(--sl-input-background-color-disabled);
+    border-color: var(--sl-input-border-color-disabled);
+    color: var(--sl-input-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+    outline: none;
+  }
+
+  .select--standard:not(.select--disabled).select--open .select__combobox,
+  .select--standard:not(.select--disabled).select--focused .select__combobox {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  }
+
+  /* Filled selects */
+  .select--filled .select__combobox {
+    border: none;
+    background-color: var(--sl-input-filled-background-color);
+    color: var(--sl-input-color);
+  }
+
+  .select--filled:hover:not(.select--disabled) .select__combobox {
+    background-color: var(--sl-input-filled-background-color-hover);
+  }
+
+  .select--filled.select--disabled .select__combobox {
+    background-color: var(--sl-input-filled-background-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .select--filled:not(.select--disabled).select--open .select__combobox,
+  .select--filled:not(.select--disabled).select--focused .select__combobox {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
+  }
+
+  /* Sizes */
+  .select--small .select__combobox {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+    min-height: var(--sl-input-height-small);
+    padding-block: 0;
+    padding-inline: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__clear {
+    margin-inline-start: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__prefix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-small);
+  }
+
+  .select--small.select--multiple:not(.select--placeholder-visible) .select__prefix::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-small);
+  }
+
+  .select--small.select--multiple:not(.select--placeholder-visible) .select__combobox {
+    padding-block: 2px;
+    padding-inline-start: 0;
+  }
+
+  .select--small .select__tags {
+    gap: 2px;
+  }
+
+  .select--medium .select__combobox {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+    min-height: var(--sl-input-height-medium);
+    padding-block: 0;
+    padding-inline: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__clear {
+    margin-inline-start: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__prefix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium.select--multiple:not(.select--placeholder-visible) .select__prefix::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium.select--multiple:not(.select--placeholder-visible) .select__combobox {
+    padding-inline-start: 0;
+    padding-block: 3px;
+  }
+
+  .select--medium .select__tags {
+    gap: 3px;
+  }
+
+  .select--large .select__combobox {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+    min-height: var(--sl-input-height-large);
+    padding-block: 0;
+    padding-inline: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__clear {
+    margin-inline-start: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__prefix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-large);
+  }
+
+  .select--large.select--multiple:not(.select--placeholder-visible) .select__prefix::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-large);
+  }
+
+  .select--large.select--multiple:not(.select--placeholder-visible) .select__combobox {
+    padding-inline-start: 0;
+    padding-block: 4px;
+  }
+
+  .select--large .select__tags {
+    gap: 4px;
+  }
+
+  /* Pills */
+  .select--pill.select--small .select__combobox {
+    border-radius: var(--sl-input-height-small);
+  }
+
+  .select--pill.select--medium .select__combobox {
+    border-radius: var(--sl-input-height-medium);
+  }
+
+  .select--pill.select--large .select__combobox {
+    border-radius: var(--sl-input-height-large);
+  }
+
+  /* Prefix and Suffix */
+  .select__prefix,
+  .select__suffix {
+    flex: 0;
+    display: inline-flex;
+    align-items: center;
+    color: var(--sl-input-placeholder-color);
+  }
+
+  .select__suffix::slotted(*) {
+    margin-inline-start: var(--sl-spacing-small);
+  }
+
+  /* Clear button */
+  .select__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: inherit;
+    color: var(--sl-input-icon-color);
+    border: none;
+    background: none;
+    padding: 0;
+    transition: var(--sl-transition-fast) color;
+    cursor: pointer;
+  }
+
+  .select__clear:hover {
+    color: var(--sl-input-icon-color-hover);
+  }
+
+  .select__clear:focus {
+    outline: none;
+  }
+
+  /* Expand icon */
+  .select__expand-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    transition: var(--sl-transition-medium) rotate ease;
+    rotate: 0;
+    margin-inline-start: var(--sl-spacing-small);
+  }
+
+  .select--open .select__expand-icon {
+    rotate: -180deg;
+  }
+
+  /* Listbox */
+  .select__listbox {
+    display: block;
+    position: relative;
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    box-shadow: var(--sl-shadow-large);
+    background: var(--sl-panel-background-color);
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+    border-radius: var(--sl-border-radius-medium);
+    padding-block: var(--sl-spacing-x-small);
+    padding-inline: 0;
+    overflow: auto;
+    overscroll-behavior: none;
+
+    /* Make sure it adheres to the popup's auto size */
+    max-width: var(--auto-size-available-width);
+    max-height: var(--auto-size-available-height);
+  }
+
+  .select__listbox ::slotted(sl-divider) {
+    --spacing: var(--sl-spacing-x-small);
+  }
+
+  .select__listbox ::slotted(small) {
+    display: block;
+    font-size: var(--sl-font-size-small);
+    font-weight: var(--sl-font-weight-semibold);
+    color: var(--sl-color-neutral-500);
+    padding-block: var(--sl-spacing-2x-small);
+    padding-inline: var(--sl-spacing-x-large);
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.RWUUFNUL.js
+  function getOffset(element, parent) {
+    return {
+      top: Math.round(element.getBoundingClientRect().top - parent.getBoundingClientRect().top),
+      left: Math.round(element.getBoundingClientRect().left - parent.getBoundingClientRect().left)
+    };
+  }
+  function scrollIntoView(element, container, direction = "vertical", behavior = "smooth") {
+    const offset3 = getOffset(element, container);
+    const offsetTop = offset3.top + container.scrollTop;
+    const offsetLeft = offset3.left + container.scrollLeft;
+    const minX = container.scrollLeft;
+    const maxX = container.scrollLeft + container.offsetWidth;
+    const minY = container.scrollTop;
+    const maxY = container.scrollTop + container.offsetHeight;
+    if (direction === "horizontal" || direction === "both") {
+      if (offsetLeft < minX) {
+        container.scrollTo({ left: offsetLeft, behavior });
+      } else if (offsetLeft + element.clientWidth > maxX) {
+        container.scrollTo({ left: offsetLeft - container.offsetWidth + element.clientWidth, behavior });
+      }
+    }
+    if (direction === "vertical" || direction === "both") {
+      if (offsetTop < minY) {
+        container.scrollTo({ top: offsetTop, behavior });
+      } else if (offsetTop + element.clientHeight > maxY) {
+        container.scrollTo({ top: offsetTop - container.offsetHeight + element.clientHeight, behavior });
+      }
+    }
+  }
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.AILU2HNL.js
+  var SlSelect = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.formControlController = new FormControlController(this, {
+        assumeInteractionOn: ["sl-blur", "sl-input"]
+      });
+      this.hasSlotController = new HasSlotController(this, "help-text", "label");
+      this.localize = new LocalizeController2(this);
+      this.typeToSelectString = "";
+      this.hasFocus = false;
+      this.displayLabel = "";
+      this.selectedOptions = [];
+      this.valueHasChanged = false;
+      this.name = "";
+      this._value = "";
+      this.defaultValue = "";
+      this.size = "medium";
+      this.placeholder = "";
+      this.multiple = false;
+      this.maxOptionsVisible = 3;
+      this.disabled = false;
+      this.clearable = false;
+      this.open = false;
+      this.hoist = false;
+      this.filled = false;
+      this.pill = false;
+      this.label = "";
+      this.placement = "bottom";
+      this.helpText = "";
+      this.form = "";
+      this.required = false;
+      this.getTag = (option) => {
+        return x`
+      <sl-tag
+        part="tag"
+        exportparts="
+              base:tag__base,
+              content:tag__content,
+              remove-button:tag__remove-button,
+              remove-button__base:tag__remove-button__base
+            "
+        ?pill=${this.pill}
+        size=${this.size}
+        removable
+        @sl-remove=${(event) => this.handleTagRemove(event, option)}
+      >
+        ${option.getTextLabel()}
+      </sl-tag>
+    `;
+      };
+      this.handleDocumentFocusIn = (event) => {
+        const path = event.composedPath();
+        if (this && !path.includes(this)) {
+          this.hide();
+        }
+      };
+      this.handleDocumentKeyDown = (event) => {
+        const target = event.target;
+        const isClearButton = target.closest(".select__clear") !== null;
+        const isIconButton = target.closest("sl-icon-button") !== null;
+        if (isClearButton || isIconButton) {
+          return;
+        }
+        if (event.key === "Escape" && this.open && !this.closeWatcher) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.hide();
+          this.displayInput.focus({ preventScroll: true });
+        }
+        if (event.key === "Enter" || event.key === " " && this.typeToSelectString === "") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          if (!this.open) {
+            this.show();
+            return;
+          }
+          if (this.currentOption && !this.currentOption.disabled) {
+            this.valueHasChanged = true;
+            if (this.multiple) {
+              this.toggleOptionSelection(this.currentOption);
+            } else {
+              this.setSelectedOptions(this.currentOption);
+            }
+            this.updateComplete.then(() => {
+              this.emit("sl-input");
+              this.emit("sl-change");
+            });
+            if (!this.multiple) {
+              this.hide();
+              this.displayInput.focus({ preventScroll: true });
+            }
+          }
+          return;
+        }
+        if (["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+          const allOptions = this.getAllOptions();
+          const currentIndex = allOptions.indexOf(this.currentOption);
+          let newIndex = Math.max(0, currentIndex);
+          event.preventDefault();
+          if (!this.open) {
+            this.show();
+            if (this.currentOption) {
+              return;
+            }
+          }
+          if (event.key === "ArrowDown") {
+            newIndex = currentIndex + 1;
+            if (newIndex > allOptions.length - 1)
+              newIndex = 0;
+          } else if (event.key === "ArrowUp") {
+            newIndex = currentIndex - 1;
+            if (newIndex < 0)
+              newIndex = allOptions.length - 1;
+          } else if (event.key === "Home") {
+            newIndex = 0;
+          } else if (event.key === "End") {
+            newIndex = allOptions.length - 1;
+          }
+          this.setCurrentOption(allOptions[newIndex]);
+        }
+        if (event.key && event.key.length === 1 || event.key === "Backspace") {
+          const allOptions = this.getAllOptions();
+          if (event.metaKey || event.ctrlKey || event.altKey) {
+            return;
+          }
+          if (!this.open) {
+            if (event.key === "Backspace") {
+              return;
+            }
+            this.show();
+          }
+          event.stopPropagation();
+          event.preventDefault();
+          clearTimeout(this.typeToSelectTimeout);
+          this.typeToSelectTimeout = window.setTimeout(() => this.typeToSelectString = "", 1e3);
+          if (event.key === "Backspace") {
+            this.typeToSelectString = this.typeToSelectString.slice(0, -1);
+          } else {
+            this.typeToSelectString += event.key.toLowerCase();
+          }
+          for (const option of allOptions) {
+            const label = option.getTextLabel().toLowerCase();
+            if (label.startsWith(this.typeToSelectString)) {
+              this.setCurrentOption(option);
+              break;
+            }
+          }
+        }
+      };
+      this.handleDocumentMouseDown = (event) => {
+        const path = event.composedPath();
+        if (this && !path.includes(this)) {
+          this.hide();
+        }
       };
     }
-    /**
-     * Handles rendering the headline and supporting text.
-     */
-    renderBody() {
+    get value() {
+      return this._value;
+    }
+    set value(val) {
+      if (this.multiple) {
+        val = Array.isArray(val) ? val : val.split(" ");
+      } else {
+        val = Array.isArray(val) ? val.join(" ") : val;
+      }
+      if (this._value === val) {
+        return;
+      }
+      this.valueHasChanged = true;
+      this._value = val;
+    }
+    /** Gets the validity state object */
+    get validity() {
+      return this.valueInput.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.valueInput.validationMessage;
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      setTimeout(() => {
+        this.handleDefaultSlotChange();
+      });
+      this.open = false;
+    }
+    addOpenListeners() {
+      var _a;
+      document.addEventListener("focusin", this.handleDocumentFocusIn);
+      document.addEventListener("keydown", this.handleDocumentKeyDown);
+      document.addEventListener("mousedown", this.handleDocumentMouseDown);
+      if (this.getRootNode() !== document) {
+        this.getRootNode().addEventListener("focusin", this.handleDocumentFocusIn);
+      }
+      if ("CloseWatcher" in window) {
+        (_a = this.closeWatcher) == null ? void 0 : _a.destroy();
+        this.closeWatcher = new CloseWatcher();
+        this.closeWatcher.onclose = () => {
+          if (this.open) {
+            this.hide();
+            this.displayInput.focus({ preventScroll: true });
+          }
+        };
+      }
+    }
+    removeOpenListeners() {
+      var _a;
+      document.removeEventListener("focusin", this.handleDocumentFocusIn);
+      document.removeEventListener("keydown", this.handleDocumentKeyDown);
+      document.removeEventListener("mousedown", this.handleDocumentMouseDown);
+      if (this.getRootNode() !== document) {
+        this.getRootNode().removeEventListener("focusin", this.handleDocumentFocusIn);
+      }
+      (_a = this.closeWatcher) == null ? void 0 : _a.destroy();
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.displayInput.setSelectionRange(0, 0);
+      this.emit("sl-focus");
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleLabelClick() {
+      this.displayInput.focus();
+    }
+    handleComboboxMouseDown(event) {
+      const path = event.composedPath();
+      const isIconButton = path.some((el) => el instanceof Element && el.tagName.toLowerCase() === "sl-icon-button");
+      if (this.disabled || isIconButton) {
+        return;
+      }
+      event.preventDefault();
+      this.displayInput.focus({ preventScroll: true });
+      this.open = !this.open;
+    }
+    handleComboboxKeyDown(event) {
+      if (event.key === "Tab") {
+        return;
+      }
+      event.stopPropagation();
+      this.handleDocumentKeyDown(event);
+    }
+    handleClearClick(event) {
+      event.stopPropagation();
+      this.valueHasChanged = true;
+      if (this.value !== "") {
+        this.setSelectedOptions([]);
+        this.displayInput.focus({ preventScroll: true });
+        this.updateComplete.then(() => {
+          this.emit("sl-clear");
+          this.emit("sl-input");
+          this.emit("sl-change");
+        });
+      }
+    }
+    handleClearMouseDown(event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    handleOptionClick(event) {
+      const target = event.target;
+      const option = target.closest("sl-option");
+      const oldValue = this.value;
+      if (option && !option.disabled) {
+        this.valueHasChanged = true;
+        if (this.multiple) {
+          this.toggleOptionSelection(option);
+        } else {
+          this.setSelectedOptions(option);
+        }
+        this.updateComplete.then(() => this.displayInput.focus({ preventScroll: true }));
+        if (this.value !== oldValue) {
+          this.updateComplete.then(() => {
+            this.emit("sl-input");
+            this.emit("sl-change");
+          });
+        }
+        if (!this.multiple) {
+          this.hide();
+          this.displayInput.focus({ preventScroll: true });
+        }
+      }
+    }
+    /* @internal - used by options to update labels */
+    handleDefaultSlotChange() {
+      if (!customElements.get("sl-option")) {
+        customElements.whenDefined("sl-option").then(() => this.handleDefaultSlotChange());
+      }
+      const allOptions = this.getAllOptions();
+      const val = this.valueHasChanged ? this.value : this.defaultValue;
+      const value2 = Array.isArray(val) ? val : [val];
+      const values = [];
+      allOptions.forEach((option) => values.push(option.value));
+      this.setSelectedOptions(allOptions.filter((el) => value2.includes(el.value)));
+    }
+    handleTagRemove(event, option) {
+      event.stopPropagation();
+      this.valueHasChanged = true;
+      if (!this.disabled) {
+        this.toggleOptionSelection(option, false);
+        this.updateComplete.then(() => {
+          this.emit("sl-input");
+          this.emit("sl-change");
+        });
+      }
+    }
+    // Gets an array of all <sl-option> elements
+    getAllOptions() {
+      return [...this.querySelectorAll("sl-option")];
+    }
+    // Gets the first <sl-option> element
+    getFirstOption() {
+      return this.querySelector("sl-option");
+    }
+    // Sets the current option, which is the option the user is currently interacting with (e.g. via keyboard). Only one
+    // option may be "current" at a time.
+    setCurrentOption(option) {
+      const allOptions = this.getAllOptions();
+      allOptions.forEach((el) => {
+        el.current = false;
+        el.tabIndex = -1;
+      });
+      if (option) {
+        this.currentOption = option;
+        option.current = true;
+        option.tabIndex = 0;
+        option.focus();
+      }
+    }
+    // Sets the selected option(s)
+    setSelectedOptions(option) {
+      const allOptions = this.getAllOptions();
+      const newSelectedOptions = Array.isArray(option) ? option : [option];
+      allOptions.forEach((el) => el.selected = false);
+      if (newSelectedOptions.length) {
+        newSelectedOptions.forEach((el) => el.selected = true);
+      }
+      this.selectionChanged();
+    }
+    // Toggles an option's selected state
+    toggleOptionSelection(option, force) {
+      if (force === true || force === false) {
+        option.selected = force;
+      } else {
+        option.selected = !option.selected;
+      }
+      this.selectionChanged();
+    }
+    // This method must be called whenever the selection changes. It will update the selected options cache, the current
+    // value, and the display value
+    selectionChanged() {
+      var _a, _b, _c;
+      const options = this.getAllOptions();
+      this.selectedOptions = options.filter((el) => el.selected);
+      const cachedValueHasChanged = this.valueHasChanged;
+      if (this.multiple) {
+        this.value = this.selectedOptions.map((el) => el.value);
+        if (this.placeholder && this.value.length === 0) {
+          this.displayLabel = "";
+        } else {
+          this.displayLabel = this.localize.term("numOptionsSelected", this.selectedOptions.length);
+        }
+      } else {
+        const selectedOption = this.selectedOptions[0];
+        this.value = (_a = selectedOption == null ? void 0 : selectedOption.value) != null ? _a : "";
+        this.displayLabel = (_c = (_b = selectedOption == null ? void 0 : selectedOption.getTextLabel) == null ? void 0 : _b.call(selectedOption)) != null ? _c : "";
+      }
+      this.valueHasChanged = cachedValueHasChanged;
+      this.updateComplete.then(() => {
+        this.formControlController.updateValidity();
+      });
+    }
+    get tags() {
+      return this.selectedOptions.map((option, index) => {
+        if (index < this.maxOptionsVisible || this.maxOptionsVisible <= 0) {
+          const tag = this.getTag(option, index);
+          return x`<div @sl-remove=${(e13) => this.handleTagRemove(e13, option)}>
+          ${typeof tag === "string" ? o13(tag) : tag}
+        </div>`;
+        } else if (index === this.maxOptionsVisible) {
+          return x`<sl-tag size=${this.size}>+${this.selectedOptions.length - index}</sl-tag>`;
+        }
+        return x``;
+      });
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    handleDisabledChange() {
+      if (this.disabled) {
+        this.open = false;
+        this.handleOpenChange();
+      }
+    }
+    attributeChangedCallback(name, oldVal, newVal) {
+      super.attributeChangedCallback(name, oldVal, newVal);
+      if (name === "value") {
+        const cachedValueHasChanged = this.valueHasChanged;
+        this.value = this.defaultValue;
+        this.valueHasChanged = cachedValueHasChanged;
+      }
+    }
+    handleValueChange() {
+      if (!this.valueHasChanged) {
+        const cachedValueHasChanged = this.valueHasChanged;
+        this.value = this.defaultValue;
+        this.valueHasChanged = cachedValueHasChanged;
+      }
+      const allOptions = this.getAllOptions();
+      const value2 = Array.isArray(this.value) ? this.value : [this.value];
+      this.setSelectedOptions(allOptions.filter((el) => value2.includes(el.value)));
+    }
+    async handleOpenChange() {
+      if (this.open && !this.disabled) {
+        this.setCurrentOption(this.selectedOptions[0] || this.getFirstOption());
+        this.emit("sl-show");
+        this.addOpenListeners();
+        await stopAnimations(this);
+        this.listbox.hidden = false;
+        this.popup.active = true;
+        requestAnimationFrame(() => {
+          this.setCurrentOption(this.currentOption);
+        });
+        const { keyframes, options } = getAnimation(this, "select.show", { dir: this.localize.dir() });
+        await animateTo(this.popup.popup, keyframes, options);
+        if (this.currentOption) {
+          scrollIntoView(this.currentOption, this.listbox, "vertical", "auto");
+        }
+        this.emit("sl-after-show");
+      } else {
+        this.emit("sl-hide");
+        this.removeOpenListeners();
+        await stopAnimations(this);
+        const { keyframes, options } = getAnimation(this, "select.hide", { dir: this.localize.dir() });
+        await animateTo(this.popup.popup, keyframes, options);
+        this.listbox.hidden = true;
+        this.popup.active = false;
+        this.emit("sl-after-hide");
+      }
+    }
+    /** Shows the listbox. */
+    async show() {
+      if (this.open || this.disabled) {
+        this.open = false;
+        return void 0;
+      }
+      this.open = true;
+      return waitForEvent(this, "sl-after-show");
+    }
+    /** Hides the listbox. */
+    async hide() {
+      if (!this.open || this.disabled) {
+        this.open = false;
+        return void 0;
+      }
+      this.open = false;
+      return waitForEvent(this, "sl-after-hide");
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      return this.valueInput.checkValidity();
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      return this.valueInput.reportValidity();
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message) {
+      this.valueInput.setCustomValidity(message);
+      this.formControlController.updateValidity();
+    }
+    /** Sets focus on the control. */
+    focus(options) {
+      this.displayInput.focus(options);
+    }
+    /** Removes focus from the control. */
+    blur() {
+      this.displayInput.blur();
+    }
+    render() {
+      const hasLabelSlot = this.hasSlotController.test("label");
+      const hasHelpTextSlot = this.hasSlotController.test("help-text");
+      const hasLabel = this.label ? true : !!hasLabelSlot;
+      const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+      const hasClearIcon = this.clearable && !this.disabled && this.value.length > 0;
+      const isPlaceholderVisible = this.placeholder && this.value && this.value.length <= 0;
       return x`
-      <slot></slot>
-      <slot name="overline" slot="overline"></slot>
-      <slot name="headline" slot="headline"></slot>
-      <slot name="supporting-text" slot="supporting-text"></slot>
-      <slot
-        name="trailing-supporting-text"
-        slot="trailing-supporting-text"></slot>
+      <div
+        part="form-control"
+        class=${e10({
+        "form-control": true,
+        "form-control--small": this.size === "small",
+        "form-control--medium": this.size === "medium",
+        "form-control--large": this.size === "large",
+        "form-control--has-label": hasLabel,
+        "form-control--has-help-text": hasHelpText
+      })}
+      >
+        <label
+          id="label"
+          part="form-control-label"
+          class="form-control__label"
+          aria-hidden=${hasLabel ? "false" : "true"}
+          @click=${this.handleLabelClick}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <sl-popup
+            class=${e10({
+        select: true,
+        "select--standard": true,
+        "select--filled": this.filled,
+        "select--pill": this.pill,
+        "select--open": this.open,
+        "select--disabled": this.disabled,
+        "select--multiple": this.multiple,
+        "select--focused": this.hasFocus,
+        "select--placeholder-visible": isPlaceholderVisible,
+        "select--top": this.placement === "top",
+        "select--bottom": this.placement === "bottom",
+        "select--small": this.size === "small",
+        "select--medium": this.size === "medium",
+        "select--large": this.size === "large"
+      })}
+            placement=${this.placement}
+            strategy=${this.hoist ? "fixed" : "absolute"}
+            flip
+            shift
+            sync="width"
+            auto-size="vertical"
+            auto-size-padding="10"
+          >
+            <div
+              part="combobox"
+              class="select__combobox"
+              slot="anchor"
+              @keydown=${this.handleComboboxKeyDown}
+              @mousedown=${this.handleComboboxMouseDown}
+            >
+              <slot part="prefix" name="prefix" class="select__prefix"></slot>
+
+              <input
+                part="display-input"
+                class="select__display-input"
+                type="text"
+                placeholder=${this.placeholder}
+                .disabled=${this.disabled}
+                .value=${this.displayLabel}
+                autocomplete="off"
+                spellcheck="false"
+                autocapitalize="off"
+                readonly
+                aria-controls="listbox"
+                aria-expanded=${this.open ? "true" : "false"}
+                aria-haspopup="listbox"
+                aria-labelledby="label"
+                aria-disabled=${this.disabled ? "true" : "false"}
+                aria-describedby="help-text"
+                role="combobox"
+                tabindex="0"
+                @focus=${this.handleFocus}
+                @blur=${this.handleBlur}
+              />
+
+              ${this.multiple ? x`<div part="tags" class="select__tags">${this.tags}</div>` : ""}
+
+              <input
+                class="select__value-input"
+                type="text"
+                ?disabled=${this.disabled}
+                ?required=${this.required}
+                .value=${Array.isArray(this.value) ? this.value.join(", ") : this.value}
+                tabindex="-1"
+                aria-hidden="true"
+                @focus=${() => this.focus()}
+                @invalid=${this.handleInvalid}
+              />
+
+              ${hasClearIcon ? x`
+                    <button
+                      part="clear-button"
+                      class="select__clear"
+                      type="button"
+                      aria-label=${this.localize.term("clearEntry")}
+                      @mousedown=${this.handleClearMouseDown}
+                      @click=${this.handleClearClick}
+                      tabindex="-1"
+                    >
+                      <slot name="clear-icon">
+                        <sl-icon name="x-circle-fill" library="system"></sl-icon>
+                      </slot>
+                    </button>
+                  ` : ""}
+
+              <slot name="suffix" part="suffix" class="select__suffix"></slot>
+
+              <slot name="expand-icon" part="expand-icon" class="select__expand-icon">
+                <sl-icon library="system" name="chevron-down"></sl-icon>
+              </slot>
+            </div>
+
+            <div
+              id="listbox"
+              role="listbox"
+              aria-expanded=${this.open ? "true" : "false"}
+              aria-multiselectable=${this.multiple ? "true" : "false"}
+              aria-labelledby="label"
+              part="listbox"
+              class="select__listbox"
+              tabindex="-1"
+              @mouseup=${this.handleOptionClick}
+              @slotchange=${this.handleDefaultSlotChange}
+            >
+              <slot></slot>
+            </div>
+          </sl-popup>
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </div>
     `;
     }
-    focus() {
-      this.listItemRoot?.focus();
+  };
+  SlSelect.styles = [component_styles_default, form_control_styles_default, select_styles_default];
+  SlSelect.dependencies = {
+    "sl-icon": SlIcon,
+    "sl-popup": SlPopup,
+    "sl-tag": SlTag
+  };
+  __decorateClass2([
+    e6(".select")
+  ], SlSelect.prototype, "popup", 2);
+  __decorateClass2([
+    e6(".select__combobox")
+  ], SlSelect.prototype, "combobox", 2);
+  __decorateClass2([
+    e6(".select__display-input")
+  ], SlSelect.prototype, "displayInput", 2);
+  __decorateClass2([
+    e6(".select__value-input")
+  ], SlSelect.prototype, "valueInput", 2);
+  __decorateClass2([
+    e6(".select__listbox")
+  ], SlSelect.prototype, "listbox", 2);
+  __decorateClass2([
+    r6()
+  ], SlSelect.prototype, "hasFocus", 2);
+  __decorateClass2([
+    r6()
+  ], SlSelect.prototype, "displayLabel", 2);
+  __decorateClass2([
+    r6()
+  ], SlSelect.prototype, "currentOption", 2);
+  __decorateClass2([
+    r6()
+  ], SlSelect.prototype, "selectedOptions", 2);
+  __decorateClass2([
+    r6()
+  ], SlSelect.prototype, "valueHasChanged", 2);
+  __decorateClass2([
+    n5()
+  ], SlSelect.prototype, "name", 2);
+  __decorateClass2([
+    r6()
+  ], SlSelect.prototype, "value", 1);
+  __decorateClass2([
+    n5({ attribute: "value" })
+  ], SlSelect.prototype, "defaultValue", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlSelect.prototype, "size", 2);
+  __decorateClass2([
+    n5()
+  ], SlSelect.prototype, "placeholder", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSelect.prototype, "multiple", 2);
+  __decorateClass2([
+    n5({ attribute: "max-options-visible", type: Number })
+  ], SlSelect.prototype, "maxOptionsVisible", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSelect.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlSelect.prototype, "clearable", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSelect.prototype, "open", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlSelect.prototype, "hoist", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSelect.prototype, "filled", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSelect.prototype, "pill", 2);
+  __decorateClass2([
+    n5()
+  ], SlSelect.prototype, "label", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlSelect.prototype, "placement", 2);
+  __decorateClass2([
+    n5({ attribute: "help-text" })
+  ], SlSelect.prototype, "helpText", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlSelect.prototype, "form", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSelect.prototype, "required", 2);
+  __decorateClass2([
+    n5()
+  ], SlSelect.prototype, "getTag", 2);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlSelect.prototype, "handleDisabledChange", 1);
+  __decorateClass2([
+    watch(["defaultValue", "value"], { waitUntilFirstUpdate: true })
+  ], SlSelect.prototype, "handleValueChange", 1);
+  __decorateClass2([
+    watch("open", { waitUntilFirstUpdate: true })
+  ], SlSelect.prototype, "handleOpenChange", 1);
+  setDefaultAnimation("select.show", {
+    keyframes: [
+      { opacity: 0, scale: 0.9 },
+      { opacity: 1, scale: 1 }
+    ],
+    options: { duration: 100, easing: "ease" }
+  });
+  setDefaultAnimation("select.hide", {
+    keyframes: [
+      { opacity: 1, scale: 1 },
+      { opacity: 0, scale: 0.9 }
+    ],
+    options: { duration: 100, easing: "ease" }
+  });
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.TP2GB2HO.js
+  SlSelect.define("sl-select");
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.FXXKMG2P.js
+  var option_styles_default = i3`
+  :host {
+    display: block;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  :host(:focus) {
+    outline: none;
+  }
+
+  .option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    line-height: var(--sl-line-height-normal);
+    letter-spacing: var(--sl-letter-spacing-normal);
+    color: var(--sl-color-neutral-700);
+    padding: var(--sl-spacing-x-small) var(--sl-spacing-medium) var(--sl-spacing-x-small) var(--sl-spacing-x-small);
+    transition: var(--sl-transition-fast) fill;
+    cursor: pointer;
+  }
+
+  .option--hover:not(.option--current):not(.option--disabled) {
+    background-color: var(--sl-color-neutral-100);
+    color: var(--sl-color-neutral-1000);
+  }
+
+  .option--current,
+  .option--current.option--disabled {
+    background-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+    opacity: 1;
+  }
+
+  .option--disabled {
+    outline: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .option__label {
+    flex: 1 1 auto;
+    display: inline-block;
+    line-height: var(--sl-line-height-dense);
+  }
+
+  .option .option__check {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    padding-inline-end: var(--sl-spacing-2x-small);
+  }
+
+  .option--selected .option__check {
+    visibility: visible;
+  }
+
+  .option__prefix,
+  .option__suffix {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .option__prefix::slotted(*) {
+    margin-inline-end: var(--sl-spacing-x-small);
+  }
+
+  .option__suffix::slotted(*) {
+    margin-inline-start: var(--sl-spacing-x-small);
+  }
+
+  @media (forced-colors: active) {
+    :host(:hover:not([aria-disabled='true'])) .option {
+      outline: dashed 1px SelectedItem;
+      outline-offset: -1px;
+    }
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.BBCWSAUE.js
+  var SlOption = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.localize = new LocalizeController2(this);
+      this.isInitialized = false;
+      this.current = false;
+      this.selected = false;
+      this.hasHover = false;
+      this.value = "";
+      this.disabled = false;
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      this.setAttribute("role", "option");
+      this.setAttribute("aria-selected", "false");
+    }
+    handleDefaultSlotChange() {
+      if (this.isInitialized) {
+        customElements.whenDefined("sl-select").then(() => {
+          const controller = this.closest("sl-select");
+          if (controller) {
+            controller.handleDefaultSlotChange();
+          }
+        });
+      } else {
+        this.isInitialized = true;
+      }
+    }
+    handleMouseEnter() {
+      this.hasHover = true;
+    }
+    handleMouseLeave() {
+      this.hasHover = false;
+    }
+    handleDisabledChange() {
+      this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+    }
+    handleSelectedChange() {
+      this.setAttribute("aria-selected", this.selected ? "true" : "false");
+    }
+    handleValueChange() {
+      if (typeof this.value !== "string") {
+        this.value = String(this.value);
+      }
+      if (this.value.includes(" ")) {
+        console.error(`Option values cannot include a space. All spaces have been replaced with underscores.`, this);
+        this.value = this.value.replace(/ /g, "_");
+      }
+    }
+    /** Returns a plain text label based on the option's content. */
+    getTextLabel() {
+      const nodes = this.childNodes;
+      let label = "";
+      [...nodes].forEach((node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (!node.hasAttribute("slot")) {
+            label += node.textContent;
+          }
+        }
+        if (node.nodeType === Node.TEXT_NODE) {
+          label += node.textContent;
+        }
+      });
+      return label.trim();
+    }
+    render() {
+      return x`
+      <div
+        part="base"
+        class=${e10({
+        option: true,
+        "option--current": this.current,
+        "option--disabled": this.disabled,
+        "option--selected": this.selected,
+        "option--hover": this.hasHover
+      })}
+        @mouseenter=${this.handleMouseEnter}
+        @mouseleave=${this.handleMouseLeave}
+      >
+        <sl-icon part="checked-icon" class="option__check" name="check" library="system" aria-hidden="true"></sl-icon>
+        <slot part="prefix" name="prefix" class="option__prefix"></slot>
+        <slot part="label" class="option__label" @slotchange=${this.handleDefaultSlotChange}></slot>
+        <slot part="suffix" name="suffix" class="option__suffix"></slot>
+      </div>
+    `;
     }
   };
-  (() => {
-    requestUpdateOnAriaChange(SelectOptionEl);
-  })();
-  SelectOptionEl.shadowRootOptions = {
-    ...i6.shadowRootOptions,
-    delegatesFocus: true
-  };
-  __decorate2([
+  SlOption.styles = [component_styles_default, option_styles_default];
+  SlOption.dependencies = { "sl-icon": SlIcon };
+  __decorateClass2([
+    e6(".option__label")
+  ], SlOption.prototype, "defaultSlot", 2);
+  __decorateClass2([
+    r6()
+  ], SlOption.prototype, "current", 2);
+  __decorateClass2([
+    r6()
+  ], SlOption.prototype, "selected", 2);
+  __decorateClass2([
+    r6()
+  ], SlOption.prototype, "hasHover", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlOption.prototype, "value", 2);
+  __decorateClass2([
     n5({ type: Boolean, reflect: true })
-  ], SelectOptionEl.prototype, "disabled", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "md-menu-item", reflect: true })
-  ], SelectOptionEl.prototype, "isMenuItem", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], SelectOptionEl.prototype, "selected", void 0);
-  __decorate2([
-    n5()
-  ], SelectOptionEl.prototype, "value", void 0);
-  __decorate2([
-    e6(".list-item")
-  ], SelectOptionEl.prototype, "listItemRoot", void 0);
-  __decorate2([
-    o9({ slot: "headline" })
-  ], SelectOptionEl.prototype, "headlineElements", void 0);
-  __decorate2([
-    o9({ slot: "supporting-text" })
-  ], SelectOptionEl.prototype, "supportingTextElements", void 0);
-  __decorate2([
-    n6({ slot: "" })
-  ], SelectOptionEl.prototype, "defaultElements", void 0);
-  __decorate2([
-    n5({ attribute: "typeahead-text" })
-  ], SelectOptionEl.prototype, "typeaheadText", null);
-  __decorate2([
-    n5({ attribute: "display-text" })
-  ], SelectOptionEl.prototype, "displayText", null);
+  ], SlOption.prototype, "disabled", 2);
+  __decorateClass2([
+    watch("disabled")
+  ], SlOption.prototype, "handleDisabledChange", 1);
+  __decorateClass2([
+    watch("selected")
+  ], SlOption.prototype, "handleSelectedChange", 1);
+  __decorateClass2([
+    watch("value")
+  ], SlOption.prototype, "handleValueChange", 1);
 
-  // node_modules/@material/web/select/select-option.js
-  var MdSelectOption = class MdSelectOption2 extends SelectOptionEl {
-  };
-  MdSelectOption.styles = [styles14];
-  MdSelectOption = __decorate2([
-    t4("md-select-option")
-  ], MdSelectOption);
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.JXOKFADN.js
+  SlOption.define("sl-option");
 
-  // node_modules/@jsfe/material/dist/esm/widgets/select.js
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/select.js
   var select = (options) => x`
-	<md-outlined-select
-		?required=${options.required}
-		.label=${options.label ?? ""}
-		part="field-select"
-		@input=${(event) => {
+	<sl-select
+		value=${o11(options.value)}
+		.required=${options.required}
+		@sl-change=${(event) => {
     let newValue = event.target.value;
     if (Array.isArray(newValue))
       return;
@@ -17654,607 +24285,1123 @@
     }
     options.valueChangedCallback?.(newValue);
   }}
-		class="material"
-		>${options.enum?.map((enumValue, i10) => x`<md-select-option .value=${String(enumValue)}>
+		.disabled=${options.disabled}
+		label=${o11(options.label)}
+		.helpText=${options.helpText ?? ""}
+		>${options.enum?.map((enumValue) => x` <sl-option .value=${String(enumValue)}>
 					${enumValue}
-				</md-select-option>`)}</md-outlined-select
+				</sl-option>`)}</sl-select
 	>
 `;
 
-  // node_modules/@material/web/internal/controller/form-submitter.js
-  function setupFormSubmitter(ctor) {
-    if (o7) {
-      return;
-    }
-    ctor.addInitializer((instance) => {
-      const submitter = instance;
-      submitter.addEventListener("click", async (event) => {
-        const { type, [internals]: elementInternals } = submitter;
-        const { form } = elementInternals;
-        if (!form || type === "button") {
-          return;
-        }
-        await new Promise((resolve) => {
-          setTimeout(resolve);
-        });
-        if (event.defaultPrevented) {
-          return;
-        }
-        if (type === "reset") {
-          form.reset();
-          return;
-        }
-        form.addEventListener("submit", (submitEvent) => {
-          Object.defineProperty(submitEvent, "submitter", {
-            configurable: true,
-            enumerable: true,
-            get: () => submitter
-          });
-        }, { capture: true, once: true });
-        elementInternals.setFormValue(submitter.value);
-        form.requestSubmit();
-      });
-    });
-  }
-
-  // node_modules/@material/web/button/internal/button.js
-  var buttonBaseClass = mixinElementInternals(i6);
-  var Button = class extends buttonBaseClass {
-    get name() {
-      return this.getAttribute("name") ?? "";
-    }
-    set name(name) {
-      this.setAttribute("name", name);
-    }
-    /**
-     * The associated form element with which this element's value will submit.
-     */
-    get form() {
-      return this[internals].form;
-    }
-    constructor() {
-      super();
-      this.disabled = false;
-      this.href = "";
-      this.target = "";
-      this.trailingIcon = false;
-      this.hasIcon = false;
-      this.type = "submit";
-      this.value = "";
-      this.handleActivationClick = (event) => {
-        if (!isActivationClick(event) || !this.buttonElement) {
-          return;
-        }
-        this.focus();
-        dispatchActivationClick(this.buttonElement);
-      };
-      if (!o7) {
-        this.addEventListener("click", this.handleActivationClick);
-      }
-    }
-    focus() {
-      this.buttonElement?.focus();
-    }
-    blur() {
-      this.buttonElement?.blur();
-    }
-    render() {
-      const isDisabled = this.disabled && !this.href;
-      const buttonOrLink = this.href ? this.renderLink() : this.renderButton();
-      const buttonId = this.href ? "link" : "button";
-      return x`
-      ${this.renderElevationOrOutline?.()}
-      <div class="background"></div>
-      <md-focus-ring part="focus-ring" for=${buttonId}></md-focus-ring>
-      <md-ripple
-        part="ripple"
-        for=${buttonId}
-        ?disabled="${isDisabled}"></md-ripple>
-      ${buttonOrLink}
-    `;
-    }
-    renderButton() {
-      const { ariaLabel, ariaHasPopup, ariaExpanded } = this;
-      return x`<button
-      id="button"
-      class="button"
-      ?disabled=${this.disabled}
-      aria-label="${ariaLabel || E2}"
-      aria-haspopup="${ariaHasPopup || E2}"
-      aria-expanded="${ariaExpanded || E2}">
-      ${this.renderContent()}
-    </button>`;
-    }
-    renderLink() {
-      const { ariaLabel, ariaHasPopup, ariaExpanded } = this;
-      return x`<a
-      id="link"
-      class="button"
-      aria-label="${ariaLabel || E2}"
-      aria-haspopup="${ariaHasPopup || E2}"
-      aria-expanded="${ariaExpanded || E2}"
-      href=${this.href}
-      target=${this.target || E2}
-      >${this.renderContent()}
-    </a>`;
-    }
-    renderContent() {
-      const icon = x`<slot
-      name="icon"
-      @slotchange="${this.handleSlotChange}"></slot>`;
-      return x`
-      <span class="touch"></span>
-      ${this.trailingIcon ? E2 : icon}
-      <span class="label"><slot></slot></span>
-      ${this.trailingIcon ? icon : E2}
-    `;
-    }
-    handleSlotChange() {
-      this.hasIcon = this.assignedIcons.length > 0;
-    }
-  };
-  (() => {
-    requestUpdateOnAriaChange(Button);
-    setupFormSubmitter(Button);
-  })();
-  Button.formAssociated = true;
-  Button.shadowRootOptions = {
-    mode: "open",
-    delegatesFocus: true
-  };
-  __decorate2([
-    n5({ type: Boolean, reflect: true })
-  ], Button.prototype, "disabled", void 0);
-  __decorate2([
-    n5()
-  ], Button.prototype, "href", void 0);
-  __decorate2([
-    n5()
-  ], Button.prototype, "target", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "trailing-icon", reflect: true })
-  ], Button.prototype, "trailingIcon", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "has-icon", reflect: true })
-  ], Button.prototype, "hasIcon", void 0);
-  __decorate2([
-    n5()
-  ], Button.prototype, "type", void 0);
-  __decorate2([
-    n5({ reflect: true })
-  ], Button.prototype, "value", void 0);
-  __decorate2([
-    e6(".button")
-  ], Button.prototype, "buttonElement", void 0);
-  __decorate2([
-    o9({ slot: "icon", flatten: true })
-  ], Button.prototype, "assignedIcons", void 0);
-
-  // node_modules/@material/web/button/internal/filled-button.js
-  var FilledButton = class extends Button {
-    renderElevationOrOutline() {
-      return x`<md-elevation part="elevation"></md-elevation>`;
-    }
-  };
-
-  // node_modules/@material/web/button/internal/filled-styles.js
-  var styles16 = i3`:host{--_container-color: var(--md-filled-button-container-color, var(--md-sys-color-primary, #6750a4));--_container-elevation: var(--md-filled-button-container-elevation, 0);--_container-height: var(--md-filled-button-container-height, 40px);--_container-shadow-color: var(--md-filled-button-container-shadow-color, var(--md-sys-color-shadow, #000));--_disabled-container-color: var(--md-filled-button-disabled-container-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-container-elevation: var(--md-filled-button-disabled-container-elevation, 0);--_disabled-container-opacity: var(--md-filled-button-disabled-container-opacity, 0.12);--_disabled-label-text-color: var(--md-filled-button-disabled-label-text-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-label-text-opacity: var(--md-filled-button-disabled-label-text-opacity, 0.38);--_focus-container-elevation: var(--md-filled-button-focus-container-elevation, 0);--_focus-label-text-color: var(--md-filled-button-focus-label-text-color, var(--md-sys-color-on-primary, #fff));--_hover-container-elevation: var(--md-filled-button-hover-container-elevation, 1);--_hover-label-text-color: var(--md-filled-button-hover-label-text-color, var(--md-sys-color-on-primary, #fff));--_hover-state-layer-color: var(--md-filled-button-hover-state-layer-color, var(--md-sys-color-on-primary, #fff));--_hover-state-layer-opacity: var(--md-filled-button-hover-state-layer-opacity, 0.08);--_label-text-color: var(--md-filled-button-label-text-color, var(--md-sys-color-on-primary, #fff));--_label-text-font: var(--md-filled-button-label-text-font, var(--md-sys-typescale-label-large-font, var(--md-ref-typeface-plain, Roboto)));--_label-text-line-height: var(--md-filled-button-label-text-line-height, var(--md-sys-typescale-label-large-line-height, 1.25rem));--_label-text-size: var(--md-filled-button-label-text-size, var(--md-sys-typescale-label-large-size, 0.875rem));--_label-text-weight: var(--md-filled-button-label-text-weight, var(--md-sys-typescale-label-large-weight, var(--md-ref-typeface-weight-medium, 500)));--_pressed-container-elevation: var(--md-filled-button-pressed-container-elevation, 0);--_pressed-label-text-color: var(--md-filled-button-pressed-label-text-color, var(--md-sys-color-on-primary, #fff));--_pressed-state-layer-color: var(--md-filled-button-pressed-state-layer-color, var(--md-sys-color-on-primary, #fff));--_pressed-state-layer-opacity: var(--md-filled-button-pressed-state-layer-opacity, 0.12);--_disabled-icon-color: var(--md-filled-button-disabled-icon-color, var(--md-sys-color-on-surface, #1d1b20));--_disabled-icon-opacity: var(--md-filled-button-disabled-icon-opacity, 0.38);--_focus-icon-color: var(--md-filled-button-focus-icon-color, var(--md-sys-color-on-primary, #fff));--_hover-icon-color: var(--md-filled-button-hover-icon-color, var(--md-sys-color-on-primary, #fff));--_icon-color: var(--md-filled-button-icon-color, var(--md-sys-color-on-primary, #fff));--_icon-size: var(--md-filled-button-icon-size, 18px);--_pressed-icon-color: var(--md-filled-button-pressed-icon-color, var(--md-sys-color-on-primary, #fff));--_container-shape-start-start: var(--md-filled-button-container-shape-start-start, var(--md-filled-button-container-shape, var(--md-sys-shape-corner-full, 9999px)));--_container-shape-start-end: var(--md-filled-button-container-shape-start-end, var(--md-filled-button-container-shape, var(--md-sys-shape-corner-full, 9999px)));--_container-shape-end-end: var(--md-filled-button-container-shape-end-end, var(--md-filled-button-container-shape, var(--md-sys-shape-corner-full, 9999px)));--_container-shape-end-start: var(--md-filled-button-container-shape-end-start, var(--md-filled-button-container-shape, var(--md-sys-shape-corner-full, 9999px)));--_leading-space: var(--md-filled-button-leading-space, 24px);--_trailing-space: var(--md-filled-button-trailing-space, 24px);--_with-leading-icon-leading-space: var(--md-filled-button-with-leading-icon-leading-space, 16px);--_with-leading-icon-trailing-space: var(--md-filled-button-with-leading-icon-trailing-space, 24px);--_with-trailing-icon-leading-space: var(--md-filled-button-with-trailing-icon-leading-space, 24px);--_with-trailing-icon-trailing-space: var(--md-filled-button-with-trailing-icon-trailing-space, 16px)}
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/select-multiple.js
+  var selectMultiple = (options) => x`
+	<sl-select
+		class="theme-shoelace widget-select-multi level-${options.level}"
+		part="widget-select-multi"
+		.id=${options.id}
+		.label=${options.label ?? ""}
+		.value=${options.value}
+		multiple
+		clearable
+		.disabled=${options.disabled}
+		.helpText=${options.helpText ?? ""}
+		@sl-change=${(event) => {
+    const { value: value2 } = event.target;
+    options.valueChangedCallback?.(value2);
+  }}
+	>
+		${options?.enum?.map((enumValue) => {
+    return x`<sl-option value=${enumValue}>${enumValue}</sl-option>`;
+  })}
+	</sl-select>
 `;
 
-  // node_modules/@material/web/button/internal/shared-elevation-styles.js
-  var styles17 = i3`md-elevation{transition-duration:280ms}:host([disabled]) md-elevation{transition:none}md-elevation{--md-elevation-level: var(--_container-elevation);--md-elevation-shadow-color: var(--_container-shadow-color)}:host(:focus-within) md-elevation{--md-elevation-level: var(--_focus-container-elevation)}:host(:hover) md-elevation{--md-elevation-level: var(--_hover-container-elevation)}:host(:active) md-elevation{--md-elevation-level: var(--_pressed-container-elevation)}:host([disabled]) md-elevation{--md-elevation-level: var(--_disabled-container-elevation)}
-`;
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.JCXLDPQF.js
+  SlButton.define("sl-button");
 
-  // node_modules/@material/web/button/internal/shared-styles.js
-  var styles18 = i3`:host{border-start-start-radius:var(--_container-shape-start-start);border-start-end-radius:var(--_container-shape-start-end);border-end-start-radius:var(--_container-shape-end-start);border-end-end-radius:var(--_container-shape-end-end);box-sizing:border-box;cursor:pointer;display:inline-flex;gap:8px;min-height:var(--_container-height);outline:none;padding-block:calc((var(--_container-height) - max(var(--_label-text-line-height),var(--_icon-size)))/2);padding-inline-start:var(--_leading-space);padding-inline-end:var(--_trailing-space);place-content:center;place-items:center;position:relative;font-family:var(--_label-text-font);font-size:var(--_label-text-size);line-height:var(--_label-text-line-height);font-weight:var(--_label-text-weight);text-overflow:ellipsis;text-wrap:nowrap;user-select:none;-webkit-tap-highlight-color:rgba(0,0,0,0);vertical-align:top;--md-ripple-hover-color: var(--_hover-state-layer-color);--md-ripple-pressed-color: var(--_pressed-state-layer-color);--md-ripple-hover-opacity: var(--_hover-state-layer-opacity);--md-ripple-pressed-opacity: var(--_pressed-state-layer-opacity)}md-focus-ring{--md-focus-ring-shape-start-start: var(--_container-shape-start-start);--md-focus-ring-shape-start-end: var(--_container-shape-start-end);--md-focus-ring-shape-end-end: var(--_container-shape-end-end);--md-focus-ring-shape-end-start: var(--_container-shape-end-start)}:host([disabled]){cursor:default;pointer-events:none}.button{border-radius:inherit;cursor:inherit;display:inline-flex;align-items:center;justify-content:center;border:none;outline:none;-webkit-appearance:none;vertical-align:middle;background:rgba(0,0,0,0);text-decoration:none;min-width:calc(64px - var(--_leading-space) - var(--_trailing-space));width:100%;z-index:0;height:100%;font:inherit;color:var(--_label-text-color);padding:0;gap:inherit;text-transform:inherit}.button::-moz-focus-inner{padding:0;border:0}:host(:hover) .button{color:var(--_hover-label-text-color)}:host(:focus-within) .button{color:var(--_focus-label-text-color)}:host(:active) .button{color:var(--_pressed-label-text-color)}.background{background-color:var(--_container-color);border-radius:inherit;inset:0;position:absolute}.label{overflow:hidden}:is(.button,.label,.label slot),.label ::slotted(*){text-overflow:inherit}:host([disabled]) .label{color:var(--_disabled-label-text-color);opacity:var(--_disabled-label-text-opacity)}:host([disabled]) .background{background-color:var(--_disabled-container-color);opacity:var(--_disabled-container-opacity)}@media(forced-colors: active){.background{border:1px solid CanvasText}:host([disabled]){--_disabled-icon-color: GrayText;--_disabled-icon-opacity: 1;--_disabled-container-opacity: 1;--_disabled-label-text-color: GrayText;--_disabled-label-text-opacity: 1}}:host([has-icon]:not([trailing-icon])){padding-inline-start:var(--_with-leading-icon-leading-space);padding-inline-end:var(--_with-leading-icon-trailing-space)}:host([has-icon][trailing-icon]){padding-inline-start:var(--_with-trailing-icon-leading-space);padding-inline-end:var(--_with-trailing-icon-trailing-space)}::slotted([slot=icon]){display:inline-flex;position:relative;writing-mode:horizontal-tb;fill:currentColor;flex-shrink:0;color:var(--_icon-color);font-size:var(--_icon-size);inline-size:var(--_icon-size);block-size:var(--_icon-size)}:host(:hover) ::slotted([slot=icon]){color:var(--_hover-icon-color)}:host(:focus-within) ::slotted([slot=icon]){color:var(--_focus-icon-color)}:host(:active) ::slotted([slot=icon]){color:var(--_pressed-icon-color)}:host([disabled]) ::slotted([slot=icon]){color:var(--_disabled-icon-color);opacity:var(--_disabled-icon-opacity)}.touch{position:absolute;top:50%;height:48px;left:0;right:0;transform:translateY(-50%)}:host([touch-target=wrapper]){margin:max(0px,(48px - var(--_container-height))/2) 0}:host([touch-target=none]) .touch{display:none}
-`;
-
-  // node_modules/@material/web/button/filled-button.js
-  var MdFilledButton = class MdFilledButton2 extends FilledButton {
-  };
-  MdFilledButton.styles = [
-    styles18,
-    styles17,
-    styles16
-  ];
-  MdFilledButton = __decorate2([
-    t4("md-filled-button")
-  ], MdFilledButton);
-
-  // node_modules/@jsfe/material/dist/esm/widgets/submit.js
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/submit.js
   var submit = (options) => x`
 	<!--  -->
-	<div id=${options.id} class="theme-material widget-submit">
-		<md-filled-button type="submit"
-			>${options.label ?? "Submit"}</md-filled-button
+	<div id=${options.id} class="theme-shoelace widget-submit">
+		<sl-button type="submit" size="large"
+			>${options.label ?? "Submit"}</sl-button
 		>
 	</div>
 `;
 
-  // node_modules/@material/web/internal/events/dispatch-hooks.js
-  var dispatchHooks = Symbol("dispatchHooks");
-  function afterDispatch(event, callback) {
-    const hooks = event[dispatchHooks];
-    if (!hooks) {
-      throw new Error(`'${event.type}' event needs setupDispatchHooks().`);
-    }
-    hooks.addEventListener("after", callback);
-  }
-  var ELEMENT_DISPATCH_HOOK_TYPES = /* @__PURE__ */ new WeakMap();
-  function setupDispatchHooks(element, ...eventTypes) {
-    let typesAlreadySetUp = ELEMENT_DISPATCH_HOOK_TYPES.get(element);
-    if (!typesAlreadySetUp) {
-      typesAlreadySetUp = /* @__PURE__ */ new Set();
-      ELEMENT_DISPATCH_HOOK_TYPES.set(element, typesAlreadySetUp);
-    }
-    for (const eventType of eventTypes) {
-      if (typesAlreadySetUp.has(eventType)) {
-        continue;
-      }
-      let isRedispatching = false;
-      element.addEventListener(eventType, (event) => {
-        if (isRedispatching) {
-          return;
-        }
-        event.stopImmediatePropagation();
-        const eventCopy = Reflect.construct(event.constructor, [
-          event.type,
-          event
-        ]);
-        const hooks = new EventTarget();
-        eventCopy[dispatchHooks] = hooks;
-        isRedispatching = true;
-        const dispatched = element.dispatchEvent(eventCopy);
-        isRedispatching = false;
-        if (!dispatched) {
-          event.preventDefault();
-        }
-        hooks.dispatchEvent(new Event("after"));
-      }, {
-        // Ensure this listener runs before other listeners.
-        // `setupDispatchHooks()` should be called in constructors to also
-        // ensure they run before any other externally-added capture listeners.
-        capture: true
-      });
-      typesAlreadySetUp.add(eventType);
-    }
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.EU44RQUN.js
+  var switch_styles_default = i3`
+  :host {
+    display: inline-block;
   }
 
-  // node_modules/@material/web/switch/internal/switch.js
-  var switchBaseClass = mixinConstraintValidation(mixinFormAssociated(mixinElementInternals(i6)));
-  var Switch = class extends switchBaseClass {
+  :host([size='small']) {
+    --height: var(--sl-toggle-size-small);
+    --thumb-size: calc(var(--sl-toggle-size-small) + 4px);
+    --width: calc(var(--height) * 2);
+
+    font-size: var(--sl-input-font-size-small);
+  }
+
+  :host([size='medium']) {
+    --height: var(--sl-toggle-size-medium);
+    --thumb-size: calc(var(--sl-toggle-size-medium) + 4px);
+    --width: calc(var(--height) * 2);
+
+    font-size: var(--sl-input-font-size-medium);
+  }
+
+  :host([size='large']) {
+    --height: var(--sl-toggle-size-large);
+    --thumb-size: calc(var(--sl-toggle-size-large) + 4px);
+    --width: calc(var(--height) * 2);
+
+    font-size: var(--sl-input-font-size-large);
+  }
+
+  .switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--sl-input-font-family);
+    font-size: inherit;
+    font-weight: var(--sl-input-font-weight);
+    color: var(--sl-input-label-color);
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .switch__control {
+    flex: 0 0 auto;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--width);
+    height: var(--height);
+    background-color: var(--sl-color-neutral-400);
+    border: solid var(--sl-input-border-width) var(--sl-color-neutral-400);
+    border-radius: var(--height);
+    transition:
+      var(--sl-transition-fast) border-color,
+      var(--sl-transition-fast) background-color;
+  }
+
+  .switch__control .switch__thumb {
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    background-color: var(--sl-color-neutral-0);
+    border-radius: 50%;
+    border: solid var(--sl-input-border-width) var(--sl-color-neutral-400);
+    translate: calc((var(--width) - var(--height)) / -2);
+    transition:
+      var(--sl-transition-fast) translate ease,
+      var(--sl-transition-fast) background-color,
+      var(--sl-transition-fast) border-color,
+      var(--sl-transition-fast) box-shadow;
+  }
+
+  .switch__input {
+    position: absolute;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  /* Hover */
+  .switch:not(.switch--checked):not(.switch--disabled) .switch__control:hover {
+    background-color: var(--sl-color-neutral-400);
+    border-color: var(--sl-color-neutral-400);
+  }
+
+  .switch:not(.switch--checked):not(.switch--disabled) .switch__control:hover .switch__thumb {
+    background-color: var(--sl-color-neutral-0);
+    border-color: var(--sl-color-neutral-400);
+  }
+
+  /* Focus */
+  .switch:not(.switch--checked):not(.switch--disabled) .switch__input:focus-visible ~ .switch__control {
+    background-color: var(--sl-color-neutral-400);
+    border-color: var(--sl-color-neutral-400);
+  }
+
+  .switch:not(.switch--checked):not(.switch--disabled) .switch__input:focus-visible ~ .switch__control .switch__thumb {
+    background-color: var(--sl-color-neutral-0);
+    border-color: var(--sl-color-primary-600);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  /* Checked */
+  .switch--checked .switch__control {
+    background-color: var(--sl-color-primary-600);
+    border-color: var(--sl-color-primary-600);
+  }
+
+  .switch--checked .switch__control .switch__thumb {
+    background-color: var(--sl-color-neutral-0);
+    border-color: var(--sl-color-primary-600);
+    translate: calc((var(--width) - var(--height)) / 2);
+  }
+
+  /* Checked + hover */
+  .switch.switch--checked:not(.switch--disabled) .switch__control:hover {
+    background-color: var(--sl-color-primary-600);
+    border-color: var(--sl-color-primary-600);
+  }
+
+  .switch.switch--checked:not(.switch--disabled) .switch__control:hover .switch__thumb {
+    background-color: var(--sl-color-neutral-0);
+    border-color: var(--sl-color-primary-600);
+  }
+
+  /* Checked + focus */
+  .switch.switch--checked:not(.switch--disabled) .switch__input:focus-visible ~ .switch__control {
+    background-color: var(--sl-color-primary-600);
+    border-color: var(--sl-color-primary-600);
+  }
+
+  .switch.switch--checked:not(.switch--disabled) .switch__input:focus-visible ~ .switch__control .switch__thumb {
+    background-color: var(--sl-color-neutral-0);
+    border-color: var(--sl-color-primary-600);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  /* Disabled */
+  .switch--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .switch__label {
+    display: inline-block;
+    line-height: var(--height);
+    margin-inline-start: 0.5em;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  :host([required]) .switch__label::after {
+    content: var(--sl-input-required-content);
+    color: var(--sl-input-required-content-color);
+    margin-inline-start: var(--sl-input-required-content-offset);
+  }
+
+  @media (forced-colors: active) {
+    .switch.switch--checked:not(.switch--disabled) .switch__control:hover .switch__thumb,
+    .switch--checked .switch__control .switch__thumb {
+      background-color: ButtonText;
+    }
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.TSAI7XEG.js
+  var SlSwitch = class extends ShoelaceElement {
     constructor() {
-      super();
-      this.selected = false;
-      this.icons = false;
-      this.showOnlySelectedIcon = false;
+      super(...arguments);
+      this.formControlController = new FormControlController(this, {
+        value: (control) => control.checked ? control.value || "on" : void 0,
+        defaultValue: (control) => control.defaultChecked,
+        setValue: (control, checked) => control.checked = checked
+      });
+      this.hasSlotController = new HasSlotController(this, "help-text");
+      this.hasFocus = false;
+      this.title = "";
+      this.name = "";
+      this.size = "medium";
+      this.disabled = false;
+      this.checked = false;
+      this.defaultChecked = false;
+      this.form = "";
       this.required = false;
-      this.value = "on";
-      if (o7) {
-        return;
+      this.helpText = "";
+    }
+    /** Gets the validity state object */
+    get validity() {
+      return this.input.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.input.validationMessage;
+    }
+    firstUpdated() {
+      this.formControlController.updateValidity();
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleInput() {
+      this.emit("sl-input");
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    handleClick() {
+      this.checked = !this.checked;
+      this.emit("sl-change");
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+    handleKeyDown(event) {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        this.checked = false;
+        this.emit("sl-change");
+        this.emit("sl-input");
       }
-      this.addEventListener("click", (event) => {
-        if (!isActivationClick(event) || !this.input) {
-          return;
-        }
-        this.focus();
-        dispatchActivationClick(this.input);
-      });
-      setupDispatchHooks(this, "keydown");
-      this.addEventListener("keydown", (event) => {
-        afterDispatch(event, () => {
-          const ignoreEvent = event.defaultPrevented || event.key !== "Enter";
-          if (ignoreEvent || this.disabled || !this.input) {
-            return;
-          }
-          this.input.click();
-        });
-      });
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        this.checked = true;
+        this.emit("sl-change");
+        this.emit("sl-input");
+      }
+    }
+    handleCheckedChange() {
+      this.input.checked = this.checked;
+      this.formControlController.updateValidity();
+    }
+    handleDisabledChange() {
+      this.formControlController.setValidity(true);
+    }
+    /** Simulates a click on the switch. */
+    click() {
+      this.input.click();
+    }
+    /** Sets focus on the switch. */
+    focus(options) {
+      this.input.focus(options);
+    }
+    /** Removes focus from the switch. */
+    blur() {
+      this.input.blur();
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      return this.input.checkValidity();
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      return this.input.reportValidity();
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message) {
+      this.input.setCustomValidity(message);
+      this.formControlController.updateValidity();
     }
     render() {
+      const hasHelpTextSlot = this.hasSlotController.test("help-text");
+      const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
       return x`
-      <div class="switch ${e10(this.getRenderClasses())}">
-        <input
-          id="switch"
-          class="touch"
-          type="checkbox"
-          role="switch"
-          aria-label=${this.ariaLabel || E2}
-          ?checked=${this.selected}
-          ?disabled=${this.disabled}
-          ?required=${this.required}
-          @input=${this.handleInput}
-          @change=${this.handleChange} />
+      <div
+        class=${e10({
+        "form-control": true,
+        "form-control--small": this.size === "small",
+        "form-control--medium": this.size === "medium",
+        "form-control--large": this.size === "large",
+        "form-control--has-help-text": hasHelpText
+      })}
+      >
+        <label
+          part="base"
+          class=${e10({
+        switch: true,
+        "switch--checked": this.checked,
+        "switch--disabled": this.disabled,
+        "switch--focused": this.hasFocus,
+        "switch--small": this.size === "small",
+        "switch--medium": this.size === "medium",
+        "switch--large": this.size === "large"
+      })}
+        >
+          <input
+            class="switch__input"
+            type="checkbox"
+            title=${this.title}
+            name=${this.name}
+            value=${o11(this.value)}
+            .checked=${l5(this.checked)}
+            .disabled=${this.disabled}
+            .required=${this.required}
+            role="switch"
+            aria-checked=${this.checked ? "true" : "false"}
+            aria-describedby="help-text"
+            @click=${this.handleClick}
+            @input=${this.handleInput}
+            @invalid=${this.handleInvalid}
+            @blur=${this.handleBlur}
+            @focus=${this.handleFocus}
+            @keydown=${this.handleKeyDown}
+          />
 
-        <md-focus-ring part="focus-ring" for="switch"></md-focus-ring>
-        <span class="track"> ${this.renderHandle()} </span>
+          <span part="control" class="switch__control">
+            <span part="thumb" class="switch__thumb"></span>
+          </span>
+
+          <div part="label" class="switch__label">
+            <slot></slot>
+          </div>
+        </label>
+
+        <div
+          aria-hidden=${hasHelpText ? "false" : "true"}
+          class="form-control__help-text"
+          id="help-text"
+          part="form-control-help-text"
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
       </div>
     `;
     }
-    getRenderClasses() {
-      return {
-        "selected": this.selected,
-        "unselected": !this.selected,
-        "disabled": this.disabled
-      };
-    }
-    renderHandle() {
-      const classes = {
-        "with-icon": this.showOnlySelectedIcon ? this.selected : this.icons
-      };
-      return x`
-      ${this.renderTouchTarget()}
-      <span class="handle-container">
-        <md-ripple for="switch" ?disabled="${this.disabled}"></md-ripple>
-        <span class="handle ${e10(classes)}">
-          ${this.shouldShowIcons() ? this.renderIcons() : x``}
-        </span>
-      </span>
-    `;
-    }
-    renderIcons() {
-      return x`
-      <div class="icons">
-        ${this.renderOnIcon()}
-        ${this.showOnlySelectedIcon ? x`` : this.renderOffIcon()}
-      </div>
-    `;
-    }
-    /**
-     * https://fonts.google.com/icons?selected=Material%20Symbols%20Outlined%3Acheck%3AFILL%400%3Bwght%40500%3BGRAD%400%3Bopsz%4024
-     */
-    renderOnIcon() {
-      return x`
-      <slot class="icon icon--on" name="on-icon">
-        <svg viewBox="0 0 24 24">
-          <path
-            d="M9.55 18.2 3.65 12.3 5.275 10.675 9.55 14.95 18.725 5.775 20.35 7.4Z" />
-        </svg>
-      </slot>
-    `;
-    }
-    /**
-     * https://fonts.google.com/icons?selected=Material%20Symbols%20Outlined%3Aclose%3AFILL%400%3Bwght%40500%3BGRAD%400%3Bopsz%4024
-     */
-    renderOffIcon() {
-      return x`
-      <slot class="icon icon--off" name="off-icon">
-        <svg viewBox="0 0 24 24">
-          <path
-            d="M6.4 19.2 4.8 17.6 10.4 12 4.8 6.4 6.4 4.8 12 10.4 17.6 4.8 19.2 6.4 13.6 12 19.2 17.6 17.6 19.2 12 13.6Z" />
-        </svg>
-      </slot>
-    `;
-    }
-    renderTouchTarget() {
-      return x`<span class="touch"></span>`;
-    }
-    shouldShowIcons() {
-      return this.icons || this.showOnlySelectedIcon;
-    }
-    handleInput(event) {
-      const target = event.target;
-      this.selected = target.checked;
-    }
-    handleChange(event) {
-      redispatchEvent(this, event);
-    }
-    [getFormValue]() {
-      return this.selected ? this.value : null;
-    }
-    [getFormState]() {
-      return String(this.selected);
-    }
-    formResetCallback() {
-      this.selected = this.hasAttribute("selected");
-    }
-    formStateRestoreCallback(state) {
-      this.selected = state === "true";
-    }
-    [createValidator]() {
-      return new CheckboxValidator(() => ({
-        checked: this.selected,
-        required: this.required
-      }));
-    }
-    [getValidityAnchor]() {
-      return this.input;
-    }
   };
-  (() => {
-    requestUpdateOnAriaChange(Switch);
-  })();
-  Switch.shadowRootOptions = {
-    mode: "open",
-    delegatesFocus: true
-  };
-  __decorate2([
-    n5({ type: Boolean })
-  ], Switch.prototype, "selected", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Switch.prototype, "icons", void 0);
-  __decorate2([
-    n5({ type: Boolean, attribute: "show-only-selected-icon" })
-  ], Switch.prototype, "showOnlySelectedIcon", void 0);
-  __decorate2([
-    n5({ type: Boolean })
-  ], Switch.prototype, "required", void 0);
-  __decorate2([
+  SlSwitch.styles = [component_styles_default, form_control_styles_default, switch_styles_default];
+  __decorateClass2([
+    e6('input[type="checkbox"]')
+  ], SlSwitch.prototype, "input", 2);
+  __decorateClass2([
+    r6()
+  ], SlSwitch.prototype, "hasFocus", 2);
+  __decorateClass2([
     n5()
-  ], Switch.prototype, "value", void 0);
-  __decorate2([
-    e6("input")
-  ], Switch.prototype, "input", void 0);
+  ], SlSwitch.prototype, "title", 2);
+  __decorateClass2([
+    n5()
+  ], SlSwitch.prototype, "name", 2);
+  __decorateClass2([
+    n5()
+  ], SlSwitch.prototype, "value", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlSwitch.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSwitch.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSwitch.prototype, "checked", 2);
+  __decorateClass2([
+    defaultValue("checked")
+  ], SlSwitch.prototype, "defaultChecked", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlSwitch.prototype, "form", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlSwitch.prototype, "required", 2);
+  __decorateClass2([
+    n5({ attribute: "help-text" })
+  ], SlSwitch.prototype, "helpText", 2);
+  __decorateClass2([
+    watch("checked", { waitUntilFirstUpdate: true })
+  ], SlSwitch.prototype, "handleCheckedChange", 1);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlSwitch.prototype, "handleDisabledChange", 1);
 
-  // node_modules/@material/web/switch/internal/switch-styles.js
-  var styles19 = i3`@layer styles, hcm;@layer styles{:host{display:inline-flex;outline:none;vertical-align:top;-webkit-tap-highlight-color:rgba(0,0,0,0);cursor:pointer}:host([disabled]){cursor:default}:host([touch-target=wrapper]){margin:max(0px,(48px - var(--md-switch-track-height, 32px))/2) 0px}md-focus-ring{--md-focus-ring-shape-start-start: var(--md-switch-track-shape-start-start, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)));--md-focus-ring-shape-start-end: var(--md-switch-track-shape-start-end, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)));--md-focus-ring-shape-end-end: var(--md-switch-track-shape-end-end, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)));--md-focus-ring-shape-end-start: var(--md-switch-track-shape-end-start, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)))}.switch{align-items:center;display:inline-flex;flex-shrink:0;position:relative;width:var(--md-switch-track-width, 52px);height:var(--md-switch-track-height, 32px);border-start-start-radius:var(--md-switch-track-shape-start-start, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)));border-start-end-radius:var(--md-switch-track-shape-start-end, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)));border-end-end-radius:var(--md-switch-track-shape-end-end, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)));border-end-start-radius:var(--md-switch-track-shape-end-start, var(--md-switch-track-shape, var(--md-sys-shape-corner-full, 9999px)))}input{appearance:none;height:48px;outline:none;margin:0;position:absolute;width:100%;z-index:1;cursor:inherit}:host([touch-target=none]) input{display:none}}@layer styles{.track{position:absolute;width:100%;height:100%;box-sizing:border-box;border-radius:inherit;display:flex;justify-content:center;align-items:center}.track::before{content:"";display:flex;position:absolute;height:100%;width:100%;border-radius:inherit;box-sizing:border-box;transition-property:opacity,background-color;transition-timing-function:linear;transition-duration:67ms}.disabled .track{background-color:rgba(0,0,0,0);border-color:rgba(0,0,0,0)}.disabled .track::before,.disabled .track::after{transition:none;opacity:var(--md-switch-disabled-track-opacity, 0.12)}.disabled .track::before{background-clip:content-box}.selected .track::before{background-color:var(--md-switch-selected-track-color, var(--md-sys-color-primary, #6750a4))}.selected:hover .track::before{background-color:var(--md-switch-selected-hover-track-color, var(--md-sys-color-primary, #6750a4))}.selected:focus-within .track::before{background-color:var(--md-switch-selected-focus-track-color, var(--md-sys-color-primary, #6750a4))}.selected:active .track::before{background-color:var(--md-switch-selected-pressed-track-color, var(--md-sys-color-primary, #6750a4))}.selected.disabled .track{background-clip:border-box}.selected.disabled .track::before{background-color:var(--md-switch-disabled-selected-track-color, var(--md-sys-color-on-surface, #1d1b20))}.unselected .track::before{background-color:var(--md-switch-track-color, var(--md-sys-color-surface-container-highest, #e6e0e9));border-color:var(--md-switch-track-outline-color, var(--md-sys-color-outline, #79747e));border-style:solid;border-width:var(--md-switch-track-outline-width, 2px)}.unselected:hover .track::before{background-color:var(--md-switch-hover-track-color, var(--md-sys-color-surface-container-highest, #e6e0e9));border-color:var(--md-switch-hover-track-outline-color, var(--md-sys-color-outline, #79747e))}.unselected:focus-visible .track::before{background-color:var(--md-switch-focus-track-color, var(--md-sys-color-surface-container-highest, #e6e0e9));border-color:var(--md-switch-focus-track-outline-color, var(--md-sys-color-outline, #79747e))}.unselected:active .track::before{background-color:var(--md-switch-pressed-track-color, var(--md-sys-color-surface-container-highest, #e6e0e9));border-color:var(--md-switch-pressed-track-outline-color, var(--md-sys-color-outline, #79747e))}.unselected.disabled .track::before{background-color:var(--md-switch-disabled-track-color, var(--md-sys-color-surface-container-highest, #e6e0e9));border-color:var(--md-switch-disabled-track-outline-color, var(--md-sys-color-on-surface, #1d1b20))}}@layer hcm{@media(forced-colors: active){.selected .track::before{background:ButtonText;border-color:ButtonText}.disabled .track::before{border-color:GrayText;opacity:1}.disabled.selected .track::before{background:GrayText}}}@layer styles{.handle-container{display:flex;place-content:center;place-items:center;position:relative;transition:margin 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275)}.selected .handle-container{margin-inline-start:calc(var(--md-switch-track-width, 52px) - var(--md-switch-track-height, 32px))}.unselected .handle-container{margin-inline-end:calc(var(--md-switch-track-width, 52px) - var(--md-switch-track-height, 32px))}.disabled .handle-container{transition:none}.handle{border-start-start-radius:var(--md-switch-handle-shape-start-start, var(--md-switch-handle-shape, var(--md-sys-shape-corner-full, 9999px)));border-start-end-radius:var(--md-switch-handle-shape-start-end, var(--md-switch-handle-shape, var(--md-sys-shape-corner-full, 9999px)));border-end-end-radius:var(--md-switch-handle-shape-end-end, var(--md-switch-handle-shape, var(--md-sys-shape-corner-full, 9999px)));border-end-start-radius:var(--md-switch-handle-shape-end-start, var(--md-switch-handle-shape, var(--md-sys-shape-corner-full, 9999px)));height:var(--md-switch-handle-height, 16px);width:var(--md-switch-handle-width, 16px);transform-origin:center;transition-property:height,width;transition-duration:250ms,250ms;transition-timing-function:cubic-bezier(0.2, 0, 0, 1),cubic-bezier(0.2, 0, 0, 1);z-index:0}.handle::before{content:"";display:flex;inset:0;position:absolute;border-radius:inherit;box-sizing:border-box;transition:background-color 67ms linear}.disabled .handle,.disabled .handle::before{transition:none}.selected .handle{height:var(--md-switch-selected-handle-height, 24px);width:var(--md-switch-selected-handle-width, 24px)}.handle.with-icon{height:var(--md-switch-with-icon-handle-height, 24px);width:var(--md-switch-with-icon-handle-width, 24px)}.selected:not(.disabled):active .handle,.unselected:not(.disabled):active .handle{height:var(--md-switch-pressed-handle-height, 28px);width:var(--md-switch-pressed-handle-width, 28px);transition-timing-function:linear;transition-duration:100ms}.selected .handle::before{background-color:var(--md-switch-selected-handle-color, var(--md-sys-color-on-primary, #fff))}.selected:hover .handle::before{background-color:var(--md-switch-selected-hover-handle-color, var(--md-sys-color-primary-container, #eaddff))}.selected:focus-within .handle::before{background-color:var(--md-switch-selected-focus-handle-color, var(--md-sys-color-primary-container, #eaddff))}.selected:active .handle::before{background-color:var(--md-switch-selected-pressed-handle-color, var(--md-sys-color-primary-container, #eaddff))}.selected.disabled .handle::before{background-color:var(--md-switch-disabled-selected-handle-color, var(--md-sys-color-surface, #fef7ff));opacity:var(--md-switch-disabled-selected-handle-opacity, 1)}.unselected .handle::before{background-color:var(--md-switch-handle-color, var(--md-sys-color-outline, #79747e))}.unselected:hover .handle::before{background-color:var(--md-switch-hover-handle-color, var(--md-sys-color-on-surface-variant, #49454f))}.unselected:focus-within .handle::before{background-color:var(--md-switch-focus-handle-color, var(--md-sys-color-on-surface-variant, #49454f))}.unselected:active .handle::before{background-color:var(--md-switch-pressed-handle-color, var(--md-sys-color-on-surface-variant, #49454f))}.unselected.disabled .handle::before{background-color:var(--md-switch-disabled-handle-color, var(--md-sys-color-on-surface, #1d1b20));opacity:var(--md-switch-disabled-handle-opacity, 0.38)}md-ripple{border-radius:var(--md-switch-state-layer-shape, var(--md-sys-shape-corner-full, 9999px));height:var(--md-switch-state-layer-size, 40px);inset:unset;width:var(--md-switch-state-layer-size, 40px)}.selected md-ripple{--md-ripple-hover-color: var(--md-switch-selected-hover-state-layer-color, var(--md-sys-color-primary, #6750a4));--md-ripple-pressed-color: var(--md-switch-selected-pressed-state-layer-color, var(--md-sys-color-primary, #6750a4));--md-ripple-hover-opacity: var(--md-switch-selected-hover-state-layer-opacity, 0.08);--md-ripple-pressed-opacity: var(--md-switch-selected-pressed-state-layer-opacity, 0.12)}.unselected md-ripple{--md-ripple-hover-color: var(--md-switch-hover-state-layer-color, var(--md-sys-color-on-surface, #1d1b20));--md-ripple-pressed-color: var(--md-switch-pressed-state-layer-color, var(--md-sys-color-on-surface, #1d1b20));--md-ripple-hover-opacity: var(--md-switch-hover-state-layer-opacity, 0.08);--md-ripple-pressed-opacity: var(--md-switch-pressed-state-layer-opacity, 0.12)}}@layer hcm{@media(forced-colors: active){.unselected .handle::before{background:ButtonText}.disabled .handle::before{opacity:1}.disabled.unselected .handle::before{background:GrayText}}}@layer styles{.icons{position:relative;height:100%;width:100%}.icon{position:absolute;inset:0;margin:auto;display:flex;align-items:center;justify-content:center;fill:currentColor;transition:fill 67ms linear,opacity 33ms linear,transform 167ms cubic-bezier(0.2, 0, 0, 1);opacity:0}.disabled .icon{transition:none}.selected .icon--on,.unselected .icon--off{opacity:1}.unselected .handle:not(.with-icon) .icon--on{transform:rotate(-45deg)}.icon--off{width:var(--md-switch-icon-size, 16px);height:var(--md-switch-icon-size, 16px);color:var(--md-switch-icon-color, var(--md-sys-color-surface-container-highest, #e6e0e9))}.unselected:hover .icon--off{color:var(--md-switch-hover-icon-color, var(--md-sys-color-surface-container-highest, #e6e0e9))}.unselected:focus-within .icon--off{color:var(--md-switch-focus-icon-color, var(--md-sys-color-surface-container-highest, #e6e0e9))}.unselected:active .icon--off{color:var(--md-switch-pressed-icon-color, var(--md-sys-color-surface-container-highest, #e6e0e9))}.unselected.disabled .icon--off{color:var(--md-switch-disabled-icon-color, var(--md-sys-color-surface-container-highest, #e6e0e9));opacity:var(--md-switch-disabled-icon-opacity, 0.38)}.icon--on{width:var(--md-switch-selected-icon-size, 16px);height:var(--md-switch-selected-icon-size, 16px);color:var(--md-switch-selected-icon-color, var(--md-sys-color-on-primary-container, #21005d))}.selected:hover .icon--on{color:var(--md-switch-selected-hover-icon-color, var(--md-sys-color-on-primary-container, #21005d))}.selected:focus-within .icon--on{color:var(--md-switch-selected-focus-icon-color, var(--md-sys-color-on-primary-container, #21005d))}.selected:active .icon--on{color:var(--md-switch-selected-pressed-icon-color, var(--md-sys-color-on-primary-container, #21005d))}.selected.disabled .icon--on{color:var(--md-switch-disabled-selected-icon-color, var(--md-sys-color-on-surface, #1d1b20));opacity:var(--md-switch-disabled-selected-icon-opacity, 0.38)}}@layer hcm{@media(forced-colors: active){.icon--off{fill:Canvas}.icon--on{fill:ButtonText}.disabled.unselected .icon--off,.disabled.selected .icon--on{opacity:1}.disabled .icon--on{fill:GrayText}}}
-`;
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.IADS735N.js
+  SlSwitch.define("sl-switch");
 
-  // node_modules/@material/web/switch/switch.js
-  var MdSwitch = class MdSwitch2 extends Switch {
-  };
-  MdSwitch.styles = [styles19];
-  MdSwitch = __decorate2([
-    t4("md-switch")
-  ], MdSwitch);
-
-  // node_modules/@jsfe/material/dist/esm/widgets/switch.js
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/switch.js
   var switchh = (options) => x`
-	<label
-		for=${options.id}
-		class="theme-material widget-switch widget-toggle"
-		part="widget-switch widget-toggle"
-	>
-		<div>
-			<div>${options.label}</div>
-			<small>${options.helpText}</small>
-		</div>
-
-		<md-switch
-			.id=${options.id}
-			.name=${options.id}
-			.required=${options.required ?? false}
-			.selected=${options.value ?? false}
-			@input=${(event) => {
-    const { selected } = event.target;
-    console.log({ selected });
-    options.valueChangedCallback?.(!selected);
+	<sl-switch
+		placeholder=${options.placeholder}
+		.checked=${typeof options.value === "boolean" ? options.value : false}
+		.name=${options.id}
+		.id=${options.id}
+		.required=${options.required}
+		@sl-input=${(event) => {
+    const { checked: newValue } = event.target;
+    options.valueChangedCallback?.(newValue);
   }}
-			@keydown=${options.handleKeydown}
-		>
-		</md-switch>
-		<!--  -->
-	</label>
+		.disabled=${options.disabled}
+		>${options.label}
+		${options.helpText ? x`<small> -&nbsp;${options.helpText}</small>` : E2}
+	</sl-switch>
 `;
 
-  // node_modules/@jsfe/material/dist/esm/widgets/text.js
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/text.js
   var text = (options) => x`
-	<md-outlined-text-field
+	<!-- ${options.pattern} -->
+	<sl-input
 		.type=${options.inputType}
-		.supportingText=${options.helpText}
-		.id=${options.id}
 		.label=${options.label}
-		maxLength=${o14(options.maxLength)}
-		minLength=${o14(options.minLength)}
+		.helpText=${options.helpText}
+		placeholder=${options.placeholder}
+		value=${o11(options.value)}
 		.name=${options.id}
-		pattern=${o14(options.pattern)}
-		.placeholder=${options.placeholder}
+		.id=${options.id}
 		.required=${options.required}
-		.value=${options.value ?? ""}
-		@input=${(event) => {
+		minLength=${o11(options.minLength)}
+		maxLength=${o11(options.maxLength)}
+		pattern=${o11(options.pattern)}
+		@sl-input=${(event) => {
     const { value: newValue } = event.target;
     options.valueChangedCallback?.(newValue);
   }}
-		@keydown=${options.handleKeydown}
+		.disabled=${options.disabled}
+		.readonly=${options.readonly}
 	>
-	</md-outlined-text-field>
+	</sl-input>
 `;
 
-  // node_modules/@jsfe/material/dist/esm/widgets/textarea.js
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.6KE6SBMU.js
+  var textarea_styles_default = i3`
+  :host {
+    display: block;
+  }
+
+  .textarea {
+    display: grid;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    line-height: var(--sl-line-height-normal);
+    letter-spacing: var(--sl-input-letter-spacing);
+    vertical-align: middle;
+    transition:
+      var(--sl-transition-fast) color,
+      var(--sl-transition-fast) border,
+      var(--sl-transition-fast) box-shadow,
+      var(--sl-transition-fast) background-color;
+    cursor: text;
+  }
+
+  /* Standard textareas */
+  .textarea--standard {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  }
+
+  .textarea--standard:hover:not(.textarea--disabled) {
+    background-color: var(--sl-input-background-color-hover);
+    border-color: var(--sl-input-border-color-hover);
+  }
+  .textarea--standard:hover:not(.textarea--disabled) .textarea__control {
+    color: var(--sl-input-color-hover);
+  }
+
+  .textarea--standard.textarea--focused:not(.textarea--disabled) {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    color: var(--sl-input-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  }
+
+  .textarea--standard.textarea--focused:not(.textarea--disabled) .textarea__control {
+    color: var(--sl-input-color-focus);
+  }
+
+  .textarea--standard.textarea--disabled {
+    background-color: var(--sl-input-background-color-disabled);
+    border-color: var(--sl-input-border-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .textarea__control,
+  .textarea__size-adjuster {
+    grid-area: 1 / 1 / 2 / 2;
+  }
+
+  .textarea__size-adjuster {
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .textarea--standard.textarea--disabled .textarea__control {
+    color: var(--sl-input-color-disabled);
+  }
+
+  .textarea--standard.textarea--disabled .textarea__control::placeholder {
+    color: var(--sl-input-placeholder-color-disabled);
+  }
+
+  /* Filled textareas */
+  .textarea--filled {
+    border: none;
+    background-color: var(--sl-input-filled-background-color);
+    color: var(--sl-input-color);
+  }
+
+  .textarea--filled:hover:not(.textarea--disabled) {
+    background-color: var(--sl-input-filled-background-color-hover);
+  }
+
+  .textarea--filled.textarea--focused:not(.textarea--disabled) {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .textarea--filled.textarea--disabled {
+    background-color: var(--sl-input-filled-background-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .textarea__control {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1.4;
+    color: var(--sl-input-color);
+    border: none;
+    background: none;
+    box-shadow: none;
+    cursor: inherit;
+    -webkit-appearance: none;
+  }
+
+  .textarea__control::-webkit-search-decoration,
+  .textarea__control::-webkit-search-cancel-button,
+  .textarea__control::-webkit-search-results-button,
+  .textarea__control::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+
+  .textarea__control::placeholder {
+    color: var(--sl-input-placeholder-color);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .textarea__control:focus {
+    outline: none;
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .textarea--small {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+  }
+
+  .textarea--small .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-small);
+  }
+
+  .textarea--medium {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+  }
+
+  .textarea--medium .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-medium);
+  }
+
+  .textarea--large {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+  }
+
+  .textarea--large .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-large);
+  }
+
+  /*
+   * Resize types
+   */
+
+  .textarea--resize-none .textarea__control {
+    resize: none;
+  }
+
+  .textarea--resize-vertical .textarea__control {
+    resize: vertical;
+  }
+
+  .textarea--resize-auto .textarea__control {
+    height: auto;
+    resize: none;
+    overflow-y: hidden;
+  }
+`;
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.Q3IETUAU.js
+  var SlTextarea = class extends ShoelaceElement {
+    constructor() {
+      super(...arguments);
+      this.formControlController = new FormControlController(this, {
+        assumeInteractionOn: ["sl-blur", "sl-input"]
+      });
+      this.hasSlotController = new HasSlotController(this, "help-text", "label");
+      this.hasFocus = false;
+      this.title = "";
+      this.name = "";
+      this.value = "";
+      this.size = "medium";
+      this.filled = false;
+      this.label = "";
+      this.helpText = "";
+      this.placeholder = "";
+      this.rows = 4;
+      this.resize = "vertical";
+      this.disabled = false;
+      this.readonly = false;
+      this.form = "";
+      this.required = false;
+      this.spellcheck = true;
+      this.defaultValue = "";
+    }
+    /** Gets the validity state object */
+    get validity() {
+      return this.input.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.input.validationMessage;
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      this.resizeObserver = new ResizeObserver(() => this.setTextareaHeight());
+      this.updateComplete.then(() => {
+        this.setTextareaHeight();
+        this.resizeObserver.observe(this.input);
+      });
+    }
+    firstUpdated() {
+      this.formControlController.updateValidity();
+    }
+    disconnectedCallback() {
+      var _a;
+      super.disconnectedCallback();
+      if (this.input) {
+        (_a = this.resizeObserver) == null ? void 0 : _a.unobserve(this.input);
+      }
+    }
+    handleBlur() {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+    handleChange() {
+      this.value = this.input.value;
+      this.setTextareaHeight();
+      this.emit("sl-change");
+    }
+    handleFocus() {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+    handleInput() {
+      this.value = this.input.value;
+      this.emit("sl-input");
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
+    }
+    setTextareaHeight() {
+      if (this.resize === "auto") {
+        this.sizeAdjuster.style.height = `${this.input.clientHeight}px`;
+        this.input.style.height = "auto";
+        this.input.style.height = `${this.input.scrollHeight}px`;
+      } else {
+        this.input.style.height = "";
+      }
+    }
+    handleDisabledChange() {
+      this.formControlController.setValidity(this.disabled);
+    }
+    handleRowsChange() {
+      this.setTextareaHeight();
+    }
+    async handleValueChange() {
+      await this.updateComplete;
+      this.formControlController.updateValidity();
+      this.setTextareaHeight();
+    }
+    /** Sets focus on the textarea. */
+    focus(options) {
+      this.input.focus(options);
+    }
+    /** Removes focus from the textarea. */
+    blur() {
+      this.input.blur();
+    }
+    /** Selects all the text in the textarea. */
+    select() {
+      this.input.select();
+    }
+    /** Gets or sets the textarea's scroll position. */
+    scrollPosition(position) {
+      if (position) {
+        if (typeof position.top === "number")
+          this.input.scrollTop = position.top;
+        if (typeof position.left === "number")
+          this.input.scrollLeft = position.left;
+        return void 0;
+      }
+      return {
+        top: this.input.scrollTop,
+        left: this.input.scrollTop
+      };
+    }
+    /** Sets the start and end positions of the text selection (0-based). */
+    setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
+      this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+    }
+    /** Replaces a range of text with a new string. */
+    setRangeText(replacement, start, end, selectMode = "preserve") {
+      const selectionStart = start != null ? start : this.input.selectionStart;
+      const selectionEnd = end != null ? end : this.input.selectionEnd;
+      this.input.setRangeText(replacement, selectionStart, selectionEnd, selectMode);
+      if (this.value !== this.input.value) {
+        this.value = this.input.value;
+        this.setTextareaHeight();
+      }
+    }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+    checkValidity() {
+      return this.input.checkValidity();
+    }
+    /** Gets the associated form, if one exists. */
+    getForm() {
+      return this.formControlController.getForm();
+    }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
+    reportValidity() {
+      return this.input.reportValidity();
+    }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
+    setCustomValidity(message) {
+      this.input.setCustomValidity(message);
+      this.formControlController.updateValidity();
+    }
+    render() {
+      const hasLabelSlot = this.hasSlotController.test("label");
+      const hasHelpTextSlot = this.hasSlotController.test("help-text");
+      const hasLabel = this.label ? true : !!hasLabelSlot;
+      const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+      return x`
+      <div
+        part="form-control"
+        class=${e10({
+        "form-control": true,
+        "form-control--small": this.size === "small",
+        "form-control--medium": this.size === "medium",
+        "form-control--large": this.size === "large",
+        "form-control--has-label": hasLabel,
+        "form-control--has-help-text": hasHelpText
+      })}
+      >
+        <label
+          part="form-control-label"
+          class="form-control__label"
+          for="input"
+          aria-hidden=${hasLabel ? "false" : "true"}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div
+            part="base"
+            class=${e10({
+        textarea: true,
+        "textarea--small": this.size === "small",
+        "textarea--medium": this.size === "medium",
+        "textarea--large": this.size === "large",
+        "textarea--standard": !this.filled,
+        "textarea--filled": this.filled,
+        "textarea--disabled": this.disabled,
+        "textarea--focused": this.hasFocus,
+        "textarea--empty": !this.value,
+        "textarea--resize-none": this.resize === "none",
+        "textarea--resize-vertical": this.resize === "vertical",
+        "textarea--resize-auto": this.resize === "auto"
+      })}
+          >
+            <textarea
+              part="textarea"
+              id="input"
+              class="textarea__control"
+              title=${this.title}
+              name=${o11(this.name)}
+              .value=${l5(this.value)}
+              ?disabled=${this.disabled}
+              ?readonly=${this.readonly}
+              ?required=${this.required}
+              placeholder=${o11(this.placeholder)}
+              rows=${o11(this.rows)}
+              minlength=${o11(this.minlength)}
+              maxlength=${o11(this.maxlength)}
+              autocapitalize=${o11(this.autocapitalize)}
+              autocorrect=${o11(this.autocorrect)}
+              ?autofocus=${this.autofocus}
+              spellcheck=${o11(this.spellcheck)}
+              enterkeyhint=${o11(this.enterkeyhint)}
+              inputmode=${o11(this.inputmode)}
+              aria-describedby="help-text"
+              @change=${this.handleChange}
+              @input=${this.handleInput}
+              @invalid=${this.handleInvalid}
+              @focus=${this.handleFocus}
+              @blur=${this.handleBlur}
+            ></textarea>
+            <!-- This "adjuster" exists to prevent layout shifting. https://github.com/shoelace-style/shoelace/issues/2180 -->
+            <div part="textarea-adjuster" class="textarea__size-adjuster" ?hidden=${this.resize !== "auto"}></div>
+          </div>
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </div>
+    `;
+    }
+  };
+  SlTextarea.styles = [component_styles_default, form_control_styles_default, textarea_styles_default];
+  __decorateClass2([
+    e6(".textarea__control")
+  ], SlTextarea.prototype, "input", 2);
+  __decorateClass2([
+    e6(".textarea__size-adjuster")
+  ], SlTextarea.prototype, "sizeAdjuster", 2);
+  __decorateClass2([
+    r6()
+  ], SlTextarea.prototype, "hasFocus", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "title", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "name", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "value", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlTextarea.prototype, "size", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlTextarea.prototype, "filled", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "label", 2);
+  __decorateClass2([
+    n5({ attribute: "help-text" })
+  ], SlTextarea.prototype, "helpText", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "placeholder", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlTextarea.prototype, "rows", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "resize", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlTextarea.prototype, "disabled", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlTextarea.prototype, "readonly", 2);
+  __decorateClass2([
+    n5({ reflect: true })
+  ], SlTextarea.prototype, "form", 2);
+  __decorateClass2([
+    n5({ type: Boolean, reflect: true })
+  ], SlTextarea.prototype, "required", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlTextarea.prototype, "minlength", 2);
+  __decorateClass2([
+    n5({ type: Number })
+  ], SlTextarea.prototype, "maxlength", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "autocapitalize", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "autocorrect", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "autocomplete", 2);
+  __decorateClass2([
+    n5({ type: Boolean })
+  ], SlTextarea.prototype, "autofocus", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "enterkeyhint", 2);
+  __decorateClass2([
+    n5({
+      type: Boolean,
+      converter: {
+        // Allow "true|false" attribute values but keep the property boolean
+        fromAttribute: (value2) => !value2 || value2 === "false" ? false : true,
+        toAttribute: (value2) => value2 ? "true" : "false"
+      }
+    })
+  ], SlTextarea.prototype, "spellcheck", 2);
+  __decorateClass2([
+    n5()
+  ], SlTextarea.prototype, "inputmode", 2);
+  __decorateClass2([
+    defaultValue()
+  ], SlTextarea.prototype, "defaultValue", 2);
+  __decorateClass2([
+    watch("disabled", { waitUntilFirstUpdate: true })
+  ], SlTextarea.prototype, "handleDisabledChange", 1);
+  __decorateClass2([
+    watch("rows", { waitUntilFirstUpdate: true })
+  ], SlTextarea.prototype, "handleRowsChange", 1);
+  __decorateClass2([
+    watch("value", { waitUntilFirstUpdate: true })
+  ], SlTextarea.prototype, "handleValueChange", 1);
+
+  // node_modules/@shoelace-style/shoelace/dist/chunks/chunk.WMS2VUJ6.js
+  SlTextarea.define("sl-textarea");
+
+  // node_modules/@jsfe/shoelace/dist/esm/widgets/textarea.js
   var textarea = (options) => x`
-	<md-outlined-text-field
-		.type=${"textarea"}
-		.supportingText=${options.helpText}
-		.id=${options.id}
-		.label=${options.label}
-		maxLength=${o14(options.maxLength)}
-		minLength=${o14(options.minLength)}
+	<!--  -->
+	<sl-textarea
+		.label=${options.label ?? ""}
+		.helpText=${options.helpText ?? ""}
+		placeholder=${options.placeholder ?? ""}
+		value=${o11(options.value)}
 		.name=${options.id}
-		pattern=${o14(options.pattern)}
-		.placeholder=${options.placeholder}
-		.required=${options.required}
-		value=${o14(options.value)}
-		@input=${(event) => {
+		.id=${options.id}
+		.required=${options.required ?? true}
+		minLength=${o11(options.minLength)}
+		maxLength=${o11(options.maxLength)}
+		@sl-input=${(event) => {
     const { value: newValue } = event.target;
     options.valueChangedCallback?.(newValue);
   }}
-		rows=${4}
+		.disabled=${options.disabled}
+		.readonly=${options.readonly}
 	>
-	</md-outlined-text-field>
+	</sl-textarea>
 `;
 
-  // node_modules/@jsfe/material/dist/esm/styles.js
-  var styles20 = i3`:host {
-  --md-ref-typeface-brand: "Roboto";
-  --md-ref-typeface-plain: system-ui;
+  // node_modules/@jsfe/shoelace/dist/esm/styles.js
+  var styles = i3`@charset "UTF-8";
+:host {
+  box-sizing: border-box;
+  font: 16px var(--sl-font-sans);
+  font-weight: var(--sl-font-weight-normal);
+  line-height: var(--sl-line-height-normal);
+  color: var(--sl-color-neutral-900);
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  --sl-input-focus-ring-color: var(--sl-color-primary-50);
+}
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: inherit;
 }
 
-.theme-material {
-  font-family: Roboto, system-ui;
+::selection {
+  color: var(--sl-color-primary-300);
+  background-color: var(--sl-color-primary-950);
 }
 
-.theme-material.widget-fieldset {
-  position: relative;
+sl-input,
+sl-select,
+sl-checkbox {
+  display: block;
+}
+
+/* User invalid styles */
+sl-input[data-user-invalid]::part(base),
+sl-select[data-user-invalid]::part(combobox),
+sl-checkbox[data-user-invalid]::part(control) {
+  border-color: var(--sl-color-danger-600);
+}
+
+[data-user-invalid]::part(form-control-label),
+[data-user-invalid]::part(form-control-help-text),
+sl-checkbox[data-user-invalid]::part(label) {
+  color: var(--sl-color-danger-700);
+}
+
+sl-checkbox[data-user-invalid]::part(control) {
+  outline: none;
+}
+
+sl-input:focus-within[data-user-invalid]::part(base),
+sl-select:focus-within[data-user-invalid]::part(combobox),
+sl-checkbox:focus-within[data-user-invalid]::part(control) {
+  border-color: var(--sl-color-danger-600);
+  box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-color-danger-300);
+}
+
+.theme-shoelace.widget-fieldset {
   display: flex;
   flex-direction: column;
-  gap: 1.5em 0;
-  padding: 2em 1em;
+  gap: var(--sl-spacing-x-large) 0;
+  padding: var(--sl-spacing-medium) var(--sl-spacing-small);
   margin: 0;
-  font-weight: 300;
-  border: none;
-  border-radius: 1rem;
-  transition-timing-function: ease-in-out;
-  transition-duration: 250ms;
-  --md-sys-color-shadow: var(--md-sys-color-inverse-on-surface);
-  --md-elevation-level: 0;
+  font-weight: var(--sl-font-weight-semibold);
+  border: 1px solid var(--sl-color-neutral-50);
+  border-radius: var(--sl-border-radius-large);
 }
-.theme-material.widget-fieldset legend {
-  width: 100%;
-  font-size: 1.5em;
-  border-bottom: 1px solid var(--md-sys-color-inverse-on-surface);
+.theme-shoelace.widget-fieldset .widget-fieldset__description {
+  font-size: var(--sl-input-help-text-font-size-medium);
+  color: var(--sl-input-help-text-color);
 }
-.theme-material.widget-fieldset .widget-object__description {
-  margin: 0 0 1rem 0;
-  opacity: 0.75;
-}
-.theme-material.widget-fieldset:hover {
-  --md-elevation-level: 4;
-}
-
-.theme-material.widget-toggle {
-  display: flex;
-  gap: 1em;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 0.5rem;
-  user-select: none;
-}
-.theme-material.widget-toggle small {
-  color: var(--md-sys-color-on-surface-variant);
-}
-.theme-material.widget-toggle + .theme-material.widget-toggle {
-  border-top: 1px solid var(--md-sys-color-inverse-on-surface);
-  margin-top: -0.5rem;
-  padding-top: 1.5rem;
-}
-
-.theme-material.widget-array {
-  --md-sys-color-shadow: var(--md-sys-color-inverse-on-surface);
-  --md-elevation-level: 0;
-}
-.theme-material.widget-array:hover {
-  --md-elevation-level: 4;
-}
-.theme-material.widget-array .widget-array__card {
-  width: 100%;
+.theme-shoelace.widget-fieldset .theme-shoelace.widget-fieldset {
   transition: box-shadow var(--sl-transition-medium);
 }
-.theme-material.widget-array .widget-array__card:hover {
+.theme-shoelace.widget-fieldset .theme-shoelace.widget-fieldset:hover {
   box-shadow: var(--sl-shadow-medium);
 }
-.theme-material.widget-array .widget-array__card[data-dropzone] {
+.theme-shoelace.widget-fieldset.level-0 legend {
+  font-size: var(--sl-font-size-2x-large);
+  font-weight: 200;
+}
+.theme-shoelace.widget-fieldset.level-1 legend {
+  font-size: var(--sl-font-size-x-large);
+  font-weight: var(--sl-font-weight-light);
+}
+.theme-shoelace.widget-fieldset.level-2 legend {
+  font-size: var(--sl-font-size-large);
+  font-weight: var(--sl-font-weight-light);
+}
+.theme-shoelace.widget-fieldset.level-3 legend {
+  font-size: var(--sl-font-size-medium);
+  font-weight: var(--sl-font-weight-bold);
+}
+.theme-shoelace.widget-array .widget-array__card {
+  transition: box-shadow var(--sl-transition-medium);
+}
+.theme-shoelace.widget-array .widget-array__card:hover {
+  box-shadow: var(--sl-shadow-medium);
+}
+.theme-shoelace.widget-array .widget-array__card[data-dropzone] {
   border-radius: var(--sl-border-radius-medium);
   outline: 1px solid var(--sl-color-primary-500);
 }
-.theme-material.widget-array .widget-array__card[data-dropzone] * {
+.theme-shoelace.widget-array .widget-array__card[data-dropzone] * {
   pointer-events: none;
 }
-.theme-material.widget-array sl-card::part(body) {
+.theme-shoelace.widget-array sl-card::part(body) {
   padding: var(--sl-spacing-medium) var(--sl-spacing-small);
 }
-.theme-material.widget-array .widget-array__header {
+.theme-shoelace.widget-array .widget-array__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18262,10 +25409,10 @@
   font-size: 0.8em;
   user-select: none;
 }
-.theme-material.widget-array .widget-array__header sl-tag::part(base) {
+.theme-shoelace.widget-array .widget-array__header sl-tag::part(base) {
   background: var(--sl-color-neutral-100);
 }
-.theme-material.widget-array .widget-array__handle {
+.theme-shoelace.widget-array .widget-array__handle {
   display: flex;
   flex-grow: 1;
   align-items: center;
@@ -18278,49 +25425,53 @@
   cursor: move;
   transition: opacity, var(--sl-transition-fast);
 }
-.theme-material.widget-array .widget-array__handle:hover {
+.theme-shoelace.widget-array .widget-array__handle:hover {
   color: var(--sl-color-neutral-600);
   background: var(--sl-color-neutral-100);
   border-radius: var(--sl-border-radius-x-large);
   transition: var(--sl-transition-medium);
 }
-.theme-material.widget-array .widget-array__handle:active {
+.theme-shoelace.widget-array .widget-array__handle:active {
   user-select: none;
 }
-.theme-material.widget-array .widget-array__handle .widget-array__handle-grip {
+.theme-shoelace.widget-array .widget-array__handle .widget-array__handle-grip {
   display: flex;
   flex-grow: 1;
   justify-content: center;
 }
-.theme-material.widget-array .widget-array__add-zone {
+.theme-shoelace.widget-array .widget-array__add-zone {
   display: flex;
   padding: var(--sl-spacing-2x-large) var(--sl-spacing-2x-large);
   border: 2px dashed var(--sl-color-gray-100);
   border-radius: var(--sl-border-radius-large);
   box-shadow: var(--sl-shadow-large) inset;
 }
-.theme-material.widget-array .widget-array__add-zone > sl-button {
+.theme-shoelace.widget-array .widget-array__add-zone > sl-button {
   width: 100%;
 }
 
 /* Callouts */
-.theme-material[part=widget-callout] {
+.theme-shoelace.widget-callout {
   position: relative;
   padding: 1rem 1.5rem 1rem 2rem;
-  margin: 1rem 0;
-  color: var(--md-sys-color-error);
-  border: solid 1px var(--md-sys-color-error);
-  border-color: var(--md-sys-color-error-container);
-  border-left: solid 3px var(--md-sys-color-error);
-  border-radius: 0.25rem;
+  margin: var(--sl-spacing-x-large) var(--sl-spacing-large);
+  color: var(--sl-color-neutral-800);
+  background-color: var(--sl-color-neutral-100);
+  border-left: solid 4px var(--sl-color-neutral-500);
+  border-radius: var(--sl-border-radius-medium);
 }
-.theme-material[part=widget-callout] > :first-child {
+.theme-shoelace.widget-callout > :first-child {
   margin-top: 0;
 }
-.theme-material[part=widget-callout] > :last-child {
+.theme-shoelace.widget-callout > :last-child {
   margin-bottom: 0;
 }
-.theme-material[part=widget-callout]::before {
+.theme-shoelace.widget-callout.callout--tip {
+  color: var(--sl-color-primary-800);
+  background-color: var(--sl-color-primary-100);
+  border-left-color: var(--sl-color-primary-600);
+}
+.theme-shoelace.widget-callout::before {
   position: absolute;
   top: calc(50% - 0.8rem);
   left: calc(-0.8rem - 2px);
@@ -18330,53 +25481,115 @@
   width: 1.6rem;
   height: 1.6rem;
   clip-path: circle(50% at 50% 50%);
-  color: var(--md-sys-color-on-error);
+  font-family: var(--sl-font-serif);
+  font-weight: var(--sl-font-weight-bold);
+  color: var(--sl-color-neutral-0);
   content: "";
 }
-.theme-material[part=widget-callout].callout--warning::before {
+.theme-shoelace.widget-callout.callout--tip::before {
+  font-style: italic;
+  content: "i";
+  background-color: var(--sl-color-primary-600);
+}
+.theme-shoelace.widget-callout.callout--warning {
+  color: var(--sl-color-warning-800);
+  background-color: var(--sl-color-warning-100);
+  border-left-color: var(--sl-color-warning-600);
+}
+.theme-shoelace.widget-callout.callout--warning::before {
   content: "!";
-  background-color: var(--md-sys-color-error);
+  background-color: var(--sl-color-warning-600);
+}
+.theme-shoelace.widget-callout.callout--danger {
+  color: var(--sl-color-danger-800);
+  background-color: var(--sl-color-danger-100);
+  border-left-color: var(--sl-color-danger-600);
+}
+.theme-shoelace.widget-callout.callout--danger::before {
+  content: "‼";
+  background-color: var(--sl-color-danger-600);
+}
+.theme-shoelace.widget-callout + .theme-shoelace.widget-callout {
+  margin-top: calc(-0.5 * var(--sl-spacing-medium));
+}
+.theme-shoelace.widget-callout a {
+  color: inherit;
 }
 
-.theme-material.widget-range {
+.theme-shoelace.widget-checkbox-group .help-text {
+  font-size: var(--sl-input-help-text-font-size-medium);
+  color: var(--sl-input-help-text-color);
+}
+.theme-shoelace.widget-checkbox-group .widget-checkbox-group__list {
   display: flex;
-  display: inline-flex;
-  flex-direction: column;
-  gap: 0;
-  /* place-items: center; */
-  gap: 8px;
-  place-items: flex-start;
-  width: 100%;
-  font-family: Roboto, system-ui;
-  color: var(--md-sys-color-on-background, #000);
+  flex-wrap: wrap;
+  gap: var(--sl-spacing-large) var(--sl-spacing-4x-large);
+  justify-content: space-evenly;
+  padding: var(--sl-spacing-medium) var(--sl-spacing-x-large);
 }
 
-md-slider {
+.theme-shoelace.widget-checkbox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sl-spacing-small);
+}
+.theme-shoelace.widget-checkbox label {
+  cursor: pointer;
+}
+.theme-shoelace.widget-checkbox .widget-checkbox__description {
   width: 100%;
-  /* --md-slider-focus-handle-color: red; */
-  --md-slider-active-track-color: var(--md-sys-color-primary);
-  --md-slider-inactive-track-color: var(--md-sys-on-surface);
+  font-size: var(--sl-input-help-text-font-size-medium);
+  color: var(--sl-input-help-text-color);
+}
+.theme-shoelace.widget-checkbox .widget-checkbox__label {
+  width: 100%;
 }
 
-.theme-material.widget-submit {
+.theme-shoelace.widget-color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sl-spacing-large);
+  align-items: center;
+}
+.theme-shoelace.widget-color-picker .widget-color-picker__description {
+  font-size: var(--sl-input-help-text-font-size-medium);
+  color: var(--sl-input-help-text-color);
+}
+
+.theme-shoelace.widget-radio-group-boolean::part(form-control-input) {
+  display: flex;
+  gap: 1rem;
+}
+
+.theme-shoelace.widget-radio-group::part(form-control-input) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sl-spacing-small) var(--sl-spacing-x-large);
+}
+
+.theme-shoelace.widget-rating label {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+.theme-shoelace.widget-submit {
   display: flex;
   justify-content: center;
   margin: var(--sl-spacing-2x-large) 0;
-  font-size: 4em;
 }
 `;
 
-  // node_modules/@jsfe/material/dist/esm/form.js
-  var JsfMaterial = class extends Jsf {
+  // node_modules/@jsfe/shoelace/dist/esm/form.js
+  var JsfShoelace = class extends Jsf {
     constructor() {
       super(...arguments);
       this.widgets = widgets_exports;
-      this.styleSheets = [styles20];
+      this.styleSheets = [styles];
     }
   };
 
-  // node_modules/@jsfe/material/dist/esm/form.def.js
-  customElements.define("jsf-material", JsfMaterial);
+  // node_modules/@jsfe/shoelace/dist/esm/form.def.js
+  customElements.define("jsf-shoelace", JsfShoelace);
 
   // src/stops.js
   async function initStops(container) {
@@ -18396,7 +25609,7 @@ md-slider {
         }
       }
     };
-    const formEl = document.createElement("jsf-material");
+    const formEl = document.createElement("jsf-shoelace");
     formEl.schema = formSchema;
     formEl.submitCallback = async (newData, valid) => {
       console.info({ newData, valid });
@@ -18490,7 +25703,7 @@ md-slider {
         }
       }
     };
-    const formEl = document.createElement("jsf-material");
+    const formEl = document.createElement("jsf-shoelace");
     formEl.schema = formSchema;
     formEl.submitCallback = async (newData, valid) => {
       console.info({ newData, valid });
@@ -18607,6 +25820,66 @@ md-slider {
     await renderTables();
   }
 
+  // src/register.js
+  async function initRegister(container) {
+    container.style.marginLeft = "auto";
+    container.style.marginRight = "auto";
+    container.style.marginTop = "100px";
+    container.style.maxWidth = "500px";
+    container.innerHTML = `
+    <div id="register-form">
+    </div>
+  `;
+    const formSchema = {
+      title: "",
+      description: "Register",
+      properties: {
+        Name: {
+          type: "string"
+        },
+        Password: {
+          type: "string"
+        },
+        "Password (Repeat)": {
+          type: "string"
+        }
+      }
+    };
+    const uiSchema = {
+      "Password": {
+        "ui:widget": "password"
+      },
+      "Password (Repeat)": {
+        "ui:widget": "password"
+      }
+    };
+    const formEl = document.createElement("jsf-shoelace");
+    formEl.schema = formSchema;
+    formEl.uiSchema = uiSchema;
+    formEl.submitButtonLabel = "Register";
+    formEl.submitCallback = async (newData, valid) => {
+      console.info({ newData, valid });
+      if (newData["Password"] !== newData["Password (Repeat)"]) {
+        i.error({ title: "Error", description: "Error: Passwords do not match!", duration: 1e4 });
+        return;
+      }
+      try {
+        await createUser(newData.Name, newData.Password);
+        i.success({ title: "Success", description: "Registration completed successfully", duration: 1e4 });
+        location.reload();
+      } catch (err) {
+        i.error({ title: "Error", description: err.message, duration: 1e4 });
+      }
+    };
+    const hint = document.createElement("div");
+    hint.innerHTML = `
+  Don't have an account? Register <a href='#register'>here</a>.
+  `;
+    hint.onclick = () => document.getElementById("register-form").remove();
+    document.getElementById("register-form").appendChild(formEl);
+    document.getElementById("register-form").appendChild(hint);
+  }
+
   // src/login.js
   async function initLogin(container) {
     container.style.marginLeft = "auto";
@@ -18618,8 +25891,8 @@ md-slider {
     </div>
   `;
     const formSchema = {
-      title: "",
-      description: "Login",
+      title: "Fleet Manager \u{1F68C}",
+      description: "",
       properties: {
         Name: {
           type: "string"
@@ -18634,14 +25907,15 @@ md-slider {
         "ui:widget": "password"
       }
     };
-    const formEl = document.createElement("jsf-material");
+    const formEl = document.createElement("jsf-shoelace");
     formEl.schema = formSchema;
     formEl.uiSchema = uiSchema;
     formEl.submitButtonLabel = "Login";
     formEl.submitCallback = async (newData, valid) => {
       console.info({ newData, valid });
       try {
-        await login(newData.Name, newData.Password);
+        const resp = await login(newData.Name, newData.Password);
+        localStorage.setItem("sessionToken", resp?.token);
         i.success({ title: "Success", description: "Logged in successfully", duration: 1e4 });
         location.reload();
       } catch (err) {
@@ -18650,11 +25924,124 @@ md-slider {
     };
     const hint = document.createElement("div");
     hint.innerHTML = `
-  Don't have an account? Register <a href='#register'>here</a>.
+  Don't have an account? Register <a href='#'>here</a>.
   `;
-    hint.onclick = () => document.getElementById("login-form").remove();
-    document.getElementById("login-form").appendChild(hint);
+    hint.onclick = () => {
+      document.getElementById("login-form").remove();
+      initRegister(container);
+    };
     document.getElementById("login-form").appendChild(formEl);
+    document.getElementById("login-form").appendChild(hint);
+  }
+
+  // src/home.js
+  async function initHome(container) {
+    container.innerHTML = `
+    <h2>Welcome to Fleet Manager</h2>
+    <h3 id="user-info"></h3>
+    <div id="home-form"></div>
+    <div id="driver-routes"></div>
+  `;
+    let userData = await checkUser();
+    if (!userData?.logged_in) {
+      location.reload();
+      return;
+    }
+    userData = userData.user;
+    userData.role = userData.roles[0];
+    document.getElementById("user-info").innerText = `You are logged in as ${userData.username} (${userData.role})`;
+    if (userData.role === "admin") {
+      let [users, routes] = await Promise.all([getUsers(), getRoutes()]);
+      if (users.length == 1) {
+        document.getElementById("home-form").innerText = `Please add at least one driver to configure duties.`;
+        return;
+      }
+      const formSchema = {
+        title: "Assign Routes to Drivers",
+        type: "object",
+        properties: {}
+      };
+      for (const user of users) {
+        if (!user.roles.includes("driver"))
+          continue;
+        const duties = await getUserDuties(user.id);
+        formSchema.properties[user.username] = {
+          title: user.username,
+          description: "Assign routes to this driver",
+          type: "object",
+          properties: {
+            Routes: {
+              title: "Routes",
+              type: "array",
+              uniqueItems: true,
+              default: duties,
+              items: {
+                type: "string",
+                enum: [...new Set(routes.map((r9) => r9.route_id))]
+              }
+            }
+          }
+        };
+      }
+      const uiSchema = {};
+      for (const user of users) {
+        if (!user.roles.includes("driver"))
+          continue;
+        uiSchema[user.username] = { Routes: { "ui:widget": "select" } };
+      }
+      const formEl = document.createElement("jsf-shoelace");
+      formEl.schema = formSchema;
+      formEl.uiSchema = uiSchema;
+      formEl.submitButtonLabel = "Save";
+      formEl.submitCallback = async (newData, valid) => {
+        if (!valid) {
+          i.error({ title: "Invalid", description: "Please fix the errors", duration: 1e4 });
+          return;
+        }
+        try {
+          for (const [username, userObj] of Object.entries(newData)) {
+            console.log(username, userObj);
+            const driver = users.find((u6) => u6.username === username);
+            if (!driver)
+              continue;
+            const current = await getUserDuties(driver.id);
+            console.log("current", current);
+            for (const d4 of current) {
+              if (!userObj.Routes.includes(d4)) {
+                await assignDuty(driver.id, d4, "delete");
+              }
+            }
+            for (const r9 of userObj.Routes) {
+              if (!current.some((d4) => d4.route_id === r9)) {
+                await assignDuty(driver.id, r9, "post");
+              }
+            }
+          }
+          i.success({ title: "Success", description: "Assignments saved", duration: 1e4 });
+        } catch (err) {
+          i.error({ title: "Error", description: err.message, duration: 1e4 });
+        }
+      };
+      document.getElementById("home-form").appendChild(formEl);
+    } else if (userData.role === "driver") {
+      const [duties, routes, stops] = await Promise.all([
+        getUserDuties(userData.id),
+        getRoutes(),
+        getStops()
+      ]);
+      const assigned = routes.filter((r9) => duties.some((d4) => d4 === r9.route_id)).map((r9) => {
+        r9.location = stops.find((s6) => s6.id == r9.stop_id).location;
+        return r9;
+      });
+      console.log(assigned);
+      const div = document.getElementById("driver-routes");
+      div.innerHTML = `
+      <h3>Your Assigned Routes</h3>
+      <ul>
+        ${assigned.map((r9) => `<li>Route ${r9.route_id} at ${r9.time} (${r9.location}) </li>`).join("")}
+      </ul>
+    `;
+    }
   }
 
   // node_modules/@moaqzdev/toast/dist/index.mjs
@@ -18663,40 +26050,40 @@ md-slider {
     constructor() {
       super(), this.attachShadow({ mode: "open" });
     }
-    async createToast({ title: o15, type: r10, description: c7, onConfirm: v3, onCancel: f6, confirmText: b4 = "\u2705", cancelText: h6 = "\u274C", duration: d4 = 3e3 }) {
+    async createToast({ title: o14, type: r9, description: c7, onConfirm: v3, onCancel: f6, confirmText: b4 = "\u2705", cancelText: h6 = "\u274C", duration: d4 = 3e3 }) {
       const a5 = this.shadowRoot.querySelector("#toast-tmpl").content.cloneNode(true), t7 = { container: a5.querySelector("[data-toast]"), title: a5.querySelector("[data-title]"), description: a5.querySelector("[data-description]"), actions: a5.querySelector("[data-actions]"), confirmBtn: a5.querySelector("button[data-action-type='confirm']"), cancelBtn: a5.querySelector("button[data-action-type='cancel']"), closeBtn: a5.querySelector("[data-close-button]") };
-      t7.title.textContent = o15 || "", t7.container.setAttribute("data-type", r10), c7 == null ? t7.description?.remove() : t7.description.textContent = c7;
-      const n12 = () => this.removeToast(t7.container);
-      if (r10 === "confirm" ? (t7.confirmBtn.textContent = b4, t7.confirmBtn.addEventListener("click", () => {
-        v3?.(), n12();
+      t7.title.textContent = o14 || "", t7.container.setAttribute("data-type", r9), c7 == null ? t7.description?.remove() : t7.description.textContent = c7;
+      const n10 = () => this.removeToast(t7.container);
+      if (r9 === "confirm" ? (t7.confirmBtn.textContent = b4, t7.confirmBtn.addEventListener("click", () => {
+        v3?.(), n10();
       }, { once: true }), t7.cancelBtn.textContent = h6, t7.cancelBtn.addEventListener("click", () => {
-        f6?.(), n12();
-      }, { once: true })) : t7.actions?.remove(), this.hasAttribute("dismissable") ? t7.closeBtn.addEventListener("click", n12, { once: true }) : t7.closeBtn?.remove(), this.shadowRoot.querySelector("[data-toaster]").appendChild(a5), d4 !== "none") {
-        const l6 = Math.max(Number.parseInt(d4, 10) || 0, 3e3), i10 = new AbortController(), g3 = Date.now();
-        let e11 = null, p4 = 0;
+        f6?.(), n10();
+      }, { once: true })) : t7.actions?.remove(), this.hasAttribute("dismissable") ? t7.closeBtn.addEventListener("click", n10, { once: true }) : t7.closeBtn?.remove(), this.shadowRoot.querySelector("[data-toaster]").appendChild(a5), d4 !== "none") {
+        const l6 = Math.max(Number.parseInt(d4, 10) || 0, 3e3), i11 = new AbortController(), g3 = Date.now();
+        let e13 = null, p4 = 0;
         const u6 = () => {
-          i10.abort(), n12();
+          i11.abort(), n10();
         };
         let m4 = setTimeout(u6, l6);
         const y4 = () => {
-          e11 == null && (clearTimeout(m4), e11 = Date.now());
+          e13 == null && (clearTimeout(m4), e13 = Date.now());
         }, _3 = () => {
-          e11 != null && (p4 = e11 - g3, e11 = null, m4 = setTimeout(u6, Math.max(l6 - p4, 0)));
+          e13 != null && (p4 = e13 - g3, e13 = null, m4 = setTimeout(u6, Math.max(l6 - p4, 0)));
         };
         ["focusin", "pointerenter", "mouseenter"].forEach((s6) => {
-          t7.container.addEventListener(s6, y4, { signal: i10.signal });
+          t7.container.addEventListener(s6, y4, { signal: i11.signal });
         }), ["focusout", "pointerleave", "mouseleave"].forEach((s6) => {
-          t7.container.addEventListener(s6, _3, { signal: i10.signal });
+          t7.container.addEventListener(s6, _3, { signal: i11.signal });
         });
       }
     }
-    removeToast(o15) {
-      o15.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: "ease", fill: "forwards" }).finished.then(() => o15.remove());
+    removeToast(o14) {
+      o14.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: "ease", fill: "forwards" }).finished.then(() => o14.remove());
     }
-    handleEvent(o15) {
-      if (o15 instanceof CustomEvent && o15.type === TOAST_EVENT) {
-        const r10 = o15.detail;
-        this.createToast(r10);
+    handleEvent(o14) {
+      if (o14 instanceof CustomEvent && o14.type === TOAST_EVENT) {
+        const r9 = o14.detail;
+        this.createToast(r9);
       }
     }
     connectedCallback() {
@@ -18975,6 +26362,10 @@ md-slider {
   var contentEl = document.querySelector(".content");
   var links = document.querySelectorAll(".sidebar a");
   var sidebar = document.querySelector(".sidebar");
+  document.querySelector("#logout").onclick = () => {
+    localStorage.setItem("sessionToken", null);
+    location.reload();
+  };
   function setActive(link) {
     links.forEach((l6) => l6.classList.remove("active"));
     link.classList.add("active");
@@ -18992,7 +26383,7 @@ md-slider {
         break;
       case "#home":
       default:
-        contentEl.innerHTML = "<h2>Welcome to Fleet Manager</h2>";
+        initHome(contentEl);
         break;
     }
   }
@@ -19002,24 +26393,39 @@ md-slider {
     setActive(activeLink);
     loadPage(initialHash);
   }
+  async function setupPage() {
+    const userData = await checkUser();
+    console.log(userData);
+    if (!userData?.logged_in) {
+      sidebar?.remove();
+      initLogin(contentEl);
+    } else {
+      links.forEach((link) => {
+        link.addEventListener("click", (e13) => {
+          e13.preventDefault();
+          const hash = link.getAttribute("href");
+          setActive(link);
+          loadPage(hash);
+          window.location.hash = hash;
+        });
+      });
+      initialLoad("#home");
+    }
+  }
   var toastEl = document.createElement("moaqz-toaster");
   toastEl.setAttribute("dismissable", "");
   document.querySelector("body").appendChild(toastEl);
-  if (!checkUser()?.logged_in) {
-    sidebar?.remove();
-    initLogin(contentEl);
-  } else {
-    links.forEach((link) => {
-      link.addEventListener("click", (e11) => {
-        e11.preventDefault();
-        const hash = link.getAttribute("href");
-        setActive(link);
-        loadPage(hash);
-        window.location.hash = hash;
-      });
-    });
-    initialLoad("#home");
-  }
+  window.addEventListener("popstate", async () => {
+    const currentHash = window.location.hash;
+    console.log(currentHash);
+    const currentLink = [...links].find((l6) => l6.classList.contains("active"));
+    if (currentLink?.getAttribute("href") != currentHash) {
+      await setupPage();
+    }
+  });
+  (async () => {
+    await setupPage();
+  })();
 })();
 /*! Bundled license information:
 
@@ -19175,181 +26581,6 @@ lit-html/directives/class-map.js:
    * SPDX-License-Identifier: BSD-3-Clause
    *)
 
-@material/web/internal/controller/attachable-controller.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/focus/internal/focus-ring.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/focus/internal/focus-ring-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/focus/md-focus-ring.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/internal/motion/animation.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/ripple/internal/ripple.js:
-  (**
-   * @license
-   * Copyright 2022 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/ripple/internal/ripple-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/ripple/ripple.js:
-  (**
-   * @license
-   * Copyright 2022 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/internal/aria/aria.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/internal/aria/delegate.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/internal/events/form-label-activation.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/internal/events/redispatch-event.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/element-internals.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/constraint-validation.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/form-associated.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/validators/validator.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/validators/checkbox-validator.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/checkbox/internal/checkbox.js:
-  (**
-   * @license
-   * Copyright 2019 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/checkbox/internal/checkbox-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/checkbox/checkbox.js:
-  (**
-   * @license
-   * Copyright 2018 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/field/internal/field.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/field/internal/outlined-field.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/field/internal/outlined-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/field/internal/shared-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/field/outlined-field.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
 lit-html/static.js:
   (**
    * @license
@@ -19357,11 +26588,11 @@ lit-html/static.js:
    * SPDX-License-Identifier: BSD-3-Clause
    *)
 
-@material/web/textfield/internal/outlined-styles.js:
+lit-html/directives/if-defined.js:
   (**
    * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
+   * Copyright 2018 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
    *)
 
 lit-html/directives/live.js:
@@ -19378,354 +26609,11 @@ lit-html/directives/style-map.js:
    * SPDX-License-Identifier: BSD-3-Clause
    *)
 
-@material/web/internal/controller/string-converter.js:
+lit-html/directives/unsafe-html.js:
   (**
    * @license
-   * Copyright 2022 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/on-report-validity.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/validators/text-field-validator.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/textfield/internal/text-field.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/textfield/internal/outlined-text-field.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/textfield/internal/shared-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/textfield/outlined-text-field.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-lit-html/directives/if-defined.js:
-  (**
-   * @license
-   * Copyright 2018 Google LLC
+   * Copyright 2017 Google LLC
    * SPDX-License-Identifier: BSD-3-Clause
-   *)
-
-@material/web/elevation/internal/elevation.js:
-  (**
-   * @license
-   * Copyright 2022 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/elevation/internal/elevation-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/elevation/elevation.js:
-  (**
-   * @license
-   * Copyright 2022 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/slider/internal/forced-colors-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-lit-html/directives/when.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   *)
-
-@material/web/slider/internal/slider.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/slider/internal/slider-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/slider/slider.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/list/internal/list-navigation-helpers.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/list/internal/list-controller.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/internal/controllers/shared.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/internal/controllers/surfacePositionController.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/internal/controllers/typeaheadController.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/internal/menu.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/internal/menu-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/menu.js:
-  (**
-   * @license
-   * Copyright 2022 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/behaviors/validators/select-validator.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/internal/shared.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/internal/select.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/internal/outlined-select.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/internal/outlined-select-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/internal/shared-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/outlined-select.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/internal/menuitem/menu-item-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/item/internal/item.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/item/internal/item-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/labs/item/item.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/menu/internal/controllers/menuItemController.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/internal/selectoption/selectOptionController.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/internal/selectoption/select-option.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/select/select-option.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/internal/controller/form-submitter.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/button/internal/button.js:
-  (**
-   * @license
-   * Copyright 2019 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/button/internal/filled-button.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/button/internal/filled-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/button/internal/shared-elevation-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/button/internal/shared-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/button/filled-button.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/internal/events/dispatch-hooks.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/switch/internal/switch.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/switch/internal/switch-styles.js:
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-
-@material/web/switch/switch.js:
-  (**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: Apache-2.0
    *)
 */
 //# sourceMappingURL=bundle.js.map

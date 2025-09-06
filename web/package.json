@@ -15,9 +15,6 @@
     "jsdoc": "^4.0.0"
   },
   "dependencies": {
-    "@jsfe/core": "^0.0.5",
-    "@jsfe/form": "^0.4.0",
-    "@jsfe/material": "^0.3.0",
     "@jsfe/shoelace": "^0.4.0",
     "@moaqzdev/toast": "^1.3.0",
     "@shoelace-style/shoelace": "^2.20.1",

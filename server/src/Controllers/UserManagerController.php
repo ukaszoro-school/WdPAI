@@ -21,37 +21,70 @@ final class UserManagerController
      */
     public function getUsers(): array
     {
-        $stmt = $this->pdo->query(
-            "SELECT c.id, c.username,
-                    ARRAY_AGG(DISTINCT p.role) AS roles,
-                    ARRAY_AGG(DISTINCT d.route_id) AS duties
-             FROM creds c
-             LEFT JOIN perms p ON p.user_id = c.id
-             LEFT JOIN duties d ON d.user_id = c.id
-             GROUP BY c.id, c.username
-             ORDER BY c.id ASC"
-        );
+        $stmt = $this->pdo->query("
+            SELECT
+                creds.id,
+                creds.username,
+                ARRAY_REMOVE(ARRAY_AGG(perms.role), NULL) AS roles,
+                ARRAY_REMOVE(ARRAY_AGG(duties.route_id), NULL) AS duties
+            FROM creds
+            LEFT JOIN perms ON perms.user_id = creds.id
+            LEFT JOIN duties ON duties.user_id = creds.id
+            GROUP BY creds.id, creds.username
+        ");
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $users = [];
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $roles = $row['roles'];
+            $duties = $row['duties'];
+            $roles = $this->pgArrayToPhpArray($roles);
+            $duties = $this->pgArrayToPhpArray($duties);
+            $users[] = [
+                'id' => (int)$row['id'],
+                'username' => $row['username'],
+                'roles' => $roles,
+                'duties' => $duties,
+            ];
+        }
+        return $users;
+    }
+
+    /**
+     * Convert PG array -> PHP array.
+     *
+     * @param string|null $pgArray
+     * @return string[]
+     */
+    private function pgArrayToPhpArray(?string $pgArray): array
+    {
+        if ($pgArray === null || $pgArray === '{}' || $pgArray === '{NULL}') {
+            return [];
+        }
+        $pgArray = trim($pgArray, '{}');
+        if ($pgArray === '') {
+            return [];
+        }
+        $items = str_getcsv($pgArray, ',');
+        return array_values(array_filter($items, fn($v) => $v !== 'NULL' && $v !== ''));
     }
 
     /**
      * Create a new user and assign optional roles.
-     *
-     * @param array{username: string, password: string} $data
+     * @param string $username
+     * @param string $password
      * @return array{id: int, username: string, roles: array<string>, duties: array<string>}
      */
-    public function createUser(array $data): array
+    public function createUser(string $username, string $password): array
     {
-        if (empty($data['username']) || empty($data['password'])) {
+        if (empty($username) || empty($password)) {
             throw new \InvalidArgumentException("username and password are required");
         }
 
-        $hash = password_hash($data['password'], PASSWORD_DEFAULT);
+        $hash = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $this->pdo->prepare("INSERT INTO creds (username, password_hash) VALUES (:username, :password_hash) RETURNING id");
         $stmt->execute([
-            ':username' => $data['username'],
+            ':username' => $username,
             ':password_hash' => $hash,
         ]);
         $id = (int)$stmt->fetchColumn();
@@ -62,6 +95,9 @@ final class UserManagerController
         if ($userCount === 1) {
             $roleStmt = $this->pdo->prepare("INSERT INTO perms (user_id, role) VALUES (:user_id, :role)");
             $roleStmt->execute([':user_id' => $id, ':role' => 'admin']);
+        } else {
+            $roleStmt = $this->pdo->prepare("INSERT INTO perms (user_id, role) VALUES (:user_id, :role)");
+            $roleStmt->execute([':user_id' => $id, ':role' => 'driver']);
         }
 
         return $this->getUserById($id);
@@ -77,8 +113,8 @@ final class UserManagerController
     {
         $stmt = $this->pdo->prepare(
             "SELECT c.id, c.username,
-                    ARRAY_AGG(DISTINCT p.role) AS roles,
-                    ARRAY_AGG(DISTINCT d.route_id) AS duties
+                    COALESCE(ARRAY_AGG(DISTINCT p.role), '{}') AS roles,
+                    COALESCE(ARRAY_AGG(DISTINCT d.route_id), '{}') AS duties
              FROM creds c
              LEFT JOIN perms p ON p.user_id = c.id
              LEFT JOIN duties d ON d.user_id = c.id
@@ -91,6 +127,9 @@ final class UserManagerController
         if (!$user) {
             throw new \RuntimeException("User not found");
         }
+
+        $user['roles'] = $this->pgArrayToPhpArray($user['roles']);
+        $user['duties'] = $this->pgArrayToPhpArray($user['duties']);
 
         return $user;
     }
@@ -115,6 +154,17 @@ final class UserManagerController
      */
     public function assignDuty(int $userId, string $routeId): void
     {
+        $check = $this->pdo->prepare(
+            "SELECT user_id, route_id
+             FROM duties
+             WHERE user_id = :user_id AND route_id = :route_id"
+        );
+        $check->execute([':user_id' => $userId, ':route_id' => $routeId]);
+        $route = $check->fetch(PDO::FETCH_ASSOC);
+
+        if ($route) {
+            return; // Skip
+        }
         $stmt = $this->pdo->prepare(
             "INSERT INTO duties (user_id, route_id) VALUES (:user_id, :route_id)
              ON CONFLICT DO NOTHING"
