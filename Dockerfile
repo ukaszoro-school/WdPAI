@@ -6,7 +6,7 @@ ENV POSTGRES_DB=pgdb
 ENV PGDATA=/var/lib/postgresql/data
 ENV PYTHONWARNINGS="ignore::UserWarning"
 
-RUN apk add --no-cache bash curl unzip postgresql postgresql-client nginx php83 php83-fpm php83-pdo php83-pdo_pgsql php83-json php83-mbstring php83-openssl php83-session php83-phar supervisor
+RUN apk add --no-cache bash curl unzip postgresql postgresql-client nginx php83 php83-fpm php83-pdo php83-pdo_pgsql php83-json php83-mbstring php83-openssl php83-session php83-phar supervisor npm nodejs
 
 RUN mkdir -p "$PGDATA" /run/nginx /app && chown -R postgres:postgres "$PGDATA"
 
@@ -40,6 +40,9 @@ RUN sed -i 's|^;*listen =.*|listen = /run/php-fpm.sock|' /etc/php83/php-fpm.d/ww
     sed -i 's|^;*catch_workers_output =.*|catch_workers_output = yes|' /etc/php83/php-fpm.d/www.conf
 
 COPY ./conf/supervisord.conf /etc/supervisord.conf
+
+WORKDIR /app/web
+RUN npm install && npm run build
 
 EXPOSE 8080 5432
 
