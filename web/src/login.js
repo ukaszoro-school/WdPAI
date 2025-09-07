@@ -57,12 +57,18 @@ export async function initLogin(container) {
 
   const hint = document.createElement("div");
   hint.innerHTML = `
-  Don't have an account? Register <a href='#'>here</a>.
+  Don't have an account? Register <div style="display: inline-block; color: blue; cursor: pointer">here</div>.
   `;
-  hint.onclick = () => {
-    document.getElementById("login-form").remove();
-    initRegister(container);
+
+  let once = false;
+  hint.onclick = async () => {
+    hint.onclick = null;
+    if (!once) {
+      once = true;
+      await initRegister(container);
+    }
   };
+
   document.getElementById("login-form").appendChild(formEl);
   document.getElementById("login-form").appendChild(hint);
 }

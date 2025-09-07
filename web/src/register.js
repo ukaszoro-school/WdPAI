@@ -68,5 +68,4 @@ export async function initRegister(container) {
   };
 
   document.getElementById("register-form").appendChild(formEl);
-  document.getElementById("register-form").appendChild(hint);
 }
