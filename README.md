@@ -21,7 +21,7 @@ Table of contents:
 Using Docker:
 
 ```
-docker build -f Dockerfile -t fleetmanager
+docker buildx build -f Dockerfile -t fleetmanager
 ```
 
 Using Podman:

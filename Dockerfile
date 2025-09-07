@@ -6,7 +6,7 @@ ENV POSTGRES_DB=pgdb
 ENV PGDATA=/var/lib/postgresql/data
 ENV PYTHONWARNINGS="ignore::UserWarning"
 
-RUN apk add --no-cache bash curl unzip postgresql postgresql-client nginx php83 php83-fpm php83-pdo php83-pdo_pgsql php83-json php83-mbstring php83-openssl php83-session php83-phar supervisor npm nodejs
+RUN apk add --no-cache bash curl unzip postgresql postgresql-client nginx php83 php83-fpm php83-pdo php83-pdo_pgsql php83-json php83-mbstring php83-openssl php83-session php83-phar supervisor npm nodejs composer
 
 RUN mkdir -p "$PGDATA" /run/nginx /app && chown -R postgres:postgres "$PGDATA"
 
@@ -20,6 +20,11 @@ WORKDIR /app
 COPY server /app/server
 COPY site /app/site
 COPY web /app/web
+
+WORKDIR /app/server
+RUN composer dump-autoload
+
+WORKDIR /app
 
 USER postgres
 RUN pg_ctl -D "$PGDATA" -l /dev/stderr start && \
