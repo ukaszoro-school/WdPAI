@@ -22,6 +22,7 @@ COPY site /app/site
 COPY web /app/web
 
 WORKDIR /app/server
+RUN composer update
 RUN composer dump-autoload
 
 WORKDIR /app

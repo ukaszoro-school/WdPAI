@@ -35,7 +35,7 @@ podman build -f Dockerfile -t fleetmanager
 Using Docker:
 
 ```
-docker run -p 8080:8080 localhost/fleetmanager
+docker run -p 8080:8080 fleetmanager
 ```
 
 Using Podman:
