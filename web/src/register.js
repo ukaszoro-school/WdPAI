@@ -14,28 +14,28 @@ export async function initRegister(container) {
   `;
 
   const formSchema = {
-    title: "",
+    title: "Fleet Manager 🚌",
     description: "Register",
     properties: {
-        Name: {
-            type: "string"
-        },
-        Password: {
-            type: "string"
-        },
-        "Password (Repeat)": {
-            type: "string"
-        }
-    }
+      Name: {
+        type: "string",
+      },
+      Password: {
+        type: "string",
+      },
+      "Password (Repeat)": {
+        type: "string",
+      },
+    },
   };
   const uiSchema = {
-    "Password": {
-      "ui:widget": "password"
+    Password: {
+      "ui:widget": "password",
     },
     "Password (Repeat)": {
-      "ui:widget": "password"
-    }
-  }
+      "ui:widget": "password",
+    },
+  };
   const formEl = document.createElement("jsf-shoelace");
   formEl.schema = formSchema;
   formEl.uiSchema = uiSchema;
@@ -43,23 +43,30 @@ export async function initRegister(container) {
   formEl.submitCallback = async (newData, valid) => {
     console.info({ newData, valid });
     if (newData["Password"] !== newData["Password (Repeat)"]) {
-      toast.error({ title: "Error", description: "Error: Passwords do not match!", duration: 10000 });
+      toast.error({
+        title: "Error",
+        description: "Error: Passwords do not match!",
+        duration: 10000,
+      });
       return;
     }
     try {
       await createUser(newData.Name, newData.Password);
-      toast.success({ title: "Success", description: "Registration completed successfully", duration: 10000 });
-      location.reload()
+      toast.success({
+        title: "Success",
+        description: "Registration completed successfully",
+        duration: 10000,
+      });
+      location.reload();
     } catch (err) {
-      toast.error({ title: "Error", description: err.message, duration: 10000 });
+      toast.error({
+        title: "Error",
+        description: err.message,
+        duration: 10000,
+      });
     }
   };
 
-  const hint = document.createElement("div");
-  hint.innerHTML = `
-  Don't have an account? Register <a href='#register'>here</a>.
-  `;
-  hint.onclick = () => document.getElementById("register-form").remove();
   document.getElementById("register-form").appendChild(formEl);
   document.getElementById("register-form").appendChild(hint);
 }

@@ -1,7 +1,7 @@
 import { getStops, createStop, removeStop } from "./api.js";
 import { toast } from "@moaqzdev/toast/utils";
 import "active-table";
-import '@jsfe/shoelace';
+import "@jsfe/shoelace";
 
 export async function initStops(container) {
   container.innerHTML = `
@@ -16,10 +16,10 @@ export async function initStops(container) {
     title: "",
     description: "Add new bus stop",
     properties: {
-        Location: {
-            type: "string"
-        }
-    }
+      Location: {
+        type: "string",
+      },
+    },
   };
   const formEl = document.createElement("jsf-shoelace");
   formEl.schema = formSchema;
@@ -27,14 +27,22 @@ export async function initStops(container) {
     console.info({ newData, valid });
     try {
       await createStop(newData.Location);
-      toast.success({ title: "Success", description: "Stop created successfully", duration: 10000 });
+      toast.success({
+        title: "Success",
+        description: "Stop created successfully",
+        duration: 10000,
+      });
       await renderTable();
     } catch (err) {
-      toast.error({ title: "Error", description: err.message, duration: 10000 });
+      toast.error({
+        title: "Error",
+        description: err.message,
+        duration: 10000,
+      });
     }
   };
   formEl.data = {
-    Location: "Stop location"
+    Location: "Stop location",
   };
   document.getElementById("stops-form").appendChild(formEl);
 
@@ -46,24 +54,26 @@ export async function initStops(container) {
     table.displayAddNewColumn = false;
     table.displayAddNewRow = false;
     table.columnDropdown = {
-      displaySettings: {"isAvailable": true },
+      displaySettings: { isAvailable: true },
       isSortAvailable: true,
       isDeleteAvailable: false,
       isInsertLeftAvailable: false,
       isInsertRightAvailable: false,
-      isMoveAvailable: false
+      isMoveAvailable: false,
     };
     table.rowDropdown = {
-      displaySettings: {"isAvailable": true },
+      displaySettings: { isAvailable: true },
       isInsertUpAvailable: false,
       isInsertDownAvailable: false,
       isMoveAvailable: false,
       isDeleteAvailable: true,
-      canEditHeaderRow: false
+      canEditHeaderRow: false,
     };
-    table.frameComponentsStyles = {"style": {"hoverColors": {"backgroundColor": "white"}}};
-    table.headerStyles = {"hoverColors": {"backgroundColor": "white"}};
-    table.tableStyle =  {"borderRadius":"2px",  "width":"100%"};
+    table.frameComponentsStyles = {
+      style: { hoverColors: { backgroundColor: "white" } },
+    };
+    table.headerStyles = { hoverColors: { backgroundColor: "white" } };
+    table.tableStyle = { borderRadius: "2px", width: "100%" };
     table.data = [
       ["ID", "Location"],
       ...stops.map((s) => [String(s.id), s.location]),
@@ -78,9 +88,17 @@ export async function initStops(container) {
         if (!IDs.includes(x)) {
           try {
             await removeStop(x);
-            toast.success({ title: "Success", description: "Stop removed successfully", duration: 10000 });
+            toast.success({
+              title: "Success",
+              description: "Stop removed successfully",
+              duration: 10000,
+            });
           } catch (err) {
-            toast.error({ title: "Error", description: err.message, duration: 10000 });
+            toast.error({
+              title: "Error",
+              description: err.message,
+              duration: 10000,
+            });
           }
         }
       });
@@ -96,4 +114,3 @@ export async function initStops(container) {
 
   await renderTable();
 }
-

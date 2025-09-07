@@ -18,19 +18,19 @@ export async function initLogin(container) {
     title: "Fleet Manager 🚌",
     description: "",
     properties: {
-        Name: {
-            type: "string"
-        },
-        Password: {
-            type: "string"
-        }
-    }
+      Name: {
+        type: "string",
+      },
+      Password: {
+        type: "string",
+      },
+    },
   };
   const uiSchema = {
-    "Password": {
-      "ui:widget": "password"
-    }
-  }
+    Password: {
+      "ui:widget": "password",
+    },
+  };
   const formEl = document.createElement("jsf-shoelace");
   formEl.schema = formSchema;
   formEl.uiSchema = uiSchema;
@@ -39,11 +39,19 @@ export async function initLogin(container) {
     console.info({ newData, valid });
     try {
       const resp = await login(newData.Name, newData.Password);
-      localStorage.setItem('sessionToken', resp?.token);
-      toast.success({ title: "Success", description: "Logged in successfully", duration: 10000 });
-      location.reload()
+      localStorage.setItem("sessionToken", resp?.token);
+      toast.success({
+        title: "Success",
+        description: "Logged in successfully",
+        duration: 10000,
+      });
+      location.reload();
     } catch (err) {
-      toast.error({ title: "Error", description: err.message, duration: 10000 });
+      toast.error({
+        title: "Error",
+        description: err.message,
+        duration: 10000,
+      });
     }
   };
 
@@ -52,9 +60,9 @@ export async function initLogin(container) {
   Don't have an account? Register <a href='#'>here</a>.
   `;
   hint.onclick = () => {
-      document.getElementById("login-form").remove();
-      initRegister(container);
-  }
+    document.getElementById("login-form").remove();
+    initRegister(container);
+  };
   document.getElementById("login-form").appendChild(formEl);
   document.getElementById("login-form").appendChild(hint);
 }

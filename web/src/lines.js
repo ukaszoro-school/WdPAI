@@ -37,7 +37,9 @@ export async function initLines(container) {
         isMoveAvailable: false,
       };
       table.rowDropdown = { displaySettings: { isAvailable: false } };
-      table.frameComponentsStyles = { style: { hoverColors: { backgroundColor: "white" } } };
+      table.frameComponentsStyles = {
+        style: { hoverColors: { backgroundColor: "white" } },
+      };
       table.headerStyles = { hoverColors: { backgroundColor: "white" } };
       table.tableStyle = { borderRadius: "2px", width: "100%" };
 
@@ -49,10 +51,7 @@ export async function initLines(container) {
         });
       });
 
-      table.data = [
-        ["Stop ID", "Location", "Time"],
-        ...rows,
-      ];
+      table.data = [["Stop ID", "Location", "Time"], ...rows];
 
       wrapper.appendChild(table);
       containerEl.appendChild(wrapper);

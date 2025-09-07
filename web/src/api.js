@@ -1,6 +1,6 @@
 export async function getStops() {
   const token = localStorage.getItem("sessionToken");
-  const res = await fetch("/stops", { headers: { "Authorization": token } });
+  const res = await fetch("/stops", { headers: { Authorization: token } });
   if (!res.ok) throw new Error("Failed to fetch stops");
   return res.json();
 }
@@ -11,7 +11,7 @@ export async function createStop(location) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
     body: JSON.stringify({ location }),
   });
@@ -25,7 +25,7 @@ export async function removeStop(id) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
   });
   if (!res.ok) throw new Error("Failed to delete stop");
@@ -34,7 +34,7 @@ export async function removeStop(id) {
 
 export async function getRoutes() {
   const token = localStorage.getItem("sessionToken");
-  const res = await fetch("/routes", { headers: { "Authorization": token } });
+  const res = await fetch("/routes", { headers: { Authorization: token } });
   if (!res.ok) throw new Error("Failed to fetch routes");
   return res.json();
 }
@@ -45,7 +45,7 @@ export async function createRoute(route_id, time, stop_id) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
     body: JSON.stringify({ route_id: route_id, time: time, stop_id: stop_id }),
   });
@@ -59,7 +59,7 @@ export async function removeRoute(id) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
   });
   if (!res.ok) throw new Error("Failed to delete route");
@@ -68,7 +68,7 @@ export async function removeRoute(id) {
 
 export async function getLines() {
   const token = localStorage.getItem("sessionToken");
-  const res = await fetch("/lines", { headers: { "Authorization": token } });
+  const res = await fetch("/lines", { headers: { Authorization: token } });
   if (!res.ok) throw new Error("Failed to fetch lines");
   return res.json();
 }
@@ -82,7 +82,7 @@ export async function checkUser() {
   try {
     const res = await fetch("/me", {
       method: "GET",
-      headers: { "Authorization": token }
+      headers: { Authorization: token },
     });
 
     if (!res.ok) {
@@ -90,7 +90,10 @@ export async function checkUser() {
     }
 
     const data = await res.json();
-    return { logged_in: data.logged_in, user: data.logged_in ? data : undefined };
+    return {
+      logged_in: data.logged_in,
+      user: data.logged_in ? data : undefined,
+    };
   } catch (err) {
     console.error("Error checking login:", err);
     return { logged_in: false };
@@ -103,7 +106,7 @@ export async function login(username, password) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
     body: JSON.stringify({ username: username, password: password }),
   });
@@ -115,7 +118,7 @@ export async function createUser(username, password) {
   const token = localStorage.getItem("sessionToken");
   const res = await fetch("/users", {
     method: "POST",
-    headers: { "Content-Type": "application/json", },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: username, password: password }),
   });
   if (!res.ok) throw new Error("Failed to register new user");
@@ -124,7 +127,7 @@ export async function createUser(username, password) {
 
 export async function getUsers() {
   const token = localStorage.getItem("sessionToken");
-  const res = await fetch("/users", { headers: { "Authorization": token } });
+  const res = await fetch("/users", { headers: { Authorization: token } });
   if (!res.ok) throw new Error("Failed to fetch users");
   return res.json();
 }
@@ -133,7 +136,7 @@ export async function removeUser(id) {
   const token = localStorage.getItem("sessionToken");
   const res = await fetch(`/users/${id}`, {
     method: "DELETE",
-    headers: { "Authorization": token },
+    headers: { Authorization: token },
   });
   if (!res.ok) throw new Error("Failed to delete user");
   return res.json();
@@ -145,7 +148,7 @@ export async function assignRole(userId, role) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
     body: JSON.stringify({ role }),
   });
@@ -159,7 +162,7 @@ export async function removeRole(userId, role) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
     body: JSON.stringify({ role }),
   });
@@ -170,7 +173,7 @@ export async function removeRole(userId, role) {
 export async function getUserDuties(userId) {
   const token = localStorage.getItem("sessionToken");
   const users = await getUsers();
-  const user = users.find(u => u.id === userId);
+  const user = users.find((u) => u.id === userId);
   return user?.duties ?? [];
 }
 
@@ -180,9 +183,12 @@ export async function assignDuty(userId, routeId, method = "POST") {
     method: method.toUpperCase(),
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
     body: JSON.stringify({ route_id: routeId }),
   });
-  if (!res.ok) throw new Error(`Failed to ${method === "DELETE" ? "remove" : "assign"} duty`);
+  if (!res.ok)
+    throw new Error(
+      `Failed to ${method === "DELETE" ? "remove" : "assign"} duty`,
+    );
 }

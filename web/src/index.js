@@ -6,15 +6,15 @@ import { initHome } from "./home.js";
 import { checkUser } from "./api.js";
 import "@moaqzdev/toast";
 import { toast } from "@moaqzdev/toast/utils";
-import '@shoelace-style/shoelace/dist/themes/light.css';
+import "@shoelace-style/shoelace/dist/themes/light.css";
 
 const contentEl = document.querySelector(".content");
 const links = document.querySelectorAll(".sidebar a");
 const sidebar = document.querySelector(".sidebar");
 
 document.querySelector("#logout").onclick = () => {
-  localStorage.setItem('sessionToken', null);
-  location.reload()
+  localStorage.setItem("sessionToken", null);
+  location.reload();
 };
 
 function setActive(link) {
@@ -42,7 +42,8 @@ function loadPage(hash) {
 
 function initialLoad(defaultHash) {
   const initialHash = window.location.hash || defaultHash;
-  const activeLink = [...links].find((l) => l.getAttribute("href") === initialHash) || links[0];
+  const activeLink =
+    [...links].find((l) => l.getAttribute("href") === initialHash) || links[0];
   setActive(activeLink);
   loadPage(initialHash);
 }

@@ -14,6 +14,6 @@ await build({
     crypto: "crypto-browserify",
   },
   loader: {
-    ".css": "css"
-  }
+    ".css": "css",
+  },
 }).catch(() => process.exit(1));
